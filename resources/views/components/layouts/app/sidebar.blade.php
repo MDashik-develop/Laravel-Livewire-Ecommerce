@@ -25,7 +25,7 @@
                                         wire:navigate>{{ __('All Subcategories') }}</flux:navlist.item>
                 </flux:navlist.group>
                  <flux:navlist.group expandable :expanded="request()->routeIs('backend.brands.*')" heading="Brands" class="lg:grid">
-                    <flux:navlist.item icon="square-3-stack-3d" :href="route('backend.brands.index')" :current="request()->routeIs('backend.brands.index')"
+                    <flux:navlist.item icon="squares-2x2" :href="route('backend.brands.index')" :current="request()->routeIs('backend.brands.index')"
                                         wire:navigate>{{__('All Brands') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
