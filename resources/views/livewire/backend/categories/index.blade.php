@@ -16,15 +16,16 @@
     </div>
 
     <!-- Search and Table Section -->
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-zinc-700 shadow-md rounded-lg overflow-hidden">
         <div class="p-4">
-            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search categories by name..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search categories by name..."
+                   class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
         </div>
         
         <!-- Table -->
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
+                <thead class="bg-gray-50 dark:bg-zinc-600">
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
@@ -35,15 +36,15 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                     @forelse ($categories as $category)
                         <tr wire:key="{{ $category->id }}"
-                            class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b">
+                            class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <img src="{{ $category->image_path ? asset('storage/' . $category->image_path) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}" alt="{{ $category->name }}" class="h-10 w-10 rounded-md object-cover">
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $category->name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $category->slug }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $category->name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $category->slug }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
                                 @if ($category->status)
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
@@ -84,7 +85,7 @@
             </div>
 
             <flux:input wire:model.live="name" label="Name" placeholder="e.g. Electronics" />
-            <flux:input wire:model="slug" label="Slug" placeholder="e.g. electronics" class="bg-gray-50" />
+            <flux:input wire:model="slug" label="Slug" placeholder="e.g. electronics" />
             
             <div>
                 <label class="block text-sm font-medium text-gray-700">Image</label>

@@ -14,7 +14,8 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-                    <flux:navlist.item icon="queue-list" :href="route('backend.categories.index')" :current="request()->routeIs('backend.categories.index')" wire:navigate>{{ __('Cagegories') }}</flux:navlist.item>
+                    <flux:navlist.item icon="queue-list" :href="route('backend.categories.index')" :current="request()->routeIs('backend.categories.index')" wire:navigate>{{ __('Categories') }}</flux:navlist.item>
+                    <flux:navlist.item icon="key" :href="route('backend.permissions.index')" :current="request()->routeIs('backend.permissions.index')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
@@ -126,20 +127,7 @@
             </flux:dropdown>
         </flux:header>
         
-        <!-- Toast Flux -->
-        <flux:modal name="toast-modal" class="md:w-96">
-            <div class="space-y-6 text-center">
-                @if(!empty($toast))
-                    <flux:heading size="lg">{{ $toast['title'] }}</flux:heading>
-                    <flux:text class="mt-2">{{ $toast['message'] }}</flux:text>
-                @endif
-                <div class="flex justify-center">
-                    <flux:modal.close>
-                        <flux:button variant="primary">Okay</flux:button>
-                    </flux:modal.close>
-                </div>
-            </div>
-        </flux:modal>
+        
 
         {{ $slot }}
 
