@@ -14,5 +14,9 @@ class Category extends Model
         'image_path'
     ];
 
-    
+    public function subCategories()
+    {
+        return $this->hasMany(SubCategory::class);
+    }
+
 }

@@ -40,7 +40,7 @@ class Index extends Component
                 Rule::unique('categories')->ignore($this->categoryId),
             ],
             'status' => 'required|boolean',
-            'image' => 'required|image|max:3072', // 3MB Max
+            'image' => $this->categoryId ? 'nullable|image|max:3072' : 'required|image|max:3072',
         ];
     }
     
@@ -73,61 +73,76 @@ class Index extends Component
     {
         $validatedData = $this->validate();
 
-        // Handle file upload
-            if ($this->image) {
-                // Delete old image if it exists
-                if ($this->categoryId && $this->image_path) {
-                    Storage::disk('public')->delete($this->image_path);
-                }
-
-                // Generate custom filename
-                $extension = $this->image->getClientOriginalExtension(); // real extension
-                $randomString = substr(md5(uniqid()), 0, 3); // random 6 characters
-                $time = time(); // current timestamp
-                $customName = "ctgry-{$this->categoryId}-{$time}-{$randomString}.{$extension}";
-
-                // Store image in 'categories' folder with custom name
-                $validatedData['image_path'] = $this->image->storeAs('categories', $customName, 'public');
-            } else {
-                // Keep existing image if no new one is uploaded
-                $validatedData['image_path'] = $this->image_path;
-            }
-
-
         if ($this->categoryId) {
             // Update existing category
             $category = Category::findOrFail($this->categoryId);
+
+            // Handle image upload
+            if ($this->image) {
+                if ($category->image_path) {
+                    Storage::disk('public')->delete($category->image_path);
+                }
+
+                $extension = $this->image->getClientOriginalExtension();
+                $randomString = substr(md5(uniqid()), 0, 3);
+                $time = time();
+                $customName = "ctgry-{$category->id}-{$time}-{$randomString}.{$extension}";
+
+                $validatedData['image_path'] = $this->image->storeAs('categories', $customName, 'public');
+            } else {
+                $validatedData['image_path'] = $category->image_path;
+            }
+
             $category->update($validatedData);
-            // session()->flash('success', 'Category updated successfully.');
-            $this->toast = [
+
+            $this->dispatch('show-toast', [
                 'title' => 'Success 🎉',
                 'message' => 'Category updated successfully!',
                 'type' => 'success'
-            ];
-            Flux::modal('toast-modal')->show();
+            ]);
+
         } else {
-            // Create new category
-            Category::create($validatedData);
-            // session()->flash('success', 'Category created successfully.');
-            $this->toast = [
+            // Create new category WITHOUT image first to get ID
+            $category = Category::create([
+                'name' => $validatedData['name'],
+                'slug' => $validatedData['slug'],
+                'status' => $validatedData['status'],
+                'image_path' => 'temp.jpg',
+            ]);
+
+            // Handle image upload now
+            if ($this->image) {
+                $extension = $this->image->getClientOriginalExtension();
+                $randomString = substr(md5(uniqid()), 0, 3);
+                $time = time();
+                $customName = "ctgry-{$category->id}-{$time}-{$randomString}.{$extension}";
+
+                $imagePath = $this->image->storeAs('categories', $customName, 'public');
+                $category->update(['image_path' => $imagePath]);
+            }
+
+            $this->categoryId = $category->id; // optional, modal/dispatch জন্য
+
+            $this->dispatch('show-toast', [
                 'title' => 'Success 🎉',
                 'message' => 'Category created successfully!',
                 'type' => 'success'
-            ];
-            Flux::modal('toast-modal')->show();
+            ]);
         }
 
+        // Close modal and reset form
         $this->dispatch('close-modal', name: 'category-modal');
         Flux::modal('category-modal')->close();
         $this->resetForm();
-        $this->resetPage(); 
+        $this->resetPage();
     }
+
     
     // Method to open delete confirmation modal
     public function confirmDelete($id)
     {
         $this->categoryId = $id;
-        $this->dispatch('open-modal', name: 'delete-modal');
+        // $this->dispatch('open-modal', name: 'delete-modal');
     }
 
     // Method to delete a category
@@ -146,17 +161,14 @@ class Index extends Component
         
         $category->delete();
         
-        // $this->dispatch('close-modal', name: 'delete-modal');
         Flux::modal('delete-modal')->close();
         $this->resetForm();
         
-        // session()->flash('success', 'Category deleted successfully.');
-        $this->toast = [
-                'title' => 'Success 🎉',
-                'message' => 'Category deleted successfully!',
-                'type' => 'success'
-        ];
-        Flux::modal('toast-modal')->show();
+        $this->dispatch('show-toast', [
+            'title' => 'Success 🎉',
+            'message' => 'Category deleted successfully!',
+            'type' => 'success'
+        ]);
     }
 
     // Reset form fields

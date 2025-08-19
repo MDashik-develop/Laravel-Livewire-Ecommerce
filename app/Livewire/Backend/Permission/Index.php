@@ -144,7 +144,6 @@ class Index extends Component
                 'type' => 'success'
             ]);
             Flux::modal('delete-role-modal')->close();
-            // Flux::modal('toast-modal')->show();
 
         }
         $this->reset('roleIdToDelete');
