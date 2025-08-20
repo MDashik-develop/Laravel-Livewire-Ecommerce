@@ -4,7 +4,7 @@ use App\Livewire\Backend\Brands\Index as BrandsIndex;
 use App\Livewire\Backend\Categories\Index as CategoriesIndex;
 use App\Livewire\Backend\Permission\Index as PermissionIndex;
 use App\Livewire\Backend\SubCategories\Index as SubCategoriesIndex;
-use App\Livewire\Backend\Vendors\Index as VendorsIndex;
+use App\Livewire\Backend\Stores\Index as VendorsIndex;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
