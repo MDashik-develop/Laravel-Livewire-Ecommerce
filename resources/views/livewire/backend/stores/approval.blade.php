@@ -55,7 +55,7 @@
                                 </td>
                                 <td class="px-6 py-4 flex gap-2 justify-center">
                                     <flux:modal.trigger name="approve-modal">
-                                        <flux:button wire:click="confirmApprove({{ $store->id }})" icon="check" variant="primary" />
+                                        <flux:button wire:click="confirmApprove({{ $store->id }})" icon="check" variant="primary" color="green"/>
                                     </flux:modal.trigger>
 
                                     <flux:modal.trigger name="delete-modal">
@@ -83,7 +83,7 @@
                 <flux:modal.close>
                     <flux:button variant="ghost">Cancel</flux:button>
                 </flux:modal.close>
-                <flux:button wire:click="approve" variant="primary">Approve</flux:button>
+                <flux:button wire:click="approve" variant="primary" color="green">Approve</flux:button>
             </div>
         </flux:modal>
 

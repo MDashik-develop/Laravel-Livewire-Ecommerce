@@ -10,6 +10,9 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Flux\Flux;
+// use Livewire\Attributes\Layout;
+
+// #[Layout('components.layouts.frontend')]
 
 class Index extends Component
 {
@@ -169,4 +172,6 @@ class Index extends Component
             'brands' => $brands
         ]);
     }
+
+    
 }
