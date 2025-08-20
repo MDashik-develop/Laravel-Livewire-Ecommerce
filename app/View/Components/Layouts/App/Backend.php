@@ -9,20 +9,10 @@ use Illuminate\View\Component;
 
 class Backend extends Component
 {
-    public string $title;
 
-
-    /**
-     * Create a new component instance.
-     */
-    public function __construct(string $title = 'Dashboard')
+    public function __construct()
     {
-
-        // title dynamic করতে পারবো
-        $this->title = $title;
-        
     }
-
     /**
      * Get the view / contents that represent the component.
      */
