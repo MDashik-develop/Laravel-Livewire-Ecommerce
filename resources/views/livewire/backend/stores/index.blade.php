@@ -32,39 +32,41 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                     <thead class="bg-gray-50 dark:bg-zinc-600">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Logo</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Owner ID</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Approved</th>
                             <th class="px-6 py-3 relative">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                         @forelse($stores as $store)
-                            <tr wire:key="{{ $store->id }}" class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                            <tr wire:key="{{ $store->id }}" class=" hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
+                                <td class="px-6 py-4 whitespace-nowrap flex justify-center">
                                     <img src="{{ $store->logo ? asset('storage/' . $store->logo) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Logo' }}" class="h-10 w-10 rounded-md object-cover">
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $store->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $store->slug }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $store->user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900 dark:text-gray-100">{{ $store->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">{{ $store->slug }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">{{ $store->user->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">{{ $store->user->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                     @if ($store->status)
                                         <flux:badge color="green">Active</flux:badge>
                                     @else
                                         <flux:badge color="red">Inactive</flux:badge>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <td class="px-6 py-4 text-center whitespace-nowrap text-sm">
                                     @if ($store->is_approved)
                                         <flux:badge color="green">Yes</flux:badge>
                                     @else
                                         <flux:badge color="red">No</flux:badge>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 flex items-center justify-end gap-2 text-sm font-medium">
+                                <td class="px-6 py-4 flex items-center justify-center gap-2 text-sm font-medium">
                                     <flux:button wire:click="edit({{ $store->id }})" icon="pencil-square"></flux:button>
                                     <flux:modal.trigger name="delete-modal">
                                         <flux:button wire:click="confirmDelete({{ $store->id }})" icon="trash" variant="danger"></flux:button>
@@ -87,7 +89,7 @@
         </div>
 
         <!-- Create/Edit Modal -->
-        <flux:modal name="store-modal" class="md:w-[32rem]">
+        <flux:modal name="store-modal" class="md:max-w-7xl md:min-w-3xl ">
             <form wire:submit.prevent="save" class="space-y-6">
                 <div>
                     <flux:heading size="lg">{{ $storeId ? 'Edit Store' : 'Create Store' }}</flux:heading>
@@ -105,7 +107,28 @@
                 <flux:input wire:model="slug" label="Slug" placeholder="e.g. mobile-hub" />
                 <flux:input wire:model="phone" label="Phone" placeholder="e.g. 0123456789" />
                 <flux:input wire:model="address" label="Address" placeholder="e.g. Dhaka, Bangladesh" />
-                <flux:textarea wire:model="description" label="Description" placeholder="Store description" />
+                <!-- <flux:textarea wire:model="description" id="summernote" label="Description" placeholder="Store description" /> -->
+                <flux:field>
+                    <div x-data x-init="
+                            const summernote = $($refs.editor).summernote({
+                                height: 300,
+                                callbacks: {
+                                    onChange: (description) => $wire.description = description
+                                }
+                            });
+
+                            $watch('$wire.description', value => {
+                                if (value !== $($refs.editor).summernote('code')) {
+                                    $($refs.editor).summernote('code', value);
+                                }
+                            });
+                        ">
+                        <div wire:ignore>
+                            <textarea x-ref="editor">{!! $description !!}</textarea>
+                        </div>
+                    </div>
+                    <flux:error name="description" />
+                </flux:field>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Logo</label>

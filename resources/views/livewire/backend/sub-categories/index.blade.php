@@ -33,31 +33,31 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                     <thead class="bg-gray-50 dark:bg-zinc-600">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 relative">Actions</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                         @forelse($subCategories as $sub)
-                            <tr wire:key="{{ $sub->id }}" class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                            <tr wire:key="{{ $sub->id }}" class="text-center hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
+                                <td class="px-6 py-4 whitespace-nowrap flex justify-center">
                                     <img src="{{ $sub->image_path ? asset('storage/' . $sub->image_path) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}" class="h-10 w-10 rounded-md object-cover">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $sub->name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $sub->slug }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $sub->category->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                     @if ($sub->status)
                                         <flux:badge color="green">Active</flux:badge>
                                     @else
                                         <flux:badge color="red">Inactive</flux:badge>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 flex items-center justify-end gap-2 text-sm font-medium">
+                                <td class="px-6 py-4 flex items-center justify-center gap-2 text-sm font-medium">
                                     <flux:button wire:click="edit({{ $sub->id }})" icon="pencil-square"></flux:button>
                                     <flux:modal.trigger name="delete-modal">
                                         <flux:button wire:click="confirmDelete({{ $sub->id }})" icon="trash" variant="danger"></flux:button>

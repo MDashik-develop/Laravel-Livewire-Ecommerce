@@ -27,17 +27,17 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                     <thead class="bg-gray-50 dark:bg-zinc-600">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium">Image</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium">Name</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium">Slug</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium">Status</th>
-                            <th class="px-6 py-3 relative"><span class="sr-only">Actions</span></th>
+                            <th class="px-6 py-3 text-center text-xs font-medium">Image</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium">Name</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium">Slug</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium">Status</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                         @forelse ($brands as $brand)
-                            <tr wire:key="{{ $brand->id }}" class="hover:bg-gray-50 hover:bg-opacity-50 dark:hover:bg-zinc-500">
-                                <td class="px-6 py-4">
+                            <tr wire:key="{{ $brand->id }}" class="text-center hover:bg-gray-50 hover:bg-opacity-50 dark:hover:bg-zinc-500">
+                                <td class="px-6 py-4 flex justify-center">
                                     @if ($brand->image_path)
                                         <img src="{{ asset('storage/'.$brand->image_path) }}" class="w-12 h-12 object-cover rounded-md">
                                     @else
@@ -46,14 +46,14 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $brand->name }}</td>
                                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{{ $brand->slug }}</td>
-                                <td class="px-6 py-4 text-sm">
+                                <td class="px-6 py-4 text-sm text-center">
                                     @if ($brand->status)
                                         <flux:badge color="green">Active</flux:badge>
                                     @else
                                         <flux:badge color="red">Inactive</flux:badge>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 flex justify-end gap-2">
+                                <td class="px-6 py-4 flex justify-center gap-2">
                                     <flux:button wire:click="edit({{ $brand->id }})" icon="pencil-square"></flux:button>
                                     <flux:modal.trigger name="delete-modal">
                                         <flux:button wire:click="confirmDelete({{ $brand->id }})" icon="trash" variant="danger"></flux:button>

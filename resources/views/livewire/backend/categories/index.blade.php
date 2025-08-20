@@ -31,32 +31,30 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                     <thead class="bg-gray-50 dark:bg-zinc-600">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th scope="col" class="relative px-6 py-3">
-                                <span class="sr-only">Actions</span>
-                            </th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                         @forelse ($categories as $category)
                             <tr wire:key="{{ $category->id }}"
-                                class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                class="text-center hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
+                                <td class="px-6 py-4 whitespace-nowrap flex justify-between">
                                     <img src="{{ $category->image_path ? asset('storage/' . $category->image_path) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}" alt="{{ $category->name }}" class="h-10 w-10 rounded-md object-cover">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ $category->name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{{ $category->slug }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                     @if ($category->status)
                                         <flux:badge color="green">Active</flux:badge>
                                     @else
                                         <flux:badge color="red">Inactive</flux:badge>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 flex items-center justify-end gap-2 text-sm  font-medium">
+                                <td class="px-6 py-4 flex items-center justify-center gap-2 text-sm  font-medium">
                                     <flux:button wire:click="edit({{ $category->id }})"
                                                 icon="pencil-square">
                                     </flux:button>
