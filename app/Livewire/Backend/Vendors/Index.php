@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Backend\Vendors;
 
+use Flux\Flux;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -74,7 +75,7 @@ class Index extends Component
                 $validatedData,
                 [
                     'logo' => 'temp.png',
-                    'user_id' => $userId // 👈 Assign logged-in user
+                    'user_id' => $userId 
                 ]
             ));
 
@@ -109,7 +110,8 @@ class Index extends Component
         $this->status = $store->status;
         $this->logo_path = $store->logo;
 
-        $this->dispatch('open-modal', name:'vendor-modal');
+        // $this->dispatch('open-modal', name:'vendor-modal');
+        Flux::modal('vendor-modal')->show();
     }
 
     public function delete(Store $store)

@@ -17,16 +17,23 @@
                     <flux:navlist.item icon="key" :href="route('backend.permissions.index')" :current="request()->routeIs('backend.permissions.index')" wire:navigate>{{ __('Permissions') }}</flux:navlist.item>
                     <!-- <flux:navlist.item icon="queue-list" :href="route('backend.categories.index')" :current="request()->routeIs('backend.categories.index')" wire:navigate>{{ __('Categories') }}</flux:navlist.item> -->
                 </flux:navlist.group>
-                <flux:navlist.group expandable :expanded="request()->routeIs('backend.categories.*')" heading="Categories" class="lg:grid">
+
+                <flux:navlist.group expandable :expanded="request()->routeIs(['backend.categories.*', 'backend.subcategories.*'])" heading="Categories" class="lg:grid">
                     <flux:navlist.item icon="square-3-stack-3d" :href="route('backend.categories.index')" :current="request()->routeIs('backend.categories.index')"
                                         wire:navigate>{{__('All Categories') }}</flux:navlist.item>
                     <flux:navlist.item icon="table-cells" :href="route('backend.subcategories.index')"
                                         :current="request()->routeIs('backend.subcategories.index')"
                                         wire:navigate>{{ __('All Subcategories') }}</flux:navlist.item>
                 </flux:navlist.group>
+
                  <flux:navlist.group expandable :expanded="request()->routeIs('backend.brands.*')" heading="Brands" class="lg:grid">
                     <flux:navlist.item icon="squares-2x2" :href="route('backend.brands.index')" :current="request()->routeIs('backend.brands.index')"
                                         wire:navigate>{{__('All Brands') }}</flux:navlist.item>
+                </flux:navlist.group>
+
+                 <flux:navlist.group expandable :expanded="request()->routeIs('backend.vendors.*')" heading="Vendors" class="lg:grid">
+                    <flux:navlist.item icon="squares-2x2" :href="route('backend.vendors.index')" :current="request()->routeIs('backend.vendors.index')"
+                                        wire:navigate>{{__('All Vendors') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

@@ -81,7 +81,7 @@
         <flux:modal name="vendor-modal" class="md:w-[32rem]">
             <form wire:submit.prevent="save" class="space-y-6">
                 <div>
-                    <flux:heading size="lg">{{ $vendorId ? 'Edit Vendor' : 'Create Vendor' }}</flux:heading>
+                    <flux:heading size="lg">{{ $storeId ? 'Edit Vendor' : 'Create Vendor' }}</flux:heading>
                     <flux:text class="mt-2">Fill in the details for the vendor.</flux:text>
                 </div>
 
