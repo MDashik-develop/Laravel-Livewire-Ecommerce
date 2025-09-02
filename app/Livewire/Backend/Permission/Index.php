@@ -14,20 +14,48 @@ class Index extends Component
     //Toast flux massage
     public array $toast = [];
 
-    public $users, $roles, $permissions, $selectedUserId, $newRoleName, $newPermissionName, $editingRoleId, $roleIdToDelete;
+    public $users, $roles, $permissions, $groupPermissions, $selectedUserId, $newRoleName, $newPermissionName, $editingRoleId, $roleIdToDelete;
     public array $userRoles = [];
     public array $newRolePermissions = [];
+    public string $selectedGroup = '';
+    public string $newGroupName = '';
+    public array $existingGroups = [];
 
     public function mount()
     {
         $this->loadData();
+        $this->existingGroups = Permission::select('group')
+            ->distinct()
+            ->pluck('group')
+            ->filter()
+            ->toArray();
     }
 
     protected function loadData()
     {
         $this->users = User::select('id', 'name', 'email')->get();
         $this->roles = Role::with('permissions')->orderBy('name')->get();
-        $this->permissions = Permission::orderBy('name')->get();
+       
+        $this->groupPermissions = Permission::all()
+                                    ->groupBy('group')
+                                    ->map(function ($permissions) {
+                                        return $permissions->map(function ($perm) {
+                                            return [
+                                                    // 'id'   => $perm->id,
+                                                    // 'full_name' => $perm->name, // DB er jonno
+                                                    // 'short_name' => last(explode('.', $perm->name)), // UI er jonno
+
+                                                    
+                                                    'id' => $perm->id,
+                                                    'full_name' => $perm->name, // DB value
+                                                    'short_name' => str_contains($perm->name, '.') ? last(explode('.', $perm->name)) : $perm->name,
+                                                    'group' => $group ?? 'Ungrouped',
+
+                                            ];
+                                        });
+                                    })
+                                    ->toArray();
+
     }
 
     public function updatedSelectedUserId($userId)
@@ -110,28 +138,66 @@ class Index extends Component
 
     public function createPermission()
     {
-        $this->validate(['newPermissionName' => 'required|string|unique:permissions,name']);
-        Permission::create(['name' => $this->newPermissionName]);
-        $this->reset('newPermissionName');
+        $this->validate([
+            'newPermissionName' => 'required|string|unique:permissions,name',
+            'selectedGroup' => 'required',
+        ]);
+
+        $group = $this->selectedGroup === '__new'
+            ? $this->newGroupName
+            : $this->selectedGroup;
+
+        if ($this->selectedGroup === '__new') {
+            $this->validate([
+                'newGroupName' => 'required|string|max:50',
+            ]);
+        }
+
+        Permission::create([
+            'name' => $group . '.' . $this->newPermissionName, // e.g. category.edit,
+            'group' => $group,
+        ]);
+
+        $this->reset(['newPermissionName', 'selectedGroup', 'newGroupName']);
+        $this->existingGroups = Permission::select('group')
+            ->distinct()
+            ->pluck('group')
+            ->filter()
+            ->toArray();
+            
         $this->loadData();
+        
         $this->dispatch('show-toast', [
             'title' => 'Success 🎉',
             'message' => 'New permission created successfully!',
             'type' => 'success'
         ]);
     }
+    
+    // public function toggleGroupPermissions($group)
+    // {
+    //     if (!isset($this->groupPermissions[$group])) return;
 
-    /**
-     * Sets the role ID to be deleted. This is called when the trigger is clicked.
-     */
+    //     $groupPerms = collect($this->groupPermissions[$group])->pluck('full_name')->toArray();
+
+    //     $allSelected = collect($groupPerms)->every(fn($perm) => in_array($perm, $this->newRolePermissions));
+
+    //     if ($allSelected) {
+    //         // Deselect all
+    //         $this->newRolePermissions = array_values(array_diff($this->newRolePermissions, $groupPerms));
+    //     } else {
+    //         // Select all
+    //         $this->newRolePermissions = array_unique(array_merge($this->newRolePermissions, $groupPerms));
+    //     }
+
+    //     // $this->emitSelf('updatedNewRolePermissions'); <-- Remove this line
+    // }
+
     public function setRoleIdToDelete($roleId)
     {
         $this->roleIdToDelete = $roleId;
     }
 
-    /**
-     * Deletes the role. This is called from the modal's confirmation button.
-     */
     public function deleteRole()
     {
         if ($this->roleIdToDelete) {
@@ -148,6 +214,7 @@ class Index extends Component
         }
         $this->reset('roleIdToDelete');
     }
+    
 
     public function render()
     {
