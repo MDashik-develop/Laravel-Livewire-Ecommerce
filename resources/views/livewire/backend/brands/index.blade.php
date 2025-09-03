@@ -8,12 +8,14 @@
                 <flux:breadcrumbs.item>Brands</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:modal.trigger name="brand-modal" @click="$wire.resetForm()">
-                <flux:button>
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                    Create Brand
-                </flux:button>
-            </flux:modal.trigger>
+            @can ('brand.create')
+                <flux:modal.trigger name="brand-modal" @click="$wire.resetForm()">
+                    <flux:button>
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Create Brand
+                    </flux:button>
+                </flux:modal.trigger>
+            @endcan
         </div>
 
         <!-- Search & Table -->
@@ -54,10 +56,14 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 flex justify-center gap-2">
-                                    <flux:button wire:click="edit({{ $brand->id }})" icon="pencil-square"></flux:button>
-                                    <flux:modal.trigger name="delete-modal">
-                                        <flux:button wire:click="confirmDelete({{ $brand->id }})" icon="trash" variant="danger"></flux:button>
-                                    </flux:modal.trigger>
+                                    @can ('brand.edit') 
+                                        <flux:button wire:click="edit({{ $brand->id }})" icon="pencil-square"></flux:button>
+                                    @endcan
+                                    @can ('brand.delete')
+                                        <flux:modal.trigger name="delete-modal">
+                                            <flux:button wire:click="confirmDelete({{ $brand->id }})" icon="trash" variant="danger"></flux:button>
+                                        </flux:modal.trigger>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
