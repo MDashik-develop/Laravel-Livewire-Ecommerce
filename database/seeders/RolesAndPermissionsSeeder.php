@@ -15,11 +15,22 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         // create permissions
-        Permission::create(['name' => 'category.view', 'group' => 'category']);
-        Permission::create(['name' => 'category.create', 'group' => 'category']);
-        Permission::create(['name' => 'category.edit', 'group' => 'category']);
-        Permission::create(['name' => 'category.delete', 'group' => 'category']);
-        
+            // Category
+                Permission::create(['name' => 'category.view', 'group' => 'category']);
+                Permission::create(['name' => 'category.create', 'group' => 'category']);
+                Permission::create(['name' => 'category.edit', 'group' => 'category']);
+                Permission::create(['name' => 'category.delete', 'group' => 'category']);
+            // SubCategory
+                Permission::create(['name' => 'subcategory.view', 'group' => 'subcategory']);
+                Permission::create(['name' => 'subcategory.create', 'group' => 'subcategory']);
+                Permission::create(['name' => 'subcategory.edit', 'group' => 'subcategory']);
+                Permission::create(['name' => 'subcategory.delete', 'group' => 'subcategory']);
+            // Brand
+                Permission::create(['name' => 'brand.view', 'group' => 'brand']);
+                Permission::create(['name' => 'brand.create', 'group' => 'brand']);
+                Permission::create(['name' => 'brand.edit', 'group' => 'brand']);
+                Permission::create(['name' => 'brand.delete', 'group' => 'brand']);
+                
 
         // update cache to know about the newly created permissions (required if using WithoutModelEvents in seeders)
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
