@@ -17,16 +17,22 @@ class SidebarNavItems extends Component
     public int $totalSubCategory;
     public int $totalBrands;
 
-    public function mount()
-    {
-        $this->totalStore = Store::count();
-        $this->totalStoreAproval = Store::where('is_approved', false)->count();
-        $this->totalCategory = Category::count();
-        $this->totalSubCategory = SubCategory::count();
-        $this->totalBrands = Brand::count();
-    }
+    // public function mount()
+    // {
+    //     $this->totalStore = Store::count();
+    //     $this->totalStoreAproval = Store::where('is_approved', false)->count();
+    //     $this->totalCategory = Category::count();
+    //     $this->totalSubCategory = SubCategory::count();
+    //     $this->totalBrands = Brand::count();
+    // }
     public function render()
     {
+            $this->totalStore = Store::count();
+            $this->totalStoreAproval = Store::where('is_approved', false)->count();
+            $this->totalCategory = Category::count();
+            $this->totalSubCategory = SubCategory::count();
+            $this->totalBrands = Brand::count();
+            
         return view('livewire.layouts.backend.sidebar-nav-items');
     }
 }

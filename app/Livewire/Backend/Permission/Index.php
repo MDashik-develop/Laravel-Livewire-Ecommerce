@@ -154,7 +154,7 @@ class Index extends Component
         }
 
         Permission::create([
-            'name' => $group . '.' . $this->newPermissionName, // e.g. category.edit,
+            'name' => strtolower($group . '.' . $this->newPermissionName), // e.g. category.edit,
             'group' => $group,
         ]);
 

@@ -71,7 +71,7 @@
 
 
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 my-4">
 
             <!-- Column 1: Assign Roles to User -->
             <div class="lg:col-span-1 bg-gray-50 dark:bg-zinc-700 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-600"
@@ -114,7 +114,7 @@
                     </div>
                     <div class="mt-6">
                         <flux:button wire:click="assignRolesToUser" variant="primary" icon="pencil-square" class="w-full">
-                            Create Roles
+                            Assign Roles
                         </flux:button>
                     </div>
                 @endif
@@ -124,15 +124,14 @@
             <div class="lg:col-span-2">
 
                 <!-- Existing Roles & Permissions Table -->
-                <div
-                    class="bg-gray-50 dark:bg-zinc-700 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-600">
+                <div class="bg-gray-50 dark:bg-zinc-700 min-h-full rounded-xl overflow-auto shadow-sm border border-gray-200 dark:border-zinc-600">
                     <div class="p-6">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Existing Roles &
                             Permissions</h2>
                         <p class="text-sm text-gray-500 dark:text-gray-400">View all roles and their assigned
                             permissions.</p>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto rounded-xl">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-600">
                             <thead class="bg-gray-100 dark:bg-zinc-800">
                                 <tr>
@@ -244,7 +243,7 @@
                                             <!-- Card Header -->
                                             <div class="p-4 border-b border-slate-200 dark:border-zin-500 flex items-center justify-between ">
                                                 <flux:legend class="font-semibold text-base text-slate-800 dark:text-slate-200">
-                                                    {{ $group ?? 'Ungrouped' }}
+                                                    {{ ucfirst($group) ?? 'Ungrouped' }} 
                                                 </flux:legend>
                                                 <flux:checkbox.all label="Select All" />
                                             </div>

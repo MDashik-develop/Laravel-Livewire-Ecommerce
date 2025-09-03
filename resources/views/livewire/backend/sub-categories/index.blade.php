@@ -11,14 +11,16 @@
                 <flux:breadcrumbs.item>SubCategories</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:modal.trigger name="sub-category-modal" @click="$wire.resetForm()">
-                <flux:button>
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Create SubCategory
-                </flux:button>
-            </flux:modal.trigger>
+            @can ('subcategory.create')
+                <flux:modal.trigger name="sub-category-modal" @click="$wire.resetForm()">
+                    <flux:button>
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create SubCategory
+                    </flux:button>
+                </flux:modal.trigger>
+            @endcan
         </div>
 
         <!-- Search and Table Section -->
@@ -58,10 +60,14 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 flex items-center justify-center gap-2 text-sm font-medium">
-                                    <flux:button wire:click="edit({{ $sub->id }})" icon="pencil-square"></flux:button>
-                                    <flux:modal.trigger name="delete-modal">
-                                        <flux:button wire:click="confirmDelete({{ $sub->id }})" icon="trash" variant="danger"></flux:button>
-                                    </flux:modal.trigger>
+                                    @can ('subcategory.edit')
+                                        <flux:button wire:click="edit({{ $sub->id }})" icon="pencil-square"></flux:button>
+                                    @endcan
+                                    @can ('subcategory.delete')
+                                        <flux:modal.trigger name="delete-modal">
+                                            <flux:button wire:click="confirmDelete({{ $sub->id }})" icon="trash" variant="danger"></flux:button>
+                                        </flux:modal.trigger>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
