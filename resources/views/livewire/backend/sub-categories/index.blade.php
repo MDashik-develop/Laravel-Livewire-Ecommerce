@@ -24,7 +24,7 @@
         </div>
 
         <!-- Search and Table Section -->
-        <div class="bg-white dark:bg-zinc-700 shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 shadow-md rounded-lg overflow-hidden">
             <div class="p-4">
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search subcategories by name..."
                     class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">

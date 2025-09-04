@@ -192,8 +192,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-1 gap-8">
             <!-- Create Or Edit Role Form -->
-            <div
-                class="bg-gray-50 dark:bg-zinc-700 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-600">
+            <div class="bg-gray-50 dark:bg-zinc-700 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-600">
                 @if($editingRoleId)
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Edit Role</h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Modify the role name and its permissions.</p>

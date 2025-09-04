@@ -30,6 +30,13 @@ class RolesAndPermissionsSeeder extends Seeder
                 Permission::create(['name' => 'brand.create', 'group' => 'brand']);
                 Permission::create(['name' => 'brand.edit', 'group' => 'brand']);
                 Permission::create(['name' => 'brand.delete', 'group' => 'brand']);
+            // Store
+                Permission::create(['name' => 'store.view', 'group' => 'store']);
+                Permission::create(['name' => 'store.create', 'group' => 'store']);
+                Permission::create(['name' => 'store.edit', 'group' => 'store']);
+                Permission::create(['name' => 'store.delete', 'group' => 'store']);
+                Permission::create(['name' => 'store.approval', 'group' => 'store']);
+                Permission::create(['name' => 'store.status', 'group' => 'store']);
                 
 
         // update cache to know about the newly created permissions (required if using WithoutModelEvents in seeders)

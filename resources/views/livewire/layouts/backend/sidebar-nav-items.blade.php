@@ -11,7 +11,7 @@
     @canany (['category.view', 'subcategory.view']) 
         <flux:navlist.group expandable :expanded="request()->routeIs(['backend.categories.*', 'backend.subcategories.*'])"
             heading="{{ auth()->user()->can('category.view') ? __('Categories') : __('Subcategories') }}"
-                    class="lg:grid">
+            class="lg:grid">
             @can ('category.view')
                 <flux:navlist.item icon="square-3-stack-3d" badge="{{ $totalCategory }}" :href="route('backend.categories.index')"
                     :current="request()->routeIs('backend.categories.index')" wire:navigate>{{__('All Categories') }}
@@ -33,12 +33,20 @@
         </flux:navlist.group>
     @endcan
 
-    <flux:navlist.group expandable :expanded="request()->routeIs('backend.stores.*')" heading="Stores" class="lg:grid">
-        <flux:navlist.item icon="building-storefront" badge="{{ $totalStore }}" :href="route('backend.stores.index')"
-            :current="request()->routeIs('backend.stores.index')" wire:navigate>{{__('All Stores') }}
-        </flux:navlist.item>
-        <flux:navlist.item icon="check-badge" badge="{{ $totalStoreAproval }}" :href="route('backend.stores.approval')"
-            :current="request()->routeIs('backend.stores.approval')" wire:navigate>{{__('Stores Approval') }}
-        </flux:navlist.item>
-    </flux:navlist.group>
+    @canany (['store.view', 'store.approval']) 
+        <flux:navlist.group expandable :expanded="request()->routeIs('backend.stores.*')"
+            heading="{{ auth()->user()->can('store.view') ? __('Stores') : __('Stores Approval') }}"
+            class="lg:grid">
+            @can ('store.view')
+                <flux:navlist.item icon="building-storefront" badge="{{ $totalStore }}" :href="route('backend.stores.index')"
+                    :current="request()->routeIs('backend.stores.index')" wire:navigate>{{__('All Stores') }}
+                </flux:navlist.item>
+            @endcan
+            @can ('store.approval')
+                <flux:navlist.item icon="check-badge" badge="{{ $totalStoreAproval }}" :href="route('backend.stores.approval')"
+                    :current="request()->routeIs('backend.stores.approval')" wire:navigate>{{__('Stores Approval') }}
+                </flux:navlist.item>
+            @endcan
+        </flux:navlist.group>
+    @endcanany
 </flux:navlist>

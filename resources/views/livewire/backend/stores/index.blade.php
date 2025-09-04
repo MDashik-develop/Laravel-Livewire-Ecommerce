@@ -10,18 +10,20 @@
                 <flux:breadcrumbs.item>Stores</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:modal.trigger name="store-modal" @click="$wire.resetForm()">
-                <flux:button>
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Create Store
-                </flux:button>
-            </flux:modal.trigger>
+            @can ('store.create') 
+                <flux:modal.trigger name="store-modal" @click="$wire.resetForm()">
+                    <flux:button>
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create Store
+                    </flux:button>
+                </flux:modal.trigger>
+            @endcan
         </div>
 
         <!-- Search and Table Section -->
-        <div class="bg-white dark:bg-zinc-700 shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 shadow-md rounded-lg overflow-hidden">
             <div class="p-4">
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search stores by name..."
                     class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
@@ -67,10 +69,14 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 flex items-center justify-center gap-2 text-sm font-medium">
-                                    <flux:button wire:click="edit({{ $store->id }})" icon="pencil-square"></flux:button>
-                                    <flux:modal.trigger name="delete-modal">
-                                        <flux:button wire:click="confirmDelete({{ $store->id }})" icon="trash" variant="danger"></flux:button>
-                                    </flux:modal.trigger>
+                                    @can ('store.edit')
+                                        <flux:button wire:click="edit({{ $store->id }})" icon="pencil-square"></flux:button>
+                                    @endcan
+                                    @can ('store.delete') 
+                                        <flux:modal.trigger name="delete-modal">
+                                            <flux:button wire:click="confirmDelete({{ $store->id }})" icon="trash" variant="danger"></flux:button>
+                                        </flux:modal.trigger>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
@@ -152,17 +158,21 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <flux:field variant="inline">
-                        <flux:checkbox wire:model="status" />
-                        <flux:label>Active</flux:label>
-                        <flux:error name="status" />
-                    </flux:field>
+                    @can ('store.status')
+                        <flux:field variant="inline">
+                            <flux:checkbox wire:model="status" />
+                            <flux:label>Active</flux:label>
+                            <flux:error name="status" />
+                        </flux:field>
+                    @endcan
 
-                    <flux:field variant="inline">
-                        <flux:checkbox wire:model="is_approved" />
-                        <flux:label>Approved</flux:label>
-                        <flux:error name="is_approved" />
-                    </flux:field>
+                    @can ('store.approval')
+                        <flux:field variant="inline">
+                            <flux:checkbox wire:model="is_approved" />
+                            <flux:label>Approved</flux:label>
+                            <flux:error name="is_approved" />
+                        </flux:field>
+                    @endcan
                 </div>
 
                 <div class="flex">

@@ -12,7 +12,7 @@
         </div>
 
         <!-- Search -->
-        <div class="bg-white dark:bg-zinc-700 shadow-md rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 shadow-md rounded-lg overflow-hidden">
             <div class="p-4">
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search stores by name..."
                     class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
@@ -54,13 +54,17 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 flex gap-2 justify-center">
-                                    <flux:modal.trigger name="approve-modal">
-                                        <flux:button wire:click="confirmApprove({{ $store->id }})" icon="check" variant="primary" color="green"/>
-                                    </flux:modal.trigger>
+                                    @can ('store.approval')
+                                        <flux:modal.trigger name="approve-modal">
+                                            <flux:button wire:click="confirmApprove({{ $store->id }})" icon="check" variant="primary" color="green"/>
+                                        </flux:modal.trigger>
+                                    @endcan
 
-                                    <flux:modal.trigger name="delete-modal">
-                                        <flux:button wire:click="confirmDelete({{ $store->id }})" icon="trash" variant="danger" />
-                                    </flux:modal.trigger>
+                                    @can ('store.delete') 
+                                        <flux:modal.trigger name="delete-modal">
+                                            <flux:button wire:click="confirmDelete({{ $store->id }})" icon="trash" variant="danger" />
+                                        </flux:modal.trigger>
+                                    @endcan
                                 </td>
                             </tr>
                         @empty
