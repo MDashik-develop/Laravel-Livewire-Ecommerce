@@ -213,10 +213,12 @@
 
                         <div class=<div x-data="{ search: '' }" class="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 font-sans">
                             <!-- Header and Search -->
-                            <div class="mb-6">
-                                <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Manage Role Permissions</h2>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Select the permissions for this role from the groups
-                                    below.</p>
+                            <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <div>
+                                    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-200">Manage Role Permissions</h2>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">Select the permissions for this role from the groups
+                                        below.</p>
+                                </div>
                                 <div class="mt-4 relative">
                                     <input x-model="search" type="text" placeholder="Search permission groups..."
                                         class="w-full max-w-xs pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
