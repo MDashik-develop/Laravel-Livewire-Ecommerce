@@ -1,3 +1,5 @@
+
+
 <section>
 
     <livewire:utilities.toast-modal />
@@ -25,10 +27,28 @@
 
         <!-- Search and Table -->
         <div class="bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 shadow-md rounded-lg overflow-hidden">
-            <div class="p-4">
+            <div class="p-4 flex justify-between items-center gap-2">
                 <input wire:model.live.debounce.300ms="search" type="text"
                        placeholder="Search products by name..."
                        class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <flux:dropdown>
+                    <flux:button icon:trailing="funnel"></flux:button>
+
+                    <flux:menu>
+                        <flux:menu.submenu heading="Columns">
+                            @foreach($columns as $col)
+                                <flux:menu.checkbox 
+                                    wire:click="toggleColumn('{{ $col['key'] }}')" 
+                                    :checked="{{ in_array($col['key'], $visibleColumns) ? 'checked' : '' }}">
+                                    {{ $col['label'] }}
+                                </flux:menu.checkbox>
+                            @endforeach
+                        </flux:menu.submenu>
+
+                        <flux:menu.separator />
+                        <flux:menu.item variant="danger">Recent</flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
             </div>
 
             <!-- Table -->
@@ -36,49 +56,88 @@
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700">
                     <thead class="bg-gray-50 dark:bg-zinc-600">
                         <tr>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Thumbnail</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Store</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 relative">Actions</th>
+                            @foreach($columns as $col)
+                                @if(in_array($col['key'], $visibleColumns))
+                                    <th 
+                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center cursor-pointer"
+                                        @if(!empty($col['sortable']))
+                                            wire:click="sortBy('{{ $col['key'] }}')"
+                                        @endif
+                                    >
+                                        {{ $col['label'] }}
+                                        @if($sortField === $col['key'])
+                                            @if($sortDirection === 'asc')
+                                                <flux:icon name="chevron-up" class="inline size-3.5 ml-1" />
+                                            @else
+                                                <flux:icon name="chevron-down" class="inline size-3.5 ml-1" />
+                                            @endif
+                                        @endif
+                                    </th>
+                                @endif
+                            @endforeach
                         </tr>
                     </thead>
+
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                         @forelse($products as $product)
-                            <tr wire:key="{{ $product->id }}" class=" hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
-                                <td class="px-6 py-4 flex justify-center">
-                                    <img src="{{ $product->thumbnail_image ? asset('storage/' . $product->thumbnail_image) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}" class="h-10 w-10 rounded-md object-cover">
-                                </td>
-                                <td class="px-6 py-4 text-center">{{ $product->name }}</td>
-                                <td class="px-6 py-4 text-center">{{ $product->store->name ?? '-' }}</td>
-                                <td class="px-6 py-4 text-center">{{ $product->category->name ?? '-' }}</td>
-                                <td class="px-6 py-4 text-center">{{ $product->brand->name ?? '-' }}</td>
-                                <td class="px-6 py-4 text-center">
-                                    @if ($product->status)
-                                        <flux:badge color="green">Active</flux:badge>
-                                    @else
-                                        <flux:badge color="red">Inactive</flux:badge>
+                            <tr wire:key="{{ $product->id }}"
+                                class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
+
+                                @foreach($columns as $col)
+                                    @if(in_array($col['key'], $visibleColumns))
+                                        <td class="px-6 py-4 text-center">
+
+                                            @if($col['key'] === 'id')
+                                                {{ $product->id }}
+                                            @elseif($col['key'] === 'thumbnail')
+                                                <div class="flex justify-center">
+                                                    <img src="{{ $product->thumbnail_image
+                    ? asset('storage/' . $product->thumbnail_image)
+                    : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}"
+                                                        class="h-10 w-10 rounded-md object-cover">
+                                                </div>
+                                            @elseif($col['key'] === 'name')
+                                                {{ $product->name }}
+                                            @elseif($col['key'] === 'store')
+                                                {{ $product->store->name ?? '-' }}
+                                            @elseif($col['key'] === 'category')
+                                                {{ $product->category->name ?? '-' }}
+                                            @elseif($col['key'] === 'brand')
+                                                {{ $product->brand->name ?? '-' }}
+                                            @elseif($col['key'] === 'status')
+                                                @if ($product->status)
+                                                    <flux:badge color="green">Active</flux:badge>
+                                                @else
+                                                    <flux:badge color="red">Inactive</flux:badge>
+                                                @endif
+                                            @elseif($col['key'] === 'actions')
+                                                <div class="flex items-center justify-center gap-2 text-sm font-medium">
+                                                    @can('product.edit')
+                                                        <flux:button wire:click="edit({{ $product->id }})" icon="pencil-square"></flux:button>
+                                                    @endcan
+                                                    @can('product.delete')
+                                                        <flux:modal.trigger name="delete-modal">
+                                                            <flux:button wire:click="confirmDelete({{ $product->id }})" icon="trash" variant="danger">
+                                                            </flux:button>
+                                                        </flux:modal.trigger>
+                                                    @endcan
+                                                </div>
+                                            @endif
+
+                                        </td>
                                     @endif
-                                </td>
-                                <td class="px-6 py-4 flex items-center justify-center gap-2 text-sm font-medium">
-                                    @can('product.edit')
-                                        <flux:button wire:click="edit({{ $product->id }})" icon="pencil-square"></flux:button>
-                                    @endcan
-                                    @can('product.delete')
-                                        <flux:modal.trigger name="delete-modal">
-                                            <flux:button wire:click="confirmDelete({{ $product->id }})" icon="trash" variant="danger"></flux:button>
-                                        </flux:modal.trigger>
-                                    @endcan
-                                </td>
+                                @endforeach
+
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">No products found.</td>
+                                <td colspan="{{ count($visibleColumns) }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    No products found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
+                    
                 </table>
             </div>
 
@@ -88,7 +147,7 @@
             </div>
         </div>
 
-        <!-- Create/Edit Modal -->
+            <!-- Create/Edit Modal -->
         <flux:modal name="product-modal" class="md:max-w-7xl md:min-w-3xl">
             <form wire:submit.prevent="save" class="space-y-6">
                 <div>
@@ -186,7 +245,7 @@
                     <div class="mt-2 flex gap-2 overflow-x-auto">
                         @foreach($existingGallery as $img)
                             <div class="relative">
-                                <img src="{{ asset('storage/'.$img['image_path']) }}" class="h-20 w-20 object-cover rounded-md">
+                                <img src="{{ asset('storage/' . $img['image_path']) }}" class="h-20 w-20 object-cover rounded-md">
                                 <button type="button" wire:click="removeGalleryImage({{ $img['id'] }})" class="absolute top-0 right-0 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center">X</button>
                             </div>
                         @endforeach
@@ -275,7 +334,7 @@
             </form>
         </flux:modal>
 
-        <!-- Delete Modal -->
+    <!-- Delete Modal -->
         <flux:modal name="delete-modal" class="md:w-96">
             <div class="space-y-6">
                 <div>

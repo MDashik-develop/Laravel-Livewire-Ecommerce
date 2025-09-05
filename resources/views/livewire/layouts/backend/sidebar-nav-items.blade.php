@@ -49,4 +49,11 @@
             @endcan
         </flux:navlist.group>
     @endcanany
+    @can ('product.view') 
+        <flux:navlist.group expandable :expanded="request()->routeIs('backend.products.*')" heading="Products" class="lg:grid">
+            <flux:navlist.item icon="shopping-bag" badge="{{ $totalProducts }}" :href="route('backend.products.index')"
+                :current="request()->routeIs('backend.products.index')" wire:navigate>{{__('All Products') }}
+            </flux:navlist.item>
+        </flux:navlist.group>
+    @endcan
 </flux:navlist>
