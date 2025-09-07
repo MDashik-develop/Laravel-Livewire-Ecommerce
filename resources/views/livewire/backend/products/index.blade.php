@@ -1,5 +1,3 @@
-
-
 <section>
 
     <livewire:utilities.toast-modal />
@@ -37,9 +35,8 @@
                     <flux:menu>
                         <flux:menu.submenu heading="Columns">
                             @foreach($columns as $col)
-                                <flux:menu.checkbox 
-                                    wire:click="toggleColumn('{{ $col['key'] }}')" 
-                                    :checked="{{ in_array($col['key'], $visibleColumns) ? 'checked' : '' }}">
+                                <flux:menu.checkbox wire:click="toggleColumn('{{ $col['key'] }}')" 
+                                                    :checked="in_array($col['key'], $visibleColumns)">
                                     {{ $col['label'] }}
                                 </flux:menu.checkbox>
                             @endforeach

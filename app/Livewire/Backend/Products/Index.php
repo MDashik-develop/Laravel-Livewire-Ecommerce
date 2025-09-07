@@ -42,7 +42,7 @@ class Index extends Component
     public bool $status = true;
     public bool $is_featured = false;
 
-    public $visibleColumns = ['id', 'thumbnail', 'name', 'store', 'category', 'brand', 'status', 'actions'];
+    public $visibleColumns = ['id', 'thumbnail', 'name', 'store', 'category', 'status', 'actions'];
 
     public $columns = [
         ['key' => 'id', 'label' => 'Id', 'sortable' => true],
