@@ -12,7 +12,7 @@
 
             @can('product.create')
                 <flux:modal.trigger name="product-modal" @click="$wire.resetForm()">
-                    <flux:button>
+                    <flux:button variant="filled">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -30,10 +30,10 @@
                        placeholder="Search products by name..."
                        class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 <flux:dropdown>
-                    <flux:button icon:trailing="funnel"></flux:button>
+                    <flux:button icon:trailing="funnel" variant="outline"></flux:button>
 
-                    <flux:menu>
-                        <flux:menu.submenu heading="Columns">
+                    <flux:menu keep-open>
+                        <flux:menu.submenu keep-open heading="Columns">
                             @foreach($columns as $col)
                                 <flux:menu.checkbox wire:click="toggleColumn('{{ $col['key'] }}')" 
                                                     :checked="in_array($col['key'], $visibleColumns)">
@@ -42,8 +42,8 @@
                             @endforeach
                         </flux:menu.submenu>
 
-                        <flux:menu.separator />
-                        <flux:menu.item variant="danger">Recent</flux:menu.item>
+                        {{-- <flux:menu.separator /> --}}
+                        {{-- <flux:menu.item variant="danger">Recent</flux:menu.item> --}}
                     </flux:menu>
                 </flux:dropdown>
             </div>
@@ -55,8 +55,7 @@
                         <tr>
                             @foreach($columns as $col)
                                 @if(in_array($col['key'], $visibleColumns))
-                                    <th 
-                                        class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center cursor-pointer"
+                                    <th  class="px-6 py-3 text-xs font-medium text-gray-500 uppercase text-nowrap tracking-wider text-center cursor-pointer"
                                         @if(!empty($col['sortable']))
                                             wire:click="sortBy('{{ $col['key'] }}')"
                                         @endif
@@ -74,65 +73,160 @@
                             @endforeach
                         </tr>
                     </thead>
-
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
-                        @forelse($products as $product)
-                            <tr wire:key="{{ $product->id }}"
-                                class="hover:bg-gray-50 hover:bg-opacity-50 hover:border-b dark:hover:bg-zinc-500">
-
-                                @foreach($columns as $col)
-                                    @if(in_array($col['key'], $visibleColumns))
-                                        <td class="px-6 py-4 text-center">
-
-                                            @if($col['key'] === 'id')
-                                                {{ $product->id }}
-                                            @elseif($col['key'] === 'thumbnail')
-                                                <div class="flex justify-center">
-                                                    <img src="{{ $product->thumbnail_image
-                    ? asset('storage/' . $product->thumbnail_image)
-                    : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}"
-                                                        class="h-10 w-10 rounded-md object-cover">
-                                                </div>
-                                            @elseif($col['key'] === 'name')
-                                                {{ $product->name }}
-                                            @elseif($col['key'] === 'store')
-                                                {{ $product->store->name ?? '-' }}
-                                            @elseif($col['key'] === 'category')
-                                                {{ $product->category->name ?? '-' }}
-                                            @elseif($col['key'] === 'brand')
-                                                {{ $product->brand->name ?? '-' }}
-                                            @elseif($col['key'] === 'status')
-                                                @if ($product->status)
-                                                    <flux:badge color="green">Active</flux:badge>
-                                                @else
-                                                    <flux:badge color="red">Inactive</flux:badge>
-                                                @endif
-                                            @elseif($col['key'] === 'actions')
-                                                <div class="flex items-center justify-center gap-2 text-sm font-medium">
-                                                    @can('product.edit')
-                                                        <flux:button wire:click="edit({{ $product->id }})" icon="pencil-square"></flux:button>
-                                                    @endcan
-                                                    @can('product.delete')
-                                                        <flux:modal.trigger name="delete-modal">
-                                                            <flux:button wire:click="confirmDelete({{ $product->id }})" icon="trash" variant="danger">
-                                                            </flux:button>
-                                                        </flux:modal.trigger>
-                                                    @endcan
-                                                </div>
-                                            @endif
-
-                                        </td>
-                                    @endif
-                                @endforeach
-
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="{{ count($visibleColumns) }}" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    No products found.
-                                </td>
-                            </tr>
-                        @endforelse
+                        @if(empty($search))
+                            {{--  Default view (without search)  --}}
+                            @forelse($products as $product)
+                                <tr wire:key="product-{{ $product->id }}" class="hover:bg-gray-50 dark:hover:bg-zinc-500">
+                                    @foreach($columns as $col)
+                                        @if(in_array($col['key'], $visibleColumns))
+                                            <td class="px-6 py-4 whitespace-nowrap {{ $col['key'] === 'name' ? '' : 'text-center' }}">
+                                                @switch($col['key'])
+                                                    @case('id')
+                                                        {{ $product->id }}
+                                                        @break
+                                                    @case('image')
+                                                        <div class="flex justify-center">
+                                                            <img src="{{ $product->thumbnail_image ? asset('storage/' . $product->thumbnail_image) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}" class="h-10 w-10 rounded-md object-cover">
+                                                        </div>
+                                                        @break
+                                                    @case('name')
+                                                        {{ $product->name }}
+                                                        @break
+                                                    @case('store')
+                                                        {{ $product->store->name ?? '-' }}
+                                                        @break
+                                                    @case('category')
+                                                        {{ $product->category->name ?? '-' }}
+                                                        @break
+                                                    @case('brand')
+                                                        {{ $product->brand->name ?? '-' }}
+                                                        @break
+                                                    @case('sku')
+                                                        {{ $product->attributes->pluck('sku')->filter()->unique()->join(', ') }}
+                                                        @break
+                                                    @case('color')
+                                                        {{ ucwords($product->attributes->pluck('color')->filter()->unique()->join(', ')) }}
+                                                        @break
+                                                    @case('size')
+                                                        {{ ucwords($product->attributes->pluck('size')->filter()->unique()->join(', ')) }}
+                                                        @break
+                                                    @case('quantity')
+                                                        {{ $product->attributes->pluck('quantity')->filter()->unique()->join(', ') ?: '0' }}
+                                                        @break
+                                                    @case('price')
+                                                        {{ $product->attributes->pluck('price')->filter()->unique()->join(', ') ?: '' }}
+                                                        @break
+                                                    @case('offer_price')
+                                                        {{ $product->attributes->pluck('offer_price')->filter()->unique()->join(', ') ?: '' }}
+                                                        @break
+                                                    @case('offer_end_date')
+                                                        {{ $product->attributes->pluck('offer_end_date')->filter()->unique()->join(', ') ?: '' }}
+                                                        @break
+                                                    @case('status')
+                                                        <flux:badge :color="$product->status ? 'green' : 'red'">
+                                                            {{ $product->status ? 'Active' : 'Inactive' }}
+                                                        </flux:badge>
+                                                        @break
+                                                    @case('actions')
+                                                        <div class="flex items-center justify-center gap-2 text-sm font-medium">
+                                                            <flux:button wire:click="edit({{ $product->id }})" icon="pencil-square"></flux:button>
+                                                            <flux:modal.trigger name="delete-modal">
+                                                                <flux:button wire:click="confirmDelete({{ $product->id }})" icon="trash" variant="danger"></flux:button>
+                                                            </flux:modal.trigger>
+                                                        </div>
+                                                        @break
+                                                    @default
+                                                        -
+                                                @endswitch
+                                            </td>
+                                        @endif
+                                    @endforeach
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="{{ count($visibleColumns) }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        No products found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @else
+                            {{--  Search View  --}}
+                            @forelse($products as $attribute)
+                                <tr wire:key="attribute-{{ $attribute->id }}" class="hover:bg-gray-50 dark:hover:bg-zinc-500 bg-blue-50 dark:bg-blue-900/20">
+                                    @foreach($columns as $col)
+                                        @if(in_array($col['key'], $visibleColumns))
+                                            <td class="px-6 py-4 whitespace-nowrap {{ $col['key'] === 'name' ? '' : 'text-center word' }}">
+                                                @switch($col['key'])
+                                                    @case('id')
+                                                        {{ $attribute->product->id }}
+                                                        @break
+                                                    @case('image')
+                                                        <div class="flex justify-center">
+                                                            <img src="{{ $attribute->product->thumbnail_image ? asset('storage/' . $attribute->product->thumbnail_image) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}" class="h-10 w-10 rounded-md object-cover">
+                                                        </div>
+                                                        @break
+                                                    @case('name')
+                                                        {{ $attribute->product->name }}
+                                                        @break
+                                                    @case('store')
+                                                        {{ $attribute->product->store->name ?? '-' }}
+                                                        @break
+                                                    @case('category')
+                                                        {{ $attribute->product->category->name ?? '-' }}
+                                                        @break
+                                                    @case('brand')
+                                                        {{ $attribute->product->brand->name ?? '-' }}
+                                                        @break
+                                                    @case('sku')
+                                                        {{ $attribute->sku }}
+                                                        @break
+                                                    @case('color')
+                                                        <flux:badge color="{{ $attribute->color }}">{{ ucfirst($attribute->color) }}</flux:badge>
+                                                        @break
+                                                    @case('size')
+                                                        <flux:badge color="{{ $attribute->color }}">{{ ucfirst($attribute->size) }}</flux:badge>
+                                                        @break
+                                                    @case('quantity')
+                                                        {{ $attribute->quantity }}
+                                                        @break
+                                                    @case('price')
+                                                        {{ $attribute->price }}
+                                                        @break
+                                                    @case('offer_price')
+                                                        {{ $attribute->offer_price }}
+                                                        @break
+                                                    @case('offer_end_date')
+                                                        {{ $attribute->offer_end_date ? \Carbon\Carbon::parse($attribute->offer_end_date)->format('d M, Y') : '-' }}
+                                                        @break
+                                                    @case('status')
+                                                        <flux:badge :color="$attribute->product->status ? 'green' : 'red'">
+                                                            {{ $attribute->product->status ? 'Active' : 'Inactive' }}
+                                                        </flux:badge>
+                                                        @break
+                                                    @case('actions')
+                                                        <div class="flex items-center justify-center gap-2 text-sm font-medium">
+                                                            <flux:button wire:click="edit({{ $attribute->product->id }})" icon="pencil-square"></flux:button>
+                                                            <flux:modal.trigger name="delete-modal">
+                                                                <flux:button wire:click="confirmDelete({{ $attribute->product->id }})" icon="trash" variant="danger"></flux:button>
+                                                            </flux:modal.trigger>
+                                                        </div>
+                                                        @break
+                                                    @default
+                                                        -
+                                                @endswitch
+                                            </td>
+                                        @endif
+                                    @endforeach
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="{{ count($visibleColumns) }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        No matching variants found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @endif
                     </tbody>
                     
                 </table>
@@ -243,7 +337,14 @@
                         @foreach($existingGallery as $img)
                             <div class="relative">
                                 <img src="{{ asset('storage/' . $img['image_path']) }}" class="h-20 w-20 object-cover rounded-md">
-                                <button type="button" wire:click="removeGalleryImage({{ $img['id'] }})" class="absolute top-0 right-0 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center">X</button>
+                                    <div class="absolute top-0.5 right-0.5">
+                                        <flux:button
+                                            size="xs"
+                                            variant="danger"
+                                            wire:click="removeGalleryImage({{ $img['id'] }})"
+                                            icon="trash">
+                                        </flux:button>
+                                    </div>
                             </div>
                         @endforeach
                         @foreach($gallery_images as $img)
@@ -262,13 +363,13 @@
                         <div class="flex gap-2 mb-2">
                             <flux:input 
                                 wire:model.lazy="productAttributes.{{ $index }}.color" 
-                                placeholder="Color" 
+                                placeholder="e.g. (Green) Color" 
                                 wire:change="generateSKU({{ $index }})" 
                             />
 
                             <flux:input 
                                 wire:model.lazy="productAttributes.{{ $index }}.size" 
-                                placeholder="Size" 
+                                placeholder="e.g. (L) Size" 
                                 wire:change="generateSKU({{ $index }})" 
                             />
 
@@ -279,9 +380,22 @@
                             />
 
                             <flux:input 
+                                wire:model.lazy="productAttributes.{{ $index }}.offer_price" 
+                                type="number" 
+                                placeholder="Offer Price"
+                            />
+
+                            <flux:input 
+                                wire:model.lazy="productAttributes.{{ $index }}.offer_end_date" 
+                                type="date" 
+                                placeholder="Offer End Date"
+                            />
+
+                            <flux:input 
                                 wire:model.lazy="productAttributes.{{ $index }}.quantity" 
                                 type="number" 
                                 placeholder="Quantity"
+                                min="0"
                             />
 
                             <flux:input 
@@ -289,6 +403,7 @@
                                 placeholder="SKU" 
                                 readonly
                             />
+                            <flux:error name="productAttributes.{{ $index }}.sku" />
 
                             <flux:button 
                                 variant="danger" 
