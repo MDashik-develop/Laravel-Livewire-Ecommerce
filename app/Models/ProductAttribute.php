@@ -15,6 +15,8 @@ class ProductAttribute extends Model
         'size',
         'color',
         'price',
+        'offer_price',
+        'offer_end_date',
         'quantity',
         'sku',
     ];
