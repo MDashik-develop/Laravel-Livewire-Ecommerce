@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Backend\Products;
 
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
@@ -42,15 +43,22 @@ class Index extends Component
     public bool $status = true;
     public bool $is_featured = false;
 
-    public $visibleColumns = ['id', 'thumbnail', 'name', 'store', 'category', 'status', 'actions'];
+    public $visibleColumns = ['id', 'image', 'name', 'store', 'category', 'status', 'actions'];
 
     public $columns = [
         ['key' => 'id', 'label' => 'Id', 'sortable' => true],
-        ['key' => 'thumbnail', 'label' => 'Thumbnail'],
+        ['key' => 'image', 'label' => 'Image'],
         ['key' => 'name', 'label' => 'Name', 'sortable' => true],
         ['key' => 'store', 'label' => 'Store'],
         ['key' => 'category', 'label' => 'Category'],
         ['key' => 'brand', 'label' => 'Brand'],
+        ['key' => 'sku', 'label' => 'Sku'],
+        ['key' => 'size', 'label' => 'Size'],
+        ['key' => 'color', 'label' => 'Color'],
+        ['key' => 'quantity', 'label' => 'Quantity'],
+        ['key' => 'price', 'label' => 'Price'],
+        ['key' => 'offer_price', 'label' => 'Offer Price'],
+        ['key' => 'offer_end_date', 'label' => 'Offer End Date'],
         ['key' => 'status', 'label' => 'Status'],
         ['key' => 'actions', 'label' => 'Actions'],
     ];
@@ -85,6 +93,8 @@ class Index extends Component
             'color' => '',
             'size' => '',
             'price' => 0,
+            'offer_price' => null,
+            'offer_end_date' => null,
             'quantity' => 0,
             'sku' => '',
         ];
@@ -108,8 +118,23 @@ class Index extends Component
             'productAttributes.*.color' => 'nullable|string|max:50',
             'productAttributes.*.size' => 'nullable|string|max:50',
             'productAttributes.*.price' => 'required|numeric|min:0',
+            'productAttributes.*.offer_price' => 'nullable|numeric|min:0|lt:productAttributes.*.price',
+            'productAttributes.*.offer_end_date' => 'nullable|date|after:today',
             'productAttributes.*.quantity' => 'required|integer|min:0',
-            'productAttributes.*.sku' => 'required|string|max:100|unique:product_attributes,sku,' . ($this->productId ?? 'NULL'),
+            // 'productAttributes.*.sku' => 'required|string|max:100|unique:product_attributes,sku,' . ($this->productId ?? 'NULL'),
+            // SKU রুলটি পরিবর্তন করুন
+            'productAttributes.*.sku' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('product_attributes', 'sku')->where(function ($query) {
+                    // যে প্রোডাক্টটি এডিট করা হচ্ছে, তার product_id ছাড়া বাকিদের সাথে unique কিনা চেক করবে
+                    if ($this->productId) {
+                        return $query->where('product_id', '!=', $this->productId);
+                    }
+                    return $query;
+                })
+            ],
         ];
     }
 
@@ -128,7 +153,7 @@ class Index extends Component
         $this->status = true;
         $this->is_featured = false;
         $this->productAttributes = [
-            ['color'=>'','size'=>'','price'=>0,'quantity'=>0,'sku'=>'']
+            ['color'=>'','size'=>'','price'=>0,'offer_price'=>null,'offer_end_date'=>null, 'quantity'=>0,'sku'=>'']
         ];
     }
 
@@ -236,7 +261,7 @@ class Index extends Component
 
     public function addAttribute()
     {
-        $this->productAttributes[] = ['color'=>'','size'=>'','price'=>0,'quantity'=>0,'sku'=>''];
+        $this->productAttributes[] = ['color'=>'','size'=>'','price'=>0,'offer_price'=>null,'offer_end_date'=>null,'quantity'=>0,'sku'=>''];
     }
 
     public function removeAttribute($index)
@@ -264,18 +289,42 @@ class Index extends Component
         $this->subcategories = SubCategory::where('category_id', $value)->get();
     }
 
-    public function render()
+   public function render()
     {
-        $products = Product::with(['store','category','brand'])
-            ->where('name', 'like', '%'.$this->search.'%')
-            ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate(10);
-
         $stores = Store::where('user_id', Auth::id())->where('status', true)->where('is_approved', true)->get();
         $categories = Category::all();
         $subcategories = SubCategory::where('category_id', $this->category_id)->get();
         $brands = Brand::all();
 
-        return view('livewire.backend.products.index', compact('products','stores','categories','subcategories','brands'));
+        // সার্চের ওপর ভিত্তি করে ভিউ এবং ডেটা পরিবর্তন হবে
+        if (trim($this->search) === '') {
+            // ডিফল্ট ভিউ: সার্চ খালি থাকলে
+            $products = Product::with(['store', 'category', 'brand', 'attributes'])
+                ->orderBy($this->sortField, $this->sortDirection)
+                ->paginate(10);
+
+            return view('livewire.backend.products.index', compact('products', 'stores', 'categories', 'subcategories', 'brands'));
+        } else {
+            // সার্চ ভিউ: যখন সার্চ করা হবে 
+            $attributes = ProductAttribute::with(['product.store', 'product.category', 'product.brand'])
+                ->whereHas('product', function ($query) {
+                    // প্রোডাক্টের নাম দিয়ে সার্চ
+                    $query->where('name', 'like', '%' . $this->search . '%');
+                })
+                // ভ্যারিয়েন্টের কালার, সাইজ বা SKU দিয়েও সার্চ করা যাবে
+                ->orWhere('color', 'like', '%' . $this->search . '%')
+                ->orWhere('size', 'like', '%' . $this->search . '%')
+                ->orWhere('sku', 'like', '%' . $this->search . '%')
+                ->orderBy($this->sortField, $this->sortDirection)
+                ->paginate(10);
+
+            return view('livewire.backend.products.index', [
+                'products' => $attributes, // এখানে products ভ্যারিয়েবলে attributes পাঠানো হচ্ছে
+                'stores' => $stores,
+                'categories' => $categories,
+                'subcategories' => $subcategories,
+                'brands' => $brands,
+            ]);
+        }
     }
 }
