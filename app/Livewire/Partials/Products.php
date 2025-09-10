@@ -35,12 +35,6 @@ class Products extends Component
 
     public function addToCart($productId)
     {
-        
-
-
-
-
-        
         $user = Auth::user();
 
         if ($user) {
@@ -77,12 +71,6 @@ class Products extends Component
             'message' => 'Saved successfully!',
             'type'    => 'success',
         ]);
-
-
-
-
-
-
 
     }
         
