@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Backend\Banners\Index as BannersIndex;
 use App\Livewire\Backend\Brands\Index as BrandsIndex;
 use App\Livewire\Backend\Categories\Index as CategoriesIndex;
 use App\Livewire\Backend\Permission\Index as PermissionIndex;
@@ -24,6 +25,8 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('backend.')->grou
    Route::get('/stores/approval', StoreApproval::class)->name('stores.approval');
 
    Route::get('/products', ProductsIndex::class)->name('products.index');
+
+   Route::get('/banners', BannersIndex::class)->name('banners.index');
 
 });
 

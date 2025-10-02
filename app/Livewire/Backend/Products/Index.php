@@ -217,7 +217,11 @@ class Index extends Component
             ProductAttribute::create($attr);
         }
 
-        $this->dispatch('show-toast',['title'=>'Success 🎉','message'=>'Product saved successfully!','type'=>'success']);
+        $this->dispatch('show-toast',[
+            'title'=>'Success 🎉',
+            'message'=>'Product saved successfully!',
+            'type'=>'success'
+        ]);
         Flux::modal('product-modal')->close();
         $this->resetForm();
         $this->resetPage();
@@ -296,7 +300,6 @@ class Index extends Component
         $subcategories = SubCategory::where('category_id', $this->category_id)->get();
         $brands = Brand::all();
 
-        // সার্চের ওপর ভিত্তি করে ভিউ এবং ডেটা পরিবর্তন হবে
         if (trim($this->search) === '') {
             // ডিফল্ট ভিউ: সার্চ খালি থাকলে
             $products = Product::with(['store', 'category', 'brand', 'attributes'])

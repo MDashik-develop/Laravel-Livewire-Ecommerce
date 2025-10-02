@@ -25,6 +25,14 @@
         </flux:navlist.group>
     @endcanany
 
+    @can ('banner.view')
+        {{-- <flux:navlist.group expandable :expanded="request()->routeIs('backend.banners.*')" heading="Banners" class="lg:grid"> --}}
+            <flux:navlist.item icon="squares-2x2" badge="{{ $totalBanners }}" :href="route('backend.banners.index')"
+                :current="request()->routeIs('backend.banners.index')" wire:navigate>{{__('Banners') }}
+            </flux:navlist.item>
+        {{-- </flux:navlist.group> --}}
+    @endcan
+
     @can ('brand.view') 
         <flux:navlist.group expandable :expanded="request()->routeIs('backend.brands.*')" heading="Brands" class="lg:grid">
             <flux:navlist.item icon="squares-2x2" badge="{{ $totalBrands }}" :href="route('backend.brands.index')"

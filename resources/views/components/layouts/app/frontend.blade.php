@@ -14,92 +14,124 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-lite.min.js"></script>
 
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
+{{--     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css" />
+        <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script> --}}
+
+        {{-- <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> --}}
+
+    {{-- @stack('cdn') --}}
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
-
 
     <style>
         /* Custom styles */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Quicksand', sans-serif;
             background-color: #f8fafc; /* slate-50 */
         }
-        .nav-link {
-            @apply text-gray-600 hover:text-indigo-600 transition-colors duration-300;
-        }
-        .btn-primary {
-            @apply bg-indigo-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-md;
-        }
-        .card {
-            @apply bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border border-slate-200;
-        }
-        .card-badge {
-            @apply absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full;
-        }
     </style>
+    
 </head>
 <body class="antialiased">
 
+    <livewire:layouts.frontend.header-top />
+    <livewire:layouts.frontend.header />
+    <livewire:layouts.frontend.header-nav />
 
-    <!-- Header Section -->
-    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
-        <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between h-20">
-                <!-- Logo -->
-                <a href="#" class="text-3xl font-bold text-indigo-600">
-                    Shop<span class="text-slate-800">Nest</span>
-                </a>
 
-                <!-- Desktop Navigation -->
-                <nav class="hidden md:flex items-center space-x-8">
-                    <a href="#" class="nav-link font-semibold">Home</a>
-                    <a href="#" class="nav-link">Shop</a>
-                    <a href="#" class="nav-link">Categories</a>
-                    <a href="#" class="nav-link">About Us</a>
-                    <a href="#" class="nav-link">Contact</a>
-                </nav>
 
-                <!-- Icons and Cart -->
-                <div class="flex items-center space-x-5">
-                    <a href="#" class="text-gray-600 hover:text-indigo-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-                        </svg>
-                    </a>
 
-                    <livewire:partials.carts />
-                    
-                    <a href="#" class="hidden sm:block text-gray-600 hover:text-indigo-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                        </svg>
-                    </a>
-                    <!-- Mobile Menu Button -->
-                    <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-indigo-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                        </svg>
-                    </button>
+
+
+
+    <main class="py-8 container mx-auto px-4 sm:px-0">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar -->
+            <aside class="w-full md:w-1/5 space-y-6">
+                <!-- Categories --> 
+                <livewire:layouts.frontend.aside-categorys />
+                <!-- Price Filter -->
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">Fill by price</h3>
+                    <input type="range" min="364" max="1000" value="500" class="range-slider out-of-range:border-red-500">
+                    <div class="flex justify-between text-sm text-gray-500 mt-2">
+                        <span>From: <span class="font-bold text-emerald-500">$364</span></span>
+                        <span>To: <span class="font-bold text-emerald-500">$1,000</span></span>
+                    </div>
                 </div>
-            </div>
-             <!-- Mobile Menu -->
-            <div id="mobile-menu" class="hidden md:hidden pb-4">
-                <a href="#" class="block py-2 px-4 text-sm nav-link">Home</a>
-                <a href="#" class="block py-2 px-4 text-sm nav-link">Shop</a>
-                <a href="#" class="block py-2 px-4 text-sm nav-link">Categories</a>
-                <a href="#" class="block py-2 px-4 text-sm nav-link">About Us</a>
-                <a href="#" class="block py-2 px-4 text-sm nav-link">Contact</a>
+            </aside>
+
+            <!-- Hero Section -->
+            <div class="w-full md:w-4/5 border border-gray-200 rounded-lg shadow-sm">
+                <livewire:partials.hero-section-slider lazy />
             </div>
         </div>
-    </header>
+        <!-- Popular Products -->
+        <div class="mt-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Popular Products</h2>
+                <div class="flex space-x-6 text-gray-600">
+                    <a href="#" class="hover:text-emerald-500 font-semibold text-emerald-500">All</a>
+                    <a href="#" class="hover:text-emerald-500 font-semibold">Milks & Dairies</a>
+                    <a href="#" class="hover:text-emerald-500 font-semibold">Coffes & Teas</a>
+                    <a href="#" class="hover:text-emerald-500 font-semibold">Pet Foods</a>
+                    <a href="#" class="hover:text-emerald-500 font-semibold">Meats</a>
+                    <a href="#" class="hover:text-emerald-500 font-semibold">Vegetables</a>
+                    <a href="#" class="hover:text-emerald-500 font-semibold">Fruits</a>
+                </div>
+            </div>
+            <!-- Product grid would go here -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <!-- Placeholder for product cards -->
+                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
+                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
+                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
+                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
+                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
+                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
+                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
+                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
+                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
+                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
+                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
+                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
+                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
+                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
+                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
+                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-    <main>
+
+
+
+
+
+
+
+
+    {{-- <main>
         <livewire:utilities.toast-modal />
         {{ $slot }}
-    </main>
+    </main> --}}
     
     <!-- Footer Section -->
     <footer class="bg-slate-900 text-white">
@@ -148,7 +180,44 @@
 
 
         @fluxScripts
+        @stack('cdn-end')
+        @stack('scripts-end')
+        @stack('styles-end')
+        @stack('scripts')
+        
 
+    {{-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Add to Cart Functionality
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+            const cartCountElement = document.getElementById('cart-count');
+            const toastElement = document.getElementById('toast');
+            let cartCount = 0;
+
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    cartCount++;
+                    cartCountElement.textContent = cartCount;
+
+                    // Show notification
+                    toastElement.classList.remove('opacity-0', 'translate-x-10');
+                    
+                    // Hide notification after 3 seconds
+                    setTimeout(() => {
+                        toastElement.classList.add('opacity-0', 'translate-x-10');
+                    }, 3000);
+                });
+            });
+        });
+    </script> --}}
 
 </body>
 </html>

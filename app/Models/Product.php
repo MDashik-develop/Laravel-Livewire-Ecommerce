@@ -56,4 +56,14 @@ class Product extends Model
     {
         return $this->hasMany(Cart::class);
     }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function banners()
+    {
+        return $this->hasMany(Banner::class);
+    }
 }

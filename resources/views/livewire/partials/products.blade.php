@@ -55,8 +55,12 @@
         </div>
         <p class="text-indigo-600 font-bold text-2xl mb-4">
             {{ $product->attributes->pluck('price')->filter()->first() ?: '' }}</p>
-        <button wire:click="addToCart({{ $product->id }})" 
-                class="add-to-cart-btn w-full bg-slate-800 text-white font-semibold py-3 rounded-lg hover:bg-indigo-600 transition-colors duration-300">Add
-            to Cart</button>
+
+            <flux:button class="w-full"
+                        variant="primary"
+                        wire:click="addToCart({{ $product->id }})"
+                        icon="shopping-cart">
+                        Primary
+            </flux:button>
     </div>
 </div>
