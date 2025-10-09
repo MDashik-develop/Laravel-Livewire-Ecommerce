@@ -118,6 +118,10 @@
                 </div>
             </div>
         </div>
+        <section>
+            <livewire:utilities.toast-modal />
+            {{ $slot }}
+        </section>
     </main>
 
 

@@ -3,6 +3,10 @@
     x-data
     x-init="
         let init = () => {
+            if (typeof Swiper === 'undefined') {
+                document.addEventListener('swiper:ready', () => init());
+                return;
+            }
             if ($el.swiper) return; // prevent double init
             
             new Swiper($el, {
@@ -22,8 +26,12 @@
         init();
 
         // Re-init when Livewire lazy loads or navigates
+
+        
+
         Livewire.hook('morph.added', (el) => {
-            if (el.contains($el)) {
+            // ✅ Only run if 'el' is an HTMLElement
+            if (el instanceof HTMLElement && el.contains($el)) {
                 init();
             }
         });

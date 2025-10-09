@@ -6,3 +6,5 @@ use Livewire\Volt\Volt;
 
 
 Route::get('/', HomeIndex::class)->name('home');
+
+require __DIR__.'/auth.php';
