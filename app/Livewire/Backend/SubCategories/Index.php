@@ -11,6 +11,8 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class Index extends Component
 {
@@ -74,6 +76,9 @@ class Index extends Component
     {
         $validatedData = $this->validate();
 
+        // Create ImageManager instance
+        $manager = new ImageManager(new Driver());
+
         if ($this->subCategoryId) {
             // Update existing subcategory
             $subCategory = SubCategory::findOrFail($this->subCategoryId);
@@ -84,12 +89,19 @@ class Index extends Component
                     Storage::disk('public')->delete($subCategory->image_path);
                 }
 
-                $extension = $this->image->getClientOriginalExtension();
+                // $extension = $this->image->getClientOriginalExtension();
+                $extension = "webp";
                 $randomString = substr(md5(uniqid()), 0, 3);
                 $time = time();
                 $customName = "subctgry-{$subCategory->id}-{$time}-{$randomString}.{$extension}";
 
-                $validatedData['image_path'] = $this->image->storeAs('sub_categories', $customName, 'public');
+                $image = $manager->read($this->image->getRealPath()); // ✅ একই manager ব্যবহার
+                $image->encodeByExtension('webp', 85);
+
+                // $validatedData['image_path'] = $this->image->storeAs('sub_categories', $customName, 'public');
+                $path = 'sub_categories/' . $customName;
+                Storage::disk('public')->put($path, (string) $image->encode());
+                $validatedData['image_path'] = $path;
             } else {
                 $validatedData['image_path'] = $subCategory->image_path;
             }
@@ -114,13 +126,20 @@ class Index extends Component
 
             // Handle image upload now
             if ($this->image) {
-                $extension = $this->image->getClientOriginalExtension();
+                $extension = "webp";
                 $randomString = substr(md5(uniqid()), 0, 3);
                 $time = time();
                 $customName = "subctgry-{$subCategory->id}-{$time}-{$randomString}.{$extension}";
 
-                $imagePath = $this->image->storeAs('sub_categories', $customName, 'public');
-                $subCategory->update(['image_path' => $imagePath]);
+                $image = $manager->read($this->image->getRealPath());
+                $image->encodeByExtension('webp', 85);
+
+                // $imagePath = $this->image->storeAs('sub_categories', $customName, 'public');
+                $path = 'sub_categories/' . $customName;
+                Storage::disk('public')->put($path, (string) $image->encode());
+
+                // $subCategory->update(['image_path' => $imagePath]);
+                $subCategory->update(['image_path' => $path]);
             }
 
             $this->subCategoryId = $subCategory->id;

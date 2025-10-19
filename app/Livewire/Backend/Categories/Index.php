@@ -10,6 +10,8 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class Index extends Component
 {
@@ -73,6 +75,9 @@ class Index extends Component
     {
         $validatedData = $this->validate();
 
+        // Create ImageManager instance
+        $manager = new ImageManager(new Driver());
+
         if ($this->categoryId) {
             // Update existing category
             $category = Category::findOrFail($this->categoryId);
@@ -83,12 +88,19 @@ class Index extends Component
                     Storage::disk('public')->delete($category->image_path);
                 }
 
-                $extension = $this->image->getClientOriginalExtension();
+                // $extension = $this->image->getClientOriginalExtension();
+                $extension = "webp";
                 $randomString = substr(md5(uniqid()), 0, 3);
                 $time = time();
                 $customName = "ctgry-{$category->id}-{$time}-{$randomString}.{$extension}";
 
-                $validatedData['image_path'] = $this->image->storeAs('categories', $customName, 'public');
+                $image = $manager->read($this->image->getRealPath()); // ✅ একই manager ব্যবহার
+                $image->encodeByExtension('webp', 85);
+
+                // $validatedData['image_path'] = $this->image->storeAs('categories', $customName, 'public');
+                $path = 'categories/' . $customName;
+                Storage::disk('public')->put($path, (string) $image->encode());
+                $validatedData['image_path'] = $path;
             } else {
                 $validatedData['image_path'] = $category->image_path;
             }
@@ -112,13 +124,19 @@ class Index extends Component
 
             // Handle image upload now
             if ($this->image) {
-                $extension = $this->image->getClientOriginalExtension();
+                $extension = "webp";
                 $randomString = substr(md5(uniqid()), 0, 3);
                 $time = time();
                 $customName = "ctgry-{$category->id}-{$time}-{$randomString}.{$extension}";
 
-                $imagePath = $this->image->storeAs('categories', $customName, 'public');
-                $category->update(['image_path' => $imagePath]);
+                $image = $manager->read($this->image->getRealPath());
+                $image->encodeByExtension('webp', 85);
+
+                $path = 'categories/' . $customName;
+                Storage::disk('public')->put($path, (string) $image->encode());
+                
+                // Update the category with the actual image path
+                $category->update(['image_path' => $path]);
             }
 
             $this->categoryId = $category->id; // optional, modal/dispatch জন্য

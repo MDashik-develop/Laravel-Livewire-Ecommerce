@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductAttribute;
@@ -119,7 +122,7 @@ class Index extends Component
             'productAttributes.*.size' => 'nullable|string|max:50',
             'productAttributes.*.price' => 'required|numeric|min:0',
             'productAttributes.*.offer_price' => 'nullable|numeric|min:0|lt:productAttributes.*.price',
-            'productAttributes.*.offer_end_date' => 'nullable|date|after:today',
+            'productAttributes.*.offer_end_date' => 'nullable|date', //|after:today
             'productAttributes.*.quantity' => 'required|integer|min:0',
             // 'productAttributes.*.sku' => 'required|string|max:100|unique:product_attributes,sku,' . ($this->productId ?? 'NULL'),
             // SKU রুলটি পরিবর্তন করুন
@@ -183,9 +186,19 @@ class Index extends Component
     {
         $validated = $this->validate();
 
+        // Create ImageManager instance
+        $manager = new ImageManager(new Driver());
+
         if ($this->thumbnail_image) {
-            $name = "product-" . time() . "." . $this->thumbnail_image->getClientOriginalExtension();
-            $path = $this->thumbnail_image->storeAs('products', $name, 'public');
+            $name = "product-" . time() . "." . "webp";
+
+            $image = $manager->read($this->thumbnail_image->getRealPath()); // ✅ একই manager ব্যবহার
+            $image->encodeByExtension('webp', 85);
+
+            // $path = $this->thumbnail_image->storeAs('products', $name, 'public');
+            // $validated['thumbnail_image'] = $path;
+            $path = 'products/' . $name;
+            Storage::disk('public')->put($path, (string) $image->encode());
             $validated['thumbnail_image'] = $path;
 
             if ($this->productId && $this->thumbnail_path && Storage::disk('public')->exists($this->thumbnail_path)) {
@@ -205,8 +218,15 @@ class Index extends Component
 
         if ($this->gallery_images) {
             foreach ($this->gallery_images as $img) {
-                $name = "product-gallery-" . time() . "-" . uniqid() . "." . $img->getClientOriginalExtension();
-                $path = $img->storeAs('products/gallery', $name, 'public');
+                $name = "product-gallery-" . time() . "-" . uniqid() . "." . "webp";
+                
+                // $image = $manager->read($this->gallery_images->getRealPath()); // ✅ একই manager ব্যবহার
+                $image = $manager->read($img->getRealPath()); // ✅ Fix: use $img
+                $image->encodeByExtension('webp', 85);
+                
+                // $path = $img->storeAs('products/gallery', $name, 'public');
+                $path = 'products/gallery/' . $name;
+                Storage::disk('public')->put($path, (string) $image->encode());
                 ProductImage::create(['product_id'=>$product->id,'image_path'=>$path]);
             }
         }
