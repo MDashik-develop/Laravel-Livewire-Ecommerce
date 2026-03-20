@@ -411,31 +411,37 @@
                             <label class="block font-medium mb-1">Product Attributes</label>
 
                             @foreach ($productAttributes as $index => $attr)
-                                <div class="flex gap-2 mb-2">
-                                    <flux:input wire:model.lazy="productAttributes.{{ $index }}.color"
-                                        placeholder="e.g. (Green) Color" wire:change="generateSKU({{ $index }})" />
+                                <div
+                                    class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 pb-3 border-b border-gray-200 mb-4 items-end justify-items-end">
+                                    <flux:input wire:model.lazy="productAttributes.{{ $index }}.color" label="Color"
+                                        class="min-w-[stretch]" placeholder="e.g. (Green) Color"
+                                        wire:change="generateSKU({{ $index }})" />
 
-                                    <flux:input wire:model.lazy="productAttributes.{{ $index }}.size"
-                                        placeholder="e.g. (L) Size" wire:change="generateSKU({{ $index }})" />
+                                    <flux:input wire:model.lazy="productAttributes.{{ $index }}.size" label="Size"
+                                        class="min-w-[stretch]" placeholder="e.g. (L) Size"
+                                        wire:change="generateSKU({{ $index }})" />
 
                                     <flux:input wire:model.lazy="productAttributes.{{ $index }}.price" type="number"
-                                        placeholder="Price" />
+                                        label="Price" class="min-w-[stretch]" placeholder="Price" />
 
                                     <flux:input wire:model.lazy="productAttributes.{{ $index }}.offer_price"
-                                        type="number" placeholder="Offer Price" />
+                                        type="number" label="Offer Price" class="min-w-[stretch]"
+                                        placeholder="Offer Price" />
 
                                     <flux:input wire:model.lazy="productAttributes.{{ $index }}.offer_end_date"
-                                        type="date" placeholder="Offer End Date" />
+                                        type="date" label="Offer End Date" class="min-w-[stretch]"
+                                        placeholder="Offer End Date" />
 
                                     <flux:input wire:model.lazy="productAttributes.{{ $index }}.quantity"
-                                        type="number" placeholder="Quantity" min="0" />
+                                        type="number" label="Quantity" class="min-w-[stretch]" placeholder="QNTY"
+                                        min="0" />
 
-                                    <flux:input wire:model="productAttributes.{{ $index }}.sku" placeholder="SKU"
-                                        readonly />
-                                    <flux:error name="productAttributes.{{ $index }}.sku" />
+                                    <flux:input wire:model="productAttributes.{{ $index }}.sku" label="SKU"
+                                        class="min-w-[stretch]" placeholder="SKU" readonly />
+                                    <flux:error name="productAttributes.{{ $index }}.sku" class="min-w-[stretch]" />
 
                                     <flux:button variant="danger" wire:click="removeAttribute({{ $index }})"
-                                        icon="trash" class="p-2.5"></flux:button>
+                                        icon="trash" class="p-2.5 items-end"></flux:button>
                                 </div>
                             @endforeach
 
