@@ -8,10 +8,13 @@
                 <flux:breadcrumbs.item>Brands</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            @can ('brand.create')
+            @can('brand.create')
                 <flux:modal.trigger name="brand-modal" @click="$wire.resetForm()">
                     <flux:button>
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
                         Create Brand
                     </flux:button>
                 </flux:modal.trigger>
@@ -19,7 +22,8 @@
         </div>
 
         <!-- Search & Table -->
-        <div class="bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 shadow-md rounded-lg overflow-hidden ">
+        <div
+            class="bg-white dark:bg-zinc-700 border border-gray-200 dark:border-zinc-600 shadow-md rounded-lg overflow-hidden ">
             <div class="p-4">
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="Search brands by name..."
                     class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
@@ -38,15 +42,21 @@
                     </thead>
                     <tbody class="bg-white dark:bg-zinc-600 divide-y divide-gray-200 dark:divide-zinc-700">
                         @forelse ($brands as $brand)
-                            <tr wire:key="{{ $brand->id }}" class="text-center hover:bg-gray-50 hover:bg-opacity-50 dark:hover:bg-zinc-500">
+                            <tr wire:key="{{ $brand->id }}"
+                                class="text-center hover:bg-gray-50 hover:bg-opacity-50 dark:hover:bg-zinc-500">
                                 <td class="px-6 py-4 flex justify-center">
                                     @if ($brand->image_path)
-                                        <img src="{{ asset('storage/'.$brand->image_path) }}" class="w-12 h-12 object-cover rounded-md">
+                                        <img src="{{ $brand->image_path && file_exists(public_path('storage/' . $brand->image_path))
+                                            ? asset('storage/' . $brand->image_path)
+                                            : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}"
+                                            class="w-12 h-12 object-cover rounded-md">
                                     @else
                                         <span class="text-gray-400">No image</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{{ $brand->name }}</td>
+                                <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    {{ $brand->name }}
+                                </td>
                                 <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">{{ $brand->slug }}</td>
                                 <td class="px-6 py-4 text-sm text-center">
                                     @if ($brand->status)
@@ -56,12 +66,14 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 flex justify-center gap-2">
-                                    @can ('brand.edit') 
-                                        <flux:button wire:click="edit({{ $brand->id }})" icon="pencil-square"></flux:button>
+                                    @can('brand.edit')
+                                        <flux:button wire:click="edit({{ $brand->id }})" icon="pencil-square">
+                                        </flux:button>
                                     @endcan
-                                    @can ('brand.delete')
+                                    @can('brand.delete')
                                         <flux:modal.trigger name="delete-modal">
-                                            <flux:button wire:click="confirmDelete({{ $brand->id }})" icon="trash" variant="danger"></flux:button>
+                                            <flux:button wire:click="confirmDelete({{ $brand->id }})" icon="trash"
+                                                variant="danger"></flux:button>
                                         </flux:modal.trigger>
                                     @endcan
                                 </td>
@@ -93,18 +105,27 @@
                     <div class="mt-2 flex items-center space-x-4">
                         <div class="shrink-0">
                             @if ($image)
-                                <img class="h-16 w-16 object-cover rounded-md" src="{{ $image->temporaryUrl() }}" alt="New Image Preview">
+                                <img class="h-16 w-16 object-cover rounded-md" src="{{ $image->temporaryUrl() }}"
+                                    alt="New Image Preview">
                             @elseif ($image_path)
-                                <img class="h-16 w-16 object-cover rounded-md" src="{{ asset('storage/' . $image_path) }}" alt="Current Image">
+                                <img class="h-16 w-16 object-cover rounded-md"
+                                    src="{{ asset('storage/' . $image_path) }}" alt="Current Image">
                             @else
-                                <div class="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"></path></svg>
+                                <div
+                                    class="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14">
+                                        </path>
+                                    </svg>
                                 </div>
                             @endif
                         </div>
-                        <flux:input type="file" wire:model="image"/>
+                        <flux:input type="file" wire:model="image" />
                     </div>
-                    @error('image') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                    @error('image')
+                        <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                    @enderror
                 </div>
 
                 <div class="flex items-center">
