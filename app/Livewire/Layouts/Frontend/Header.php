@@ -7,10 +7,10 @@ use Livewire\Component;
 
 class Header extends Component
 {
-    public $categorys ;
     public function render()
     {
-        $this->categorys = Category::all();
-        return view('livewire.layouts.frontend.header');
+        return view('livewire.layouts.frontend.header', [
+            'categorys' => Category::all(),
+        ]);
     }
 }

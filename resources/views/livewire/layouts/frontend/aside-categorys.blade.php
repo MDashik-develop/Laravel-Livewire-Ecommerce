@@ -1,4 +1,4 @@
-<div wire:poll.5s class="bg-white p-5 rounded-xl shadow-[5px_5px_15px_rgba(0,0,0,0.05)] border border-gray-200">
+<div class="bg-white p-5 rounded-xl shadow-[5px_5px_15px_rgba(0,0,0,0.05)] border border-gray-200">
     <h3 class="text-xl font-bold mb-4 text-gray-800">Category</h3>
     <ul class="space-y-3">
         @foreach ($categorys as $category)
@@ -11,7 +11,7 @@
                     <span>{{ $category->name }}</span>
                 </a>
                 <span class="text-sm bg-green-200 text-gray-600 px-2 py-0.5 rounded-full">
-                    {{ $categorysTotalProduct[$category->id] ?? 0 }}
+                    {{ $category->products_count ?? 0 }}
                 </span>
             </li>
         @endforeach

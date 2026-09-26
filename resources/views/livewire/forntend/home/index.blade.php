@@ -9,8 +9,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 @foreach($products as $product)
-                    {{-- @livewire('partials.products', ['product' => $product], key($product->id)) --}}
-                    <livewire:partials.products :product="$product" :key="$product->id" lazy />
+                    @include('livewire.partials.products', ['product' => $product])
                 @endforeach
             </div>
         </div>
