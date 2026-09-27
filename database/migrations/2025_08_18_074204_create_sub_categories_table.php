@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('slug')->unique();
             $table->boolean('status')->default(true);
-            $table->string('image_path')->nullable();
+            $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete();
+            $table->foreignId('banner_media_id')->nullable()->constrained('media')->nullOnDelete();
             $table->timestamps();
         });
     }

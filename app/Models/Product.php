@@ -18,10 +18,20 @@ class Product extends Model
         'slug',
         'short_description',
         'long_description',
-        'thumbnail_image',
+        'media_id',
         'is_featured',
         'status',
     ];
+
+    public function media()
+    {
+        return $this->belongsTo(Media::class, 'media_id');
+    }
+
+    public function gallery()
+    {
+        return $this->hasManyThrough(Media::class, ProductImage::class, 'product_id', 'id', 'id', 'media_id');
+    }
 
     public function store()
     {
@@ -52,6 +62,7 @@ class Product extends Model
     {
         return $this->hasMany(ProductImage::class);
     }
+
     public function carts()
     {
         return $this->hasMany(Cart::class);

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
-            $table->string('image')->nullable();
-            $table->string('video')->nullable();
+            $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete();
+            $table->foreignId('mobile_media_id')->nullable()->constrained('media')->nullOnDelete();
             $table->string('link')->nullable();
 
             // optional relations

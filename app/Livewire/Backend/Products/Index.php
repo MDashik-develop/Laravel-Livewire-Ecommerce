@@ -6,12 +6,10 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -20,6 +18,7 @@ use App\Models\Store;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Brand;
+use App\Models\Media;
 
 use Flux\Flux;
 
@@ -38,9 +37,8 @@ class Index extends Component
     public string $slug = '';
     public ?string $short_description = null;
     public ?string $long_description = null;
-    public $thumbnail_image;
-    public ?string $thumbnail_path = null;
-    public $gallery_images = [];
+    public ?int $media_id = null;
+    public ?string $mediaUrl = null;
     public array $existingGallery = [];
     public array $productAttributes = [];
     public bool $status = true;
@@ -69,7 +67,6 @@ class Index extends Component
     public $sortField = 'id';
     public $sortDirection = 'desc';
 
-    // Column toggle
     public function toggleColumn($key)
     {
         if (in_array($key, $this->visibleColumns)) {
@@ -79,7 +76,6 @@ class Index extends Component
         }
     }
 
-    // Sorting
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -114,24 +110,20 @@ class Index extends Component
             'slug' => ['required','string','max:255', $this->productId ? "unique:products,slug,{$this->productId}" : 'unique:products,slug'],
             'short_description' => 'nullable|string|max:500',
             'long_description' => 'nullable|string',
-            'thumbnail_image' => $this->productId ? 'nullable|image|max:3072' : 'required|image|max:3072',
-            'gallery_images.*' => 'image|max:3072',
+            'media_id' => 'nullable|exists:media,id',
             'status' => 'required|boolean',
             'is_featured' => 'required|boolean',
             'productAttributes.*.color' => 'nullable|string|max:50',
             'productAttributes.*.size' => 'nullable|string|max:50',
             'productAttributes.*.price' => 'required|numeric|min:0',
             'productAttributes.*.offer_price' => 'nullable|numeric|min:0|lt:productAttributes.*.price',
-            'productAttributes.*.offer_end_date' => 'nullable|date', //|after:today
+            'productAttributes.*.offer_end_date' => 'nullable|date',
             'productAttributes.*.quantity' => 'required|integer|min:0',
-            // 'productAttributes.*.sku' => 'required|string|max:100|unique:product_attributes,sku,' . ($this->productId ?? 'NULL'),
-            // SKU রুলটি পরিবর্তন করুন
             'productAttributes.*.sku' => [
                 'required',
                 'string',
                 'max:100',
                 Rule::unique('product_attributes', 'sku')->where(function ($query) {
-                    // যে প্রোডাক্টটি এডিট করা হচ্ছে, তার product_id ছাড়া বাকিদের সাথে unique কিনা চেক করবে
                     if ($this->productId) {
                         return $query->where('product_id', '!=', $this->productId);
                     }
@@ -139,6 +131,39 @@ class Index extends Component
                 })
             ],
         ];
+    }
+
+    #[On('product-media-selected')]
+    public function handleMediaSelected($media): void
+    {
+        if (is_array($media)) {
+            $this->media_id = $media['id'] ?? null;
+            $this->mediaUrl = $media['urls']['small'] ?? $media['url'] ?? null;
+        } elseif (is_numeric($media)) {
+            $this->media_id = (int) $media;
+            $m = Media::find($media);
+            $this->mediaUrl = $m?->urls['small'] ?? $m?->url;
+        }
+    }
+
+    public function removeMedia(): void
+    {
+        $this->media_id = null;
+        $this->mediaUrl = null;
+    }
+
+    #[On('product-gallery-media-selected')]
+    public function handleGalleryMediaSelected($media): void
+    {
+        $mediaId = is_array($media) ? ($media['id'] ?? null) : (int) $media;
+        if ($mediaId && $this->productId) {
+            ProductImage::create([
+                'product_id' => $this->productId,
+                'media_id'   => $mediaId,
+            ]);
+            $product = Product::find($this->productId);
+            $this->existingGallery = $product ? $product->images()->with('media')->get()->toArray() : [];
+        }
     }
 
     public function updatedName($value)
@@ -150,8 +175,8 @@ class Index extends Component
     {
         $this->reset([
             'productId','store_id','category_id','sub_category_id','brand_id','name','slug',
-            'short_description','long_description','thumbnail_image','thumbnail_path',
-            'gallery_images','existingGallery','productAttributes','status','is_featured'
+            'short_description','long_description','media_id','mediaUrl',
+            'existingGallery','productAttributes','status','is_featured'
         ]);
         $this->status = true;
         $this->is_featured = false;
@@ -172,10 +197,11 @@ class Index extends Component
         $this->slug = $product->slug;
         $this->short_description = $product->short_description;
         $this->long_description = $product->long_description;
-        $this->status = $product->status;
-        $this->is_featured = $product->is_featured;
-        $this->thumbnail_path = $product->thumbnail_image;
-        $this->existingGallery = $product->images()->get(['id','image_path'])->toArray();
+        $this->status = (bool) $product->status;
+        $this->is_featured = (bool) $product->is_featured;
+        $this->media_id = $product->media_id;
+        $this->mediaUrl = $product->media?->urls['small'] ?? $product->media?->url;
+        $this->existingGallery = $product->images()->with('media')->get()->toArray();
         $this->productAttributes = $product->attributes()->get()->toArray();
         $this->subcategories = SubCategory::where('category_id', $this->category_id)->get();
 
@@ -186,49 +212,12 @@ class Index extends Component
     {
         $validated = $this->validate();
 
-        // Create ImageManager instance
-        $manager = new ImageManager(new Driver());
-
-        if ($this->thumbnail_image) {
-            $name = "product-" . time() . "." . "webp";
-
-            $image = $manager->read($this->thumbnail_image->getRealPath()); // ✅ একই manager ব্যবহার
-            $image->encodeByExtension('webp', 85);
-
-            // $path = $this->thumbnail_image->storeAs('products', $name, 'public');
-            // $validated['thumbnail_image'] = $path;
-            $path = 'products/' . $name;
-            Storage::disk('public')->put($path, (string) $image->encode());
-            $validated['thumbnail_image'] = $path;
-
-            if ($this->productId && $this->thumbnail_path && Storage::disk('public')->exists($this->thumbnail_path)) {
-                Storage::disk('public')->delete($this->thumbnail_path);
-            }
-        } else {
-            $validated['thumbnail_image'] = $this->thumbnail_path ?? null;
-        }
-
         if ($this->productId) {
             $product = Product::findOrFail($this->productId);
             $product->update($validated);
         } else {
             $product = Product::create($validated);
             $this->productId = $product->id;
-        }
-
-        if ($this->gallery_images) {
-            foreach ($this->gallery_images as $img) {
-                $name = "product-gallery-" . time() . "-" . uniqid() . "." . "webp";
-                
-                // $image = $manager->read($this->gallery_images->getRealPath()); // ✅ একই manager ব্যবহার
-                $image = $manager->read($img->getRealPath()); // ✅ Fix: use $img
-                $image->encodeByExtension('webp', 85);
-                
-                // $path = $img->storeAs('products/gallery', $name, 'public');
-                $path = 'products/gallery/' . $name;
-                Storage::disk('public')->put($path, (string) $image->encode());
-                ProductImage::create(['product_id'=>$product->id,'image_path'=>$path]);
-            }
         }
 
         ProductAttribute::where('product_id', $product->id)->delete();
@@ -255,18 +244,6 @@ class Index extends Component
     public function delete()
     {
         $product = Product::findOrFail($this->productId);
-
-        if ($product->thumbnail_image && Storage::disk('public')->exists($product->thumbnail_image)) {
-            Storage::disk('public')->delete($product->thumbnail_image);
-        }
-
-        foreach ($product->images as $img) {
-            if (Storage::disk('public')->exists($img->image_path)) {
-                Storage::disk('public')->delete($img->image_path);
-            }
-            $img->delete();
-        }
-
         $product->delete();
         Flux::modal('delete-modal')->close();
         $this->resetForm();
@@ -276,11 +253,8 @@ class Index extends Component
     public function removeGalleryImage($id)
     {
         $img = ProductImage::findOrFail($id);
-        if (Storage::disk('public')->exists($img->image_path)) {
-            Storage::disk('public')->delete($img->image_path);
-        }
         $img->delete();
-        $this->existingGallery = ProductImage::where('product_id', $this->productId)->get(['id','image_path'])->toArray();
+        $this->existingGallery = ProductImage::with('media')->where('product_id', $this->productId)->get()->toArray();
     }
 
     public function addAttribute()
@@ -313,7 +287,7 @@ class Index extends Component
         $this->subcategories = SubCategory::where('category_id', $value)->get();
     }
 
-   public function render()
+    public function render()
     {
         $stores = Store::where('user_id', Auth::id())->where('status', true)->where('is_approved', true)->get();
         $categories = Category::all();
@@ -321,20 +295,16 @@ class Index extends Component
         $brands = Brand::all();
 
         if (trim($this->search) === '') {
-            // ডিফল্ট ভিউ: সার্চ খালি থাকলে
-            $products = Product::with(['store', 'category', 'brand', 'attributes'])
+            $products = Product::with(['store', 'category', 'brand', 'attributes', 'media'])
                 ->orderBy($this->sortField, $this->sortDirection)
                 ->paginate(10);
 
             return view('livewire.backend.products.index', compact('products', 'stores', 'categories', 'subcategories', 'brands'));
         } else {
-            // সার্চ ভিউ: যখন সার্চ করা হবে 
-            $attributes = ProductAttribute::with(['product.store', 'product.category', 'product.brand'])
+            $attributes = ProductAttribute::with(['product.store', 'product.category', 'product.brand', 'product.media'])
                 ->whereHas('product', function ($query) {
-                    // প্রোডাক্টের নাম দিয়ে সার্চ
                     $query->where('name', 'like', '%' . $this->search . '%');
                 })
-                // ভ্যারিয়েন্টের কালার, সাইজ বা SKU দিয়েও সার্চ করা যাবে
                 ->orWhere('color', 'like', '%' . $this->search . '%')
                 ->orWhere('size', 'like', '%' . $this->search . '%')
                 ->orWhere('sku', 'like', '%' . $this->search . '%')
@@ -342,7 +312,7 @@ class Index extends Component
                 ->paginate(10);
 
             return view('livewire.backend.products.index', [
-                'products' => $attributes, // এখানে products ভ্যারিয়েবলে attributes পাঠানো হচ্ছে
+                'products' => $attributes,
                 'stores' => $stores,
                 'categories' => $categories,
                 'subcategories' => $subcategories,

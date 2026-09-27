@@ -6,8 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Store extends Model
 {
-    //
-protected $fillable = ['name', 'slug', 'description', 'logo', 'phone', 'address', 'is_approved', 'status', 'user_id'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'media_id',
+        'phone',
+        'address',
+        'is_approved',
+        'status',
+        'user_id',
+    ];
+
     protected $casts = [
         'is_approved' => 'boolean',
         'status' => 'boolean',
@@ -16,6 +26,11 @@ protected $fillable = ['name', 'slug', 'description', 'logo', 'phone', 'address'
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function media()
+    {
+        return $this->belongsTo(Media::class, 'media_id');
     }
 
     public function products()

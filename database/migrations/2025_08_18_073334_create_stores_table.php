@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('slug')->unique();
             $table->text('description')->nullable();
-            $table->string('logo')->nullable();
+            $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete(); // Store Logo / Image
             $table->string('phone');
             $table->text('address');
             $table->boolean('is_approved')->default(false); // অ্যাডমিন অনুমোদন

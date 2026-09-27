@@ -45,13 +45,14 @@
                             <tr wire:key="{{ $brand->id }}"
                                 class="text-center hover:bg-gray-50 hover:bg-opacity-50 dark:hover:bg-zinc-500">
                                 <td class="px-6 py-4 flex justify-center">
-                                    @if ($brand->image_path)
-                                        <img src="{{ $brand->image_path && file_exists(public_path('storage/' . $brand->image_path))
-                                            ? asset('storage/' . $brand->image_path)
-                                            : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}"
-                                            class="w-12 h-12 object-cover rounded-md">
+                                    @if ($brand->media)
+                                        <img src="{{ $brand->media->urls['thumb'] ?? $brand->media->url }}"
+                                            alt="{{ $brand->name }}"
+                                            class="w-12 h-12 object-cover rounded-lg border border-gray-200 dark:border-zinc-600">
                                     @else
-                                        <span class="text-gray-400">No image</span>
+                                        <div class="w-12 h-12 bg-gray-100 dark:bg-zinc-700 rounded-lg flex items-center justify-center text-gray-400 text-[10px] font-semibold">
+                                            No Media
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -100,31 +101,40 @@
                 <flux:input wire:model.live="name" label="Name" placeholder="e.g. Apple" />
                 <flux:input wire:model="slug" label="Slug" placeholder="e.g. apple" />
 
+                <!-- Media Selector -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Image</label>
-                    <div class="mt-2 flex items-center space-x-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Brand Image / Logo</label>
+                    <div class="flex items-center space-x-4 p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50">
                         <div class="shrink-0">
-                            @if ($image)
-                                <img class="h-16 w-16 object-cover rounded-md" src="{{ $image->temporaryUrl() }}"
-                                    alt="New Image Preview">
-                            @elseif ($image_path)
-                                <img class="h-16 w-16 object-cover rounded-md"
-                                    src="{{ asset('storage/' . $image_path) }}" alt="Current Image">
+                            @if ($mediaUrl)
+                                <img class="h-16 w-16 object-cover rounded-xl border border-gray-200 dark:border-zinc-700 shadow-2xs" src="{{ $mediaUrl }}" alt="Brand Image">
                             @else
-                                <div
-                                    class="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14">
-                                        </path>
+                                <div class="h-16 w-16 bg-gray-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-gray-400 border border-dashed border-gray-300 dark:border-zinc-700">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
                                     </svg>
                                 </div>
                             @endif
                         </div>
-                        <flux:input type="file" wire:model="image" />
+                        <div class="flex flex-col space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <button type="button"
+                                    wire:click="$dispatch('open-media-modal', { targetEvent: 'brand-media-selected', folder: 'brands' })"
+                                    class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition flex items-center space-x-1.5">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <span>Choose Media</span>
+                                </button>
+                                @if ($media_id)
+                                    <button type="button" wire:click="removeMedia" class="px-2.5 py-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl text-xs font-medium transition">
+                                        Remove
+                                    </button>
+                                @endif
+                            </div>
+                            <p class="text-[11px] text-gray-500">Pick an image from Media Manager or upload a new one.</p>
+                        </div>
                     </div>
-                    @error('image')
-                        <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                    @error('media_id')
+                        <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                     @enderror
                 </div>
 

@@ -5,19 +5,17 @@ namespace App\Livewire\Backend\Categories;
 use Flux\Flux;
 use Livewire\Component;
 use App\Models\Category;
+use App\Models\Media;
 use Illuminate\Support\Str;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
-    //Toast flux massage
+    //Toast flux message
     public array $toast = [];
     // Search and filtering properties
     public $search = '';
@@ -27,8 +25,10 @@ class Index extends Component
     public string $name = '';
     public string $slug = '';
     public bool $status = true;
-    public $image; // For new image upload
-    public ?string $image_path = null; // For existing image path
+    public ?int $media_id = null;
+    public ?string $mediaUrl = null;
+    public ?int $banner_media_id = null;
+    public ?string $bannerMediaUrl = null;
 
     // Rules for validation
     protected function rules()
@@ -42,8 +42,47 @@ class Index extends Component
                 Rule::unique('categories')->ignore($this->categoryId),
             ],
             'status' => 'required|boolean',
-            'image' => $this->categoryId ? 'nullable|image|max:3072' : 'required|image|max:3072',
+            'media_id' => 'nullable|exists:media,id',
+            'banner_media_id' => 'nullable|exists:media,id',
         ];
+    }
+
+    #[On('category-media-selected')]
+    public function handleMediaSelected($media): void
+    {
+        if (is_array($media)) {
+            $this->media_id = $media['id'] ?? null;
+            $this->mediaUrl = $media['urls']['small'] ?? $media['url'] ?? null;
+        } elseif (is_numeric($media)) {
+            $this->media_id = (int) $media;
+            $m = Media::find($media);
+            $this->mediaUrl = $m?->urls['small'] ?? $m?->url;
+        }
+    }
+
+    public function removeMedia(): void
+    {
+        $this->media_id = null;
+        $this->mediaUrl = null;
+    }
+
+    #[On('category-banner-media-selected')]
+    public function handleBannerMediaSelected($media): void
+    {
+        if (is_array($media)) {
+            $this->banner_media_id = $media['id'] ?? null;
+            $this->bannerMediaUrl = $media['urls']['large'] ?? $media['url'] ?? null;
+        } elseif (is_numeric($media)) {
+            $this->banner_media_id = (int) $media;
+            $m = Media::find($media);
+            $this->bannerMediaUrl = $m?->urls['large'] ?? $m?->url;
+        }
+    }
+
+    public function removeBannerMedia(): void
+    {
+        $this->banner_media_id = null;
+        $this->bannerMediaUrl = null;
     }
     
     // Automatically generate slug when name is updated
@@ -64,9 +103,12 @@ class Index extends Component
         $this->categoryId = $category->id;
         $this->name = $category->name;
         $this->slug = $category->slug;
-        $this->status = $category->status;
-        $this->image_path = $category->image_path;
-        $this->image = null; // Reset file input
+        $this->status = (bool) $category->status;
+        $this->media_id = $category->media_id;
+        $this->mediaUrl = $category->media?->urls['small'] ?? $category->media?->url;
+        $this->banner_media_id = $category->banner_media_id;
+        $this->bannerMediaUrl = $category->bannerMedia?->urls['large'] ?? $category->bannerMedia?->url;
+
         Flux::modal('category-modal')->show();
     }
 
@@ -75,36 +117,8 @@ class Index extends Component
     {
         $validatedData = $this->validate();
 
-        // Create ImageManager instance
-        $manager = new ImageManager(new Driver());
-
         if ($this->categoryId) {
-            // Update existing category
             $category = Category::findOrFail($this->categoryId);
-
-            // Handle image upload
-            if ($this->image) {
-                if ($category->image_path) {
-                    Storage::disk('public')->delete($category->image_path);
-                }
-
-                // $extension = $this->image->getClientOriginalExtension();
-                $extension = "webp";
-                $randomString = substr(md5(uniqid()), 0, 3);
-                $time = time();
-                $customName = "ctgry-{$category->id}-{$time}-{$randomString}.{$extension}";
-
-                $image = $manager->read($this->image->getRealPath()); // ✅ একই manager ব্যবহার
-                $image->encodeByExtension('webp', 85);
-
-                // $validatedData['image_path'] = $this->image->storeAs('categories', $customName, 'public');
-                $path = 'categories/' . $customName;
-                Storage::disk('public')->put($path, (string) $image->encode());
-                $validatedData['image_path'] = $path;
-            } else {
-                $validatedData['image_path'] = $category->image_path;
-            }
-
             $category->update($validatedData);
 
             $this->dispatch('show-toast', [
@@ -112,34 +126,8 @@ class Index extends Component
                 'message' => 'Category updated successfully!',
                 'type' => 'success'
             ]);
-
         } else {
-            // Create new category WITHOUT image first to get ID
-            $category = Category::create([
-                'name' => $validatedData['name'],
-                'slug' => $validatedData['slug'],
-                'status' => $validatedData['status'],
-                'image_path' => 'temp.jpg',
-            ]);
-
-            // Handle image upload now
-            if ($this->image) {
-                $extension = "webp";
-                $randomString = substr(md5(uniqid()), 0, 3);
-                $time = time();
-                $customName = "ctgry-{$category->id}-{$time}-{$randomString}.{$extension}";
-
-                $image = $manager->read($this->image->getRealPath());
-                $image->encodeByExtension('webp', 85);
-
-                $path = 'categories/' . $customName;
-                Storage::disk('public')->put($path, (string) $image->encode());
-                
-                // Update the category with the actual image path
-                $category->update(['image_path' => $path]);
-            }
-
-            $this->categoryId = $category->id; // optional, modal/dispatch জন্য
+            Category::create($validatedData);
 
             $this->dispatch('show-toast', [
                 'title' => 'Success 🎉',
@@ -148,35 +136,19 @@ class Index extends Component
             ]);
         }
 
-        // Close modal and reset form
-        $this->dispatch('close-modal', name: 'category-modal');
         Flux::modal('category-modal')->close();
         $this->resetForm();
         $this->resetPage();
     }
-
     
-    // Method to open delete confirmation modal
     public function confirmDelete($id)
     {
         $this->categoryId = $id;
-        // $this->dispatch('open-modal', name: 'delete-modal');
     }
 
-    // Method to delete a category
     public function delete()
     {
         $category = Category::findOrFail($this->categoryId);
-        
-        // Delete image safely
-        if (!empty($category->image_path)) {
-            // Check if the file actually exists in storage
-            if (Storage::disk('public')->exists($category->image_path)) {
-                Storage::disk('public')->delete($category->image_path);
-            }
-        }
-
-        
         $category->delete();
         
         Flux::modal('delete-modal')->close();
@@ -192,14 +164,15 @@ class Index extends Component
     // Reset form fields
     public function resetForm()
     {
-        $this->reset(['categoryId', 'name', 'slug', 'status', 'image', 'image_path']);
+        $this->reset(['categoryId', 'name', 'slug', 'status', 'media_id', 'mediaUrl', 'banner_media_id', 'bannerMediaUrl']);
         $this->status = true; // Default status
     }
 
     // The main render method
     public function render()
     {
-        $categories = Category::where('name', 'like', '%' . $this->search . '%')
+        $categories = Category::with(['media', 'bannerMedia'])
+            ->where('name', 'like', '%' . $this->search . '%')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 

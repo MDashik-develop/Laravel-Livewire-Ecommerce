@@ -4,19 +4,16 @@ namespace App\Livewire\Backend\Brands;
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\WithFileUploads;
+use Livewire\Attributes\On;
 use App\Models\Brand;
+use App\Models\Media;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage;
 use Flux\Flux;
-// use Livewire\Attributes\Layout;
-
-// #[Layout('components.layouts.frontend')]
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     // Toast
     public array $toast = [];
@@ -29,8 +26,8 @@ class Index extends Component
     public string $name = '';
     public string $slug = '';
     public bool $status = false;
-    public $image;
-    public ?string $image_path = null;
+    public ?int $media_id = null;
+    public ?string $mediaUrl = null;
 
     protected function rules()
     {
@@ -43,8 +40,27 @@ class Index extends Component
                 Rule::unique('brands')->ignore($this->brandId),
             ],
             'status' => 'required|boolean',
-            'image' => $this->brandId ? 'nullable|image|max:3072' : 'required|image|max:3072',
+            'media_id' => 'nullable|exists:media,id',
         ];
+    }
+
+    #[On('brand-media-selected')]
+    public function handleMediaSelected($media): void
+    {
+        if (is_array($media)) {
+            $this->media_id = $media['id'] ?? null;
+            $this->mediaUrl = $media['urls']['small'] ?? $media['url'] ?? null;
+        } elseif (is_numeric($media)) {
+            $this->media_id = (int) $media;
+            $m = Media::find($media);
+            $this->mediaUrl = $m?->urls['small'] ?? $m?->url;
+        }
+    }
+
+    public function removeMedia(): void
+    {
+        $this->media_id = null;
+        $this->mediaUrl = null;
     }
 
     public function updatedName($value)
@@ -59,7 +75,7 @@ class Index extends Component
 
     public function resetForm()
     {
-        $this->reset(['brandId', 'name', 'slug', 'status', 'image', 'image_path']);
+        $this->reset(['brandId', 'name', 'slug', 'status', 'media_id', 'mediaUrl']);
         $this->status = false;
     }
 
@@ -69,8 +85,8 @@ class Index extends Component
         $this->name = $brand->name;
         $this->slug = $brand->slug;
         $this->status = $brand->status;
-        $this->image_path = $brand->image_path;
-        $this->image = null;
+        $this->media_id = $brand->media_id;
+        $this->mediaUrl = $brand->media?->urls['small'] ?? $brand->media?->url;
 
         Flux::modal('brand-modal')->show();
     }
@@ -80,22 +96,7 @@ class Index extends Component
         $validatedData = $this->validate();
 
         if ($this->brandId) {
-            // Update existing brand
             $brand = Brand::findOrFail($this->brandId);
-
-            if ($this->image) {
-                if ($brand->image_path) {
-                    Storage::disk('public')->delete($brand->image_path);
-                }
-                $extension = $this->image->getClientOriginalExtension();
-                $randomString = substr(md5(uniqid()), 0, 3);
-                $time = time();
-                $customName = "brand-{$brand->id}-{$time}-{$randomString}.{$extension}";
-                $validatedData['image_path'] = $this->image->storeAs('brands', $customName, 'public');
-            } else {
-                $validatedData['image_path'] = $brand->image_path;
-            }
-
             $brand->update($validatedData);
 
             $this->dispatch('show-toast', [
@@ -103,26 +104,8 @@ class Index extends Component
                 'message' => 'Brand updated successfully!',
                 'type' => 'success'
             ]);
-
         } else {
-            // Create new brand WITHOUT image first
-            $brand = Brand::create([
-                'name' => $validatedData['name'],
-                'slug' => $validatedData['slug'],
-                'status' => $validatedData['status'],
-                'image_path' => null, // temporarily null
-            ]);
-
-            // Now handle image if uploaded
-            if ($this->image) {
-                $extension = $this->image->getClientOriginalExtension();
-                $randomString = substr(md5(uniqid()), 0, 3);
-                $time = time();
-                $customName = "brand-{$brand->id}-{$time}-{$randomString}.{$extension}";
-                $imagePath = $this->image->storeAs('brands', $customName, 'public');
-
-                $brand->update(['image_path' => $imagePath]);
-            }
+            Brand::create($validatedData);
 
             $this->dispatch('show-toast', [
                 'title' => 'Success 🎉',
@@ -136,7 +119,6 @@ class Index extends Component
         $this->resetPage();
     }
 
-
     public function confirmDelete($id)
     {
         $this->brandId = $id;
@@ -145,11 +127,6 @@ class Index extends Component
     public function delete()
     {
         $brand = Brand::findOrFail($this->brandId);
-
-        if (!empty($brand->image_path) && Storage::disk('public')->exists($brand->image_path)) {
-            Storage::disk('public')->delete($brand->image_path);
-        }
-
         $brand->delete();
 
         Flux::modal('delete-modal')->close();
@@ -164,7 +141,8 @@ class Index extends Component
 
     public function render()
     {
-        $brands = Brand::where('name', 'like', '%' . $this->search . '%')
+        $brands = Brand::with('media')
+            ->where('name', 'like', '%' . $this->search . '%')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -172,6 +150,4 @@ class Index extends Component
             'brands' => $brands
         ]);
     }
-
-    
 }

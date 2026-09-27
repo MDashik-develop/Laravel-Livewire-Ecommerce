@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('short_description')->nullable();
             $table->longText('long_description')->nullable();
-            $table->string('thumbnail_image');
+            $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete(); // Primary / Thumbnail Image
             $table->boolean('is_featured')->default(false);
             $table->boolean('status')->default(true);
             $table->timestamps();

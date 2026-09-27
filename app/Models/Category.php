@@ -6,13 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    //
     protected $fillable = [
         'name',
         'slug',
         'status',
-        'image_path'
+        'media_id',
+        'banner_media_id',
     ];
+
+    public function media()
+    {
+        return $this->belongsTo(Media::class, 'media_id');
+    }
+
+    public function bannerMedia()
+    {
+        return $this->belongsTo(Media::class, 'banner_media_id');
+    }
 
     public function subCategories()
     {

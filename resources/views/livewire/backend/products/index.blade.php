@@ -87,10 +87,15 @@
 
                                                     @case('image')
                                                         <div class="flex justify-center">
-                                                            <img src="{{ $product->thumbnail_image && file_exists(public_path('storage/' . $product->thumbnail_image))
-                                                                ? asset('storage/' . $product->thumbnail_image)
-                                                                : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}"
-                                                                class="h-10 w-10 rounded-md object-cover">
+                                                            @if ($product->media)
+                                                                <img src="{{ $product->media->urls['thumb'] ?? $product->media->url }}"
+                                                                    alt="{{ $product->name }}"
+                                                                    class="h-10 w-10 rounded-lg object-cover border border-gray-200 dark:border-zinc-600">
+                                                            @else
+                                                                <div class="h-10 w-10 bg-gray-100 dark:bg-zinc-700 rounded-lg flex items-center justify-center text-gray-400 text-[10px] font-semibold">
+                                                                    No Image
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     @break
 
@@ -186,8 +191,15 @@
 
                                                         @case('image')
                                                             <div class="flex justify-center">
-                                                                <img src="{{ $attribute->product->thumbnail_image ? asset('storage/' . $attribute->product->thumbnail_image) : 'https://placehold.co/64x64/e2e8f0/e2e8f0?text=No+Image' }}"
-                                                                    class="h-10 w-10 rounded-md object-cover">
+                                                                @if ($attribute->product->media)
+                                                                    <img src="{{ $attribute->product->media->urls['thumb'] ?? $attribute->product->media->url }}"
+                                                                        alt="{{ $attribute->product->name }}"
+                                                                        class="h-10 w-10 rounded-lg object-cover border border-gray-200 dark:border-zinc-600">
+                                                                @else
+                                                                    <div class="h-10 w-10 bg-gray-100 dark:bg-zinc-700 rounded-lg flex items-center justify-center text-gray-400 text-[10px] font-semibold">
+                                                                        No Image
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         @break
 
@@ -352,59 +364,75 @@
                             <flux:error name="long_description" />
                         </flux:field>
 
-                        <!-- Thumbnail Image -->
+                        <!-- Thumbnail Image (Media Selector) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Thumbnail</label>
-                            <div class="mt-2 flex items-center space-x-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Product Primary Image / Thumbnail</label>
+                            <div class="flex items-center space-x-4 p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50">
                                 <div class="shrink-0">
-                                    @if ($thumbnail_image)
-                                        <img class="h-16 w-16 object-cover rounded-md"
-                                            src="{{ $thumbnail_image->temporaryUrl() }}">
-                                    @elseif ($thumbnail_path)
-                                        <img class="h-16 w-16 object-cover rounded-md"
-                                            src="{{ asset('storage/' . $thumbnail_path) }}">
+                                    @if ($mediaUrl)
+                                        <img class="h-16 w-16 object-cover rounded-xl border border-gray-200 dark:border-zinc-700 shadow-2xs" src="{{ $mediaUrl }}" alt="Product Image">
                                     @else
-                                        <div
-                                            class="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-400">
-                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14">
-                                                </path>
+                                        <div class="h-16 w-16 bg-gray-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-gray-400 border border-dashed border-gray-300 dark:border-zinc-700">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
                                             </svg>
                                         </div>
                                     @endif
                                 </div>
-                                <flux:input type="file" wire:model="thumbnail_image" />
+                                <div class="flex flex-col space-y-2">
+                                    <div class="flex items-center space-x-2">
+                                        <button type="button"
+                                            wire:click="$dispatch('open-media-modal', { targetEvent: 'product-media-selected', folder: 'products' })"
+                                            class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold shadow-xs transition flex items-center space-x-1.5">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                            <span>Choose Thumbnail</span>
+                                        </button>
+                                        @if ($media_id)
+                                            <button type="button" wire:click="removeMedia" class="px-2.5 py-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl text-xs font-medium transition">
+                                                Remove
+                                            </button>
+                                        @endif
+                                    </div>
+                                    <p class="text-[11px] text-gray-500">Pick the main product photo from Media Manager.</p>
+                                </div>
                             </div>
-                            @error('thumbnail_image')
-                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @error('media_id')
+                                <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <!-- Gallery Images -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Gallery Images</label>
-                            <div class="mt-2 flex gap-2 overflow-x-auto">
-                                @foreach ($existingGallery as $img)
-                                    <div class="relative">
-                                        <img src="{{ asset('storage/' . $img['image_path']) }}"
-                                            class="h-20 w-20 object-cover rounded-md">
-                                        <div class="absolute top-0.5 right-0.5">
-                                            <flux:button size="xs" variant="danger"
-                                                wire:click="removeGalleryImage({{ $img['id'] }})" icon="trash">
-                                            </flux:button>
+                        <!-- Gallery Images (Media Selector) -->
+                        @if ($productId)
+                            <div>
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Product Gallery</label>
+                                    <button type="button"
+                                        wire:click="$dispatch('open-media-modal', { targetEvent: 'product-gallery-media-selected', folder: 'products' })"
+                                        class="px-3 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        <span>Add Gallery Image</span>
+                                    </button>
+                                </div>
+                                <div class="flex flex-wrap gap-3 p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50">
+                                    @forelse ($existingGallery as $img)
+                                        <div class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-2xs">
+                                            @php
+                                                $gMedia = $img['media'] ?? null;
+                                                $gUrl = $gMedia['urls']['thumb'] ?? $gMedia['url'] ?? (isset($img['image_path']) ? asset('storage/' . $img['image_path']) : null);
+                                            @endphp
+                                            <img src="{{ $gUrl }}" class="h-20 w-20 object-cover">
+                                            <button type="button"
+                                                wire:click="removeGalleryImage({{ $img['id'] }})"
+                                                class="absolute top-1 right-1 p-1 bg-rose-600/90 text-white rounded-md opacity-0 group-hover:opacity-100 transition shadow-xs hover:bg-rose-700">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
                                         </div>
-                                    </div>
-                                @endforeach
-                                @foreach ($gallery_images as $img)
-                                    <img src="{{ $img->temporaryUrl() }}" class="h-20 w-20 object-cover rounded-md">
-                                @endforeach
-                                <flux:input type="file" wire:model="gallery_images" multiple />
+                                    @empty
+                                        <p class="text-xs text-gray-400 py-3 text-center w-full">No gallery images added yet. Click 'Add Gallery Image' to select.</p>
+                                    @endforelse
+                                </div>
                             </div>
-                            @error('gallery_images.*')
-                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        @endif
 
                         <!-- Product Attributes -->
                         <div>

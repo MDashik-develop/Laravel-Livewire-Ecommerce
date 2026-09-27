@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('review_images', function (Blueprint $table) {
             $table->id();
             $table->foreignId('review_id')->constrained()->onDelete('cascade');
-            $table->string('image_path')->nullable();
+            $table->foreignId('media_id')->constrained('media')->cascadeOnDelete();
             $table->timestamps();
         });
     }

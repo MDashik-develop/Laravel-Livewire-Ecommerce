@@ -6,17 +6,15 @@ use Livewire\Component;
 use Flux\Flux;
 use App\Models\SubCategory;
 use App\Models\Category;
+use App\Models\Media;
 use Illuminate\Support\Str;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     // Toast message
     public array $toast = [];
@@ -30,8 +28,10 @@ class Index extends Component
     public string $name = '';
     public string $slug = '';
     public bool $status = true;
-    public $image;
-    public ?string $image_path = null;
+    public ?int $media_id = null;
+    public ?string $mediaUrl = null;
+    public ?int $banner_media_id = null;
+    public ?string $bannerMediaUrl = null;
 
     protected function rules()
     {
@@ -45,8 +45,28 @@ class Index extends Component
                 Rule::unique('sub_categories')->ignore($this->subCategoryId),
             ],
             'status' => 'required|boolean',
-            'image' => $this->subCategoryId ? 'nullable|image|max:3072' : 'required|image|max:3072',
+            'media_id' => 'nullable|exists:media,id',
+            'banner_media_id' => 'nullable|exists:media,id',
         ];
+    }
+
+    #[On('subcategory-media-selected')]
+    public function handleMediaSelected($media): void
+    {
+        if (is_array($media)) {
+            $this->media_id = $media['id'] ?? null;
+            $this->mediaUrl = $media['urls']['small'] ?? $media['url'] ?? null;
+        } elseif (is_numeric($media)) {
+            $this->media_id = (int) $media;
+            $m = Media::find($media);
+            $this->mediaUrl = $m?->urls['small'] ?? $m?->url;
+        }
+    }
+
+    public function removeMedia(): void
+    {
+        $this->media_id = null;
+        $this->mediaUrl = null;
     }
 
     public function updatedName($value)
@@ -65,9 +85,11 @@ class Index extends Component
         $this->category_id = $subCategory->category_id;
         $this->name = $subCategory->name;
         $this->slug = $subCategory->slug;
-        $this->status = $subCategory->status;
-        $this->image_path = $subCategory->image_path;
-        $this->image = null;
+        $this->status = (bool) $subCategory->status;
+        $this->media_id = $subCategory->media_id;
+        $this->mediaUrl = $subCategory->media?->urls['small'] ?? $subCategory->media?->url;
+        $this->banner_media_id = $subCategory->banner_media_id;
+        $this->bannerMediaUrl = $subCategory->bannerMedia?->urls['large'] ?? $subCategory->bannerMedia?->url;
 
         Flux::modal('sub-category-modal')->show();
     }
@@ -76,36 +98,8 @@ class Index extends Component
     {
         $validatedData = $this->validate();
 
-        // Create ImageManager instance
-        $manager = new ImageManager(new Driver());
-
         if ($this->subCategoryId) {
-            // Update existing subcategory
             $subCategory = SubCategory::findOrFail($this->subCategoryId);
-
-            // Handle image upload
-            if ($this->image) {
-                if ($subCategory->image_path) {
-                    Storage::disk('public')->delete($subCategory->image_path);
-                }
-
-                // $extension = $this->image->getClientOriginalExtension();
-                $extension = "webp";
-                $randomString = substr(md5(uniqid()), 0, 3);
-                $time = time();
-                $customName = "subctgry-{$subCategory->id}-{$time}-{$randomString}.{$extension}";
-
-                $image = $manager->read($this->image->getRealPath()); // ✅ একই manager ব্যবহার
-                $image->encodeByExtension('webp', 85);
-
-                // $validatedData['image_path'] = $this->image->storeAs('sub_categories', $customName, 'public');
-                $path = 'sub_categories/' . $customName;
-                Storage::disk('public')->put($path, (string) $image->encode());
-                $validatedData['image_path'] = $path;
-            } else {
-                $validatedData['image_path'] = $subCategory->image_path;
-            }
-
             $subCategory->update($validatedData);
 
             $this->dispatch('show-toast', [
@@ -115,34 +109,8 @@ class Index extends Component
             ]);
 
         } else {
-            // Create new subcategory with temporary image_path to satisfy NOT NULL
-            $subCategory = SubCategory::create([
-                'name' => $validatedData['name'],
-                'slug' => $validatedData['slug'],
-                'status' => $validatedData['status'],
-                'category_id' => $validatedData['category_id'] ?? null, // if you have parent category
-                'image_path' => 'temp.png', // temporary placeholder
-            ]);
+            SubCategory::create($validatedData);
 
-            // Handle image upload now
-            if ($this->image) {
-                $extension = "webp";
-                $randomString = substr(md5(uniqid()), 0, 3);
-                $time = time();
-                $customName = "subctgry-{$subCategory->id}-{$time}-{$randomString}.{$extension}";
-
-                $image = $manager->read($this->image->getRealPath());
-                $image->encodeByExtension('webp', 85);
-
-                // $imagePath = $this->image->storeAs('sub_categories', $customName, 'public');
-                $path = 'sub_categories/' . $customName;
-                Storage::disk('public')->put($path, (string) $image->encode());
-
-                // $subCategory->update(['image_path' => $imagePath]);
-                $subCategory->update(['image_path' => $path]);
-            }
-
-            $this->subCategoryId = $subCategory->id;
             $this->dispatch('show-toast', [
                 'title' => 'Success 🎉',
                 'message' => 'SubCategory created successfully!',
@@ -156,21 +124,14 @@ class Index extends Component
         $this->resetPage();
     }
 
-
     public function confirmDelete($id)
     {
         $this->subCategoryId = $id;
-        // $this->dispatch('open-modal', name: 'delete-modal');
     }
 
     public function delete()
     {
         $subCategory = SubCategory::findOrFail($this->subCategoryId);
-
-        if (!empty($subCategory->image_path) && Storage::disk('public')->exists($subCategory->image_path)) {
-            Storage::disk('public')->delete($subCategory->image_path);
-        }
-
         $subCategory->delete();
 
         Flux::modal('delete-modal')->close();
@@ -180,18 +141,18 @@ class Index extends Component
             'title' => 'Success 🎉',
             'message' => 'SubCategory deleted successfully!',
             'type' => 'success'
-            ]);
+        ]);
     }
 
     public function resetForm()
     {
-        $this->reset(['subCategoryId', 'category_id', 'name', 'slug', 'status', 'image', 'image_path']);
+        $this->reset(['subCategoryId', 'category_id', 'name', 'slug', 'status', 'media_id', 'mediaUrl', 'banner_media_id', 'bannerMediaUrl']);
         $this->status = true;
     }
 
     public function render()
     {
-        $subCategories = SubCategory::with('category')
+        $subCategories = SubCategory::with(['category', 'media', 'bannerMedia'])
             ->where('name', 'like', '%' . $this->search . '%')
             ->orderBy('created_at', 'desc')
             ->paginate(10);

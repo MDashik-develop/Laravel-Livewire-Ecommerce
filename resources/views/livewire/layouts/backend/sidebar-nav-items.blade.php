@@ -5,6 +5,9 @@
         <flux:navlist.item icon="key" :href="route('backend.permissions.index')"
             :current="request()->routeIs('backend.permissions.index')" wire:navigate>{{ __('Permissions') }}
         </flux:navlist.item>
+        <flux:navlist.item icon="photo" badge="{{ $totalMedia }}" href="#" wire:click.prevent="$dispatch('open-media-modal', { isPicker: false })">
+            {{ __('Media Library') }}
+        </flux:navlist.item>
         <!-- <flux:navlist.item icon="queue-list" :href="route('backend.categories.index')" :current="request()->routeIs('backend.categories.index')" wire:navigate>{{ __('Categories') }}</flux:navlist.item> -->
     </flux:navlist.group>
 

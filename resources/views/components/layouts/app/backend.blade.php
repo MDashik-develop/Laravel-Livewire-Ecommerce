@@ -128,6 +128,8 @@
         
         {{ $slot }}
 
+        <livewire:media />
+
         @fluxScripts
 
     </body>

@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model
 {
-    //
-    
     protected $fillable = [
-        'image',
-        'video',
+        'media_id',
+        'mobile_media_id',
         'link',
         'category_id',
         'sub_category_id',
@@ -18,6 +16,16 @@ class Banner extends Model
         'status',
         'position',
     ];
+
+    public function media()
+    {
+        return $this->belongsTo(Media::class, 'media_id');
+    }
+
+    public function mobileMedia()
+    {
+        return $this->belongsTo(Media::class, 'mobile_media_id');
+    }
 
     public function category()
     {
