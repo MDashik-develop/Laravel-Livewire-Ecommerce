@@ -23,6 +23,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'media_id',
+    ];
+
+    protected $appends = [
+        'avatar_url',
     ];
 
     /**
@@ -58,6 +63,26 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * User avatar media relationship
+     */
+    public function avatarMedia()
+    {
+        return $this->belongsTo(Media::class, 'media_id');
+    }
+
+    /**
+     * Get avatar image URL
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if ($this->media_id) {
+            $media = $this->avatarMedia;
+            return $media ? $media->url : null;
+        }
+        return null;
     }
 
     public function carts()

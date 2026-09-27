@@ -11,11 +11,8 @@
 
             @can('banner.create')
                 <flux:modal.trigger name="banner-modal" @click="$wire.resetForm()">
-                    <flux:button variant="primary" class="flex items-center gap-2 shadow-sm cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <span>Create Banner</span>
+                    <flux:button variant="primary" icon="plus" class="shadow-sm cursor-pointer">
+                        Create Banner
                     </flux:button>
                 </flux:modal.trigger>
             @endcan
@@ -224,156 +221,205 @@
         </div>
 
         <!-- Create / Edit Banner Modal -->
-        <flux:modal name="banner-modal" class="md:w-[38rem]">
-            <form wire:submit.prevent="save" class="space-y-5">
-                <div>
-                    <flux:heading size="lg">{{ $bannerId ? 'Edit Banner' : 'Create Banner' }}</flux:heading>
-                    <flux:subheading>Upload media, choose banner placement section, and configure links.</flux:subheading>
-                </div>
-
-                <!-- Banner Placement / Section & Position -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-zinc-900/60 p-4 rounded-xl border border-gray-200 dark:border-zinc-700">
-                    <div>
-                        <flux:select wire:model="section" label="Banner Section / Placement" class="cursor-pointer">
-                            @foreach ($availableSections as $secKey => $secLabel)
-                                <option value="{{ $secKey }}">{{ $secLabel }}</option>
-                            @endforeach
-                        </flux:select>
-                        <p class="text-[11px] text-gray-400 mt-1">Slider, Featured banner, or Footer banner.</p>
+        <flux:modal name="banner-modal" class="!max-w-5xl !w-[94vw] md:!w-[52rem] lg:!w-[62rem]">
+            <form wire:submit.prevent="save" class="space-y-6">
+                <!-- Modal Header -->
+                <div class="flex items-center gap-3 pb-4 border-b border-gray-100 dark:border-zinc-700/80">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-800/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
                     </div>
-
                     <div>
-                        <flux:input wire:model="position"
-                            type="number"
-                            min="0"
-                            label="Sort Order / Position"
-                            description="Lower numbers display first (e.g. 0, 1, 2...)"
-                            placeholder="0" />
+                        <flux:heading size="lg">{{ $bannerId ? 'Edit Banner #' . $bannerId : 'Create New Banner' }}</flux:heading>
+                        <flux:subheading>Upload media assets, assign banner placement, and configure targeting.</flux:subheading>
                     </div>
                 </div>
 
-                <!-- Primary Image Media Selector -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Banner Image <span class="text-rose-500">*</span>
-                    </label>
+                <!-- Responsive 2-Column Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Column: Visual Assets & Media (6 cols) -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-zinc-800">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Visual Assets & Media
+                            </span>
+                            <span class="text-[11px] text-gray-400 font-medium">Image is required</span>
+                        </div>
 
-                    @if ($mediaUrl)
-                        <div class="relative w-full h-44 rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 group shadow-2xs">
-                            <img src="{{ $mediaUrl }}" alt="Selected Banner Image" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                <button type="button"
-                                    @click="$dispatch('open-media-modal', { targetEvent: 'banner-media-selected', type: 'image' })"
-                                    class="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold shadow hover:bg-gray-100 cursor-pointer">
-                                    Change Image
-                                </button>
-                                <button type="button"
-                                    wire:click="removeMedia"
-                                    class="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-semibold shadow hover:bg-rose-700 cursor-pointer">
-                                    Remove
-                                </button>
+                        <!-- Banner Image Selector & Preview -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                Banner Image <span class="text-rose-500">*</span>
+                            </label>
+
+                            @if ($mediaUrl)
+                                <div class="relative w-full h-52 rounded-2xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800 group shadow-sm transition hover:shadow-md">
+                                    <img src="{{ $mediaUrl }}" alt="Selected Banner Image" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-xs">
+                                        <button type="button"
+                                            @click="$dispatch('open-media-modal', { targetEvent: 'banner-media-selected', type: 'image' })"
+                                            class="px-3.5 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold shadow hover:bg-gray-100 cursor-pointer inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                            <span>Change Image</span>
+                                        </button>
+                                        <button type="button"
+                                            wire:click="removeMedia"
+                                            class="px-3.5 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-semibold shadow hover:bg-rose-700 cursor-pointer inline-flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            <span>Remove</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                <div @click="$dispatch('open-media-modal', { targetEvent: 'banner-media-selected', type: 'image' })"
+                                    class="border-2 border-dashed border-gray-300 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-2xl p-7 text-center cursor-pointer bg-gray-50/70 dark:bg-zinc-800/40 transition group">
+                                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-500 mx-auto mb-3 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Click to Select Banner Image</p>
+                                    <p class="text-[11px] text-gray-400 mt-1">Pick high-resolution image from Media Library</p>
+                                </div>
+                            @endif
+                            @error('media_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Video Media Selector (Optional) -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">
+                                Video Media <span class="text-gray-400 font-normal">(Optional background / slider video)</span>
+                            </label>
+
+                            @if ($videoMediaUrl)
+                                <div class="relative w-full h-28 rounded-2xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-slate-900 group shadow-sm flex items-center justify-center text-white">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-5 h-5 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                                        <span class="text-xs font-bold">Video Attached</span>
+                                    </div>
+                                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-xs">
+                                        <button type="button"
+                                            @click="$dispatch('open-media-modal', { targetEvent: 'banner-video-selected', type: 'video' })"
+                                            class="px-3.5 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold shadow hover:bg-gray-100 cursor-pointer inline-flex items-center gap-1.5">
+                                            <span>Change Video</span>
+                                        </button>
+                                        <button type="button"
+                                            wire:click="removeVideoMedia"
+                                            class="px-3.5 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-semibold shadow hover:bg-rose-700 cursor-pointer inline-flex items-center gap-1.5">
+                                            <span>Remove</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                <div @click="$dispatch('open-media-modal', { targetEvent: 'banner-video-selected', type: 'video' })"
+                                    class="border border-dashed border-gray-300 dark:border-zinc-700 hover:border-purple-500 dark:hover:border-purple-400 rounded-2xl p-3.5 text-center cursor-pointer bg-gray-50/50 dark:bg-zinc-800/30 transition flex items-center justify-center gap-2 group">
+                                    <svg class="w-4 h-4 text-purple-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Attach MP4 / WebM from Media Library</span>
+                                </div>
+                            @endif
+                            @error('video_media_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Aspect ratio guidance -->
+                        <div class="bg-indigo-50/60 dark:bg-indigo-950/30 rounded-xl p-3 border border-indigo-100 dark:border-indigo-900/40 text-[11px] text-indigo-700 dark:text-indigo-300 flex items-start gap-2">
+                            <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Recommended: 1920x600 for Home Slider, 1200x400 for Category Banners, 800x450 for Promos.</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Settings, Placement & Link (6 cols) -->
+                    <div class="lg:col-span-6 space-y-4">
+                        <div class="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-zinc-800">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                Placement & Targeting
+                            </span>
+                        </div>
+
+                        <!-- Banner Placement Section & Position -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 bg-slate-50 dark:bg-zinc-900/60 p-3.5 rounded-xl border border-gray-200 dark:border-zinc-700">
+                            <div>
+                                <flux:select wire:model="section" label="Placement Section" class="cursor-pointer">
+                                    @foreach ($availableSections as $secKey => $secLabel)
+                                        <option value="{{ $secKey }}">{{ $secLabel }}</option>
+                                    @endforeach
+                                </flux:select>
+                                <p class="text-[10px] text-gray-400 mt-1">Slider, Featured, or Footer</p>
+                            </div>
+
+                            <div>
+                                <flux:input wire:model="position"
+                                    type="number"
+                                    min="0"
+                                    label="Display Order"
+                                    placeholder="0" />
+                                <p class="text-[10px] text-gray-400 mt-1">Lower numbers appear first</p>
                             </div>
                         </div>
-                    @else
-                        <div @click="$dispatch('open-media-modal', { targetEvent: 'banner-media-selected', type: 'image' })"
-                            class="border-2 border-dashed border-gray-300 dark:border-zinc-700 hover:border-indigo-500 rounded-xl p-6 text-center cursor-pointer bg-gray-50/60 dark:bg-zinc-800/40 transition">
-                            <svg class="w-8 h-8 text-indigo-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Click to Select Banner Image</p>
-                            <p class="text-[11px] text-gray-400 mt-0.5">Pick from Media Library</p>
+
+                        <!-- Direct URL / Destination -->
+                        <div>
+                            <flux:input wire:model="link"
+                                type="url"
+                                label="Direct URL / Link (Optional)"
+                                placeholder="https://example.com/campaign or /shop" />
                         </div>
-                    @endif
-                    @error('media_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                </div>
 
-                <!-- Video Media Selector (Optional) -->
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                        Video Media <span class="text-gray-400 font-normal">(Optional background / slider video)</span>
-                    </label>
-
-                    @if ($videoMediaUrl)
-                        <div class="relative w-full h-32 rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-slate-900 group shadow-2xs flex items-center justify-center text-white">
-                            <div class="flex items-center gap-2">
-                                <svg class="w-6 h-6 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
-                                <span class="text-xs font-bold">Video Attached</span>
+                        <!-- Display Status Card -->
+                        <div class="p-3 bg-gray-50 dark:bg-zinc-800/40 rounded-xl border border-gray-200 dark:border-zinc-700 flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Display Status</p>
+                                <p class="text-[11px] text-gray-400">Enable or disable banner visibility across the store</p>
                             </div>
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                <button type="button"
-                                    @click="$dispatch('open-media-modal', { targetEvent: 'banner-video-selected', type: 'video' })"
-                                    class="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold shadow hover:bg-gray-100 cursor-pointer">
-                                    Change Video
-                                </button>
-                                <button type="button"
-                                    wire:click="removeVideoMedia"
-                                    class="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-semibold shadow hover:bg-rose-700 cursor-pointer">
-                                    Remove
-                                </button>
+                            <flux:switch wire:model="status" class="cursor-pointer" />
+                        </div>
+
+                        <!-- Relations: Category, SubCategory, Product -->
+                        <div class="space-y-3 pt-2 border-t border-gray-100 dark:border-zinc-700/60">
+                            <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Target Resource Linking (Optional)</p>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <flux:select wire:model.live="category_id" label="Linked Category" class="cursor-pointer">
+                                        <option value="">None (Select Category)</option>
+                                        @foreach ($categories as $cat)
+                                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                        @endforeach
+                                    </flux:select>
+                                </div>
+
+                                <div>
+                                    <flux:select wire:model="sub_category_id" label="Linked Sub-Category" class="cursor-pointer">
+                                        <option value="">None (Select Sub-Category)</option>
+                                        @foreach ($subcategories as $sub)
+                                            <option value="{{ $sub->id }}">{{ $sub->name }}</option>
+                                        @endforeach
+                                    </flux:select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <flux:select wire:model="product_id" label="Linked Product" class="cursor-pointer">
+                                    <option value="">None (Select Product)</option>
+                                    @foreach ($products as $prod)
+                                        <option value="{{ $prod->id }}">{{ $prod->name }}</option>
+                                    @endforeach
+                                </flux:select>
                             </div>
                         </div>
-                    @else
-                        <div @click="$dispatch('open-media-modal', { targetEvent: 'banner-video-selected', type: 'video' })"
-                            class="border border-dashed border-gray-300 dark:border-zinc-700 hover:border-purple-500 rounded-xl p-4 text-center cursor-pointer bg-gray-50/40 dark:bg-zinc-800/20 transition flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                            </svg>
-                            <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">Attach Video from Media Library</span>
-                        </div>
-                    @endif
-                    @error('video_media_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                </div>
-
-                <!-- Target Link (Direct URL) -->
-                <div>
-                    <flux:input wire:model="link"
-                        type="url"
-                        label="Direct Link / URL (Optional)"
-                        placeholder="https://example.com/promotion or /shop" />
-                </div>
-
-                <!-- Display Status -->
-                <div class="pt-1">
-                    <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-2">Display Status</label>
-                    <flux:switch wire:model="status" label="Active on Store" class="cursor-pointer" />
-                </div>
-
-                <!-- Relations: Category, SubCategory, Product -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100 dark:border-zinc-700/60">
-                    <div>
-                        <flux:select wire:model.live="category_id" label="Linked Category (Optional)" class="cursor-pointer">
-                            <option value="">None (Select Category)</option>
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </flux:select>
-                    </div>
-
-                    <div>
-                        <flux:select wire:model="sub_category_id" label="Linked Sub-Category (Optional)" class="cursor-pointer">
-                            <option value="">None (Select Sub-Category)</option>
-                            @foreach ($subcategories as $sub)
-                                <option value="{{ $sub->id }}">{{ $sub->name }}</option>
-                            @endforeach
-                        </flux:select>
                     </div>
                 </div>
 
-                <div>
-                    <flux:select wire:model="product_id" label="Linked Product (Optional)" class="cursor-pointer">
-                        <option value="">None (Select Product)</option>
-                        @foreach ($products as $prod)
-                            <option value="{{ $prod->id }}">{{ $prod->name }}</option>
-                        @endforeach
-                    </flux:select>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
+                <!-- Modal Actions Footer -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
                     <flux:modal.close>
                         <flux:button variant="ghost" class="cursor-pointer">Cancel</flux:button>
                     </flux:modal.close>
-                    <flux:button type="submit" variant="primary" class="cursor-pointer">
+                    <flux:button type="submit" variant="primary" icon="check" class="cursor-pointer px-6 shadow-sm">
                         {{ $bannerId ? 'Update Banner' : 'Create Banner' }}
                     </flux:button>
                 </div>

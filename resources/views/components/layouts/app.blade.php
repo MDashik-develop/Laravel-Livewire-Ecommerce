@@ -1,4 +1,4 @@
-@if (request()->routeIs('backend.*') || request()->is('dashboard*'))
+@if (request()->routeIs('backend.*') || request()->is('dashboard*') || request()->is('settings*') || request()->is('admin*'))
     <x-layouts.app.backend :title="$title ?? null">
         <flux:main>
             {{ $slot }}

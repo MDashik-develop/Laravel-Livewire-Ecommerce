@@ -460,15 +460,15 @@
                                         wire:click="saveUploads"
                                         wire:loading.attr="disabled"
                                         wire:target="saveUploads"
-                                        class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center space-x-2 whitespace-nowrap">
+                                        class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-md transition-all inline-flex flex-row items-center justify-center gap-2 whitespace-nowrap">
                                         
-                                        <span wire:loading.remove wire:target="saveUploads" class="flex items-center space-x-1.5 whitespace-nowrap">
+                                        <span wire:loading.remove wire:target="saveUploads" class="inline-flex flex-row items-center gap-1.5 whitespace-nowrap">
                                             <span>Start Processing &amp; Save</span>
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                            <svg class="w-4 h-4 shrink-0 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                         </span>
 
-                                        <span wire:loading wire:target="saveUploads" class="flex items-center space-x-2 whitespace-nowrap">
-                                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <span wire:loading wire:target="saveUploads" class="inline-flex flex-row items-center gap-2 whitespace-nowrap">
+                                            <svg class="animate-spin h-4 w-4 shrink-0 inline-block text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>

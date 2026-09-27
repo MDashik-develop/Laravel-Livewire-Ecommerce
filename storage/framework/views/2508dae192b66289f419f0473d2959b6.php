@@ -16,29 +16,9 @@
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
 <?php $component->withAttributes(['sticky' => true,'stashable' => true,'class' => 'border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900']); ?>
-            <?php if (isset($component)) { $__componentOriginal1b6467b07b302021134396bbd98e74a9 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal1b6467b07b302021134396bbd98e74a9 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::sidebar.toggle','data' => ['class' => 'lg:hidden','icon' => 'x-mark']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::sidebar.toggle'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['class' => 'lg:hidden','icon' => 'x-mark']); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal1b6467b07b302021134396bbd98e74a9)): ?>
-<?php $attributes = $__attributesOriginal1b6467b07b302021134396bbd98e74a9; ?>
-<?php unset($__attributesOriginal1b6467b07b302021134396bbd98e74a9); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal1b6467b07b302021134396bbd98e74a9)): ?>
-<?php $component = $__componentOriginal1b6467b07b302021134396bbd98e74a9; ?>
-<?php unset($__componentOriginal1b6467b07b302021134396bbd98e74a9); ?>
-<?php endif; ?>
-
-            <a href="<?php echo e(route('dashboard')); ?>" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
-                <?php if (isset($component)) { $__componentOriginal7b17d80ff7900603fe9e5f0b453cc7c3 = $component; } ?>
+            <div class="flex items-center justify-between gap-2 mb-1">
+                <a href="<?php echo e(route('dashboard')); ?>" class="flex items-center space-x-2 rtl:space-x-reverse min-w-0 flex-1" wire:navigate>
+                    <?php if (isset($component)) { $__componentOriginal7b17d80ff7900603fe9e5f0b453cc7c3 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal7b17d80ff7900603fe9e5f0b453cc7c3 = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.app-logo','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('app-logo'); ?>
@@ -58,7 +38,28 @@
 <?php $component = $__componentOriginal7b17d80ff7900603fe9e5f0b453cc7c3; ?>
 <?php unset($__componentOriginal7b17d80ff7900603fe9e5f0b453cc7c3); ?>
 <?php endif; ?>
-            </a>
+                </a>
+                <?php if (isset($component)) { $__componentOriginal1b6467b07b302021134396bbd98e74a9 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal1b6467b07b302021134396bbd98e74a9 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::sidebar.toggle','data' => ['class' => 'lg:!hidden cursor-pointer shrink-0','icon' => 'x-mark']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('flux::sidebar.toggle'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['class' => 'lg:!hidden cursor-pointer shrink-0','icon' => 'x-mark']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal1b6467b07b302021134396bbd98e74a9)): ?>
+<?php $attributes = $__attributesOriginal1b6467b07b302021134396bbd98e74a9; ?>
+<?php unset($__attributesOriginal1b6467b07b302021134396bbd98e74a9); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal1b6467b07b302021134396bbd98e74a9)): ?>
+<?php $component = $__componentOriginal1b6467b07b302021134396bbd98e74a9; ?>
+<?php unset($__componentOriginal1b6467b07b302021134396bbd98e74a9); ?>
+<?php endif; ?>
+            </div>
 
             <?php
 $__split = function ($name, $params = []) {
@@ -164,127 +165,67 @@ if (isset($__slots)) unset($__slots);
 <?php unset($__componentOriginalacac6a48a34186ea0abd369a00e5e2d4); ?>
 <?php endif; ?>
 
-            <!-- Desktop User Menu -->
-            <?php if (isset($component)) { $__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888 = $component; } ?>
+            <!-- Desktop & Mobile Permanent User Menu in Sidebar -->
+            <?php if(auth()->check()): ?>
+                <div class="pt-2 border-t border-gray-200 dark:border-zinc-700/80">
+                    <?php if (isset($component)) { $__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::dropdown','data' => ['class' => 'hidden lg:block','position' => 'bottom','align' => 'start']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::dropdown','data' => ['position' => 'top','align' => 'start','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('flux::dropdown'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['class' => 'hidden lg:block','position' => 'bottom','align' => 'start']); ?>
-                <?php if (isset($component)) { $__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::profile','data' => ['name' => auth()->user()->name,'initials' => auth()->user()->initials(),'icon:trailing' => 'chevrons-up-down']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::profile'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['name' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(auth()->user()->name),'initials' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(auth()->user()->initials()),'icon:trailing' => 'chevrons-up-down']); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994)): ?>
-<?php $attributes = $__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994; ?>
-<?php unset($__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994)): ?>
-<?php $component = $__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994; ?>
-<?php unset($__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994); ?>
-<?php endif; ?>
+<?php $component->withAttributes(['position' => 'top','align' => 'start','class' => 'w-full']); ?>
+                        <button type="button" class="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-zinc-800 transition cursor-pointer group w-full text-start">
+                            <span class="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-xl bg-indigo-600 text-white font-bold items-center justify-center text-xs shadow-xs">
+                                <?php if(auth()->user()->avatar_url): ?>
+                                    <img src="<?php echo e(auth()->user()->avatar_url); ?>" alt="<?php echo e(auth()->user()->name); ?>" class="w-full h-full object-cover">
+                                <?php else: ?>
+                                    <?php echo e(auth()->user()->initials()); ?>
 
-                <?php if (isset($component)) { $__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a = $component; } ?>
+                                <?php endif; ?>
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <div class="truncate text-xs font-bold text-gray-800 dark:text-gray-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                                    <?php echo e(auth()->user()->name); ?>
+
+                                </div>
+                                <div class="truncate text-[11px] text-gray-400">
+                                    <?php echo e(auth()->user()->email); ?>
+
+                                </div>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 shrink-0 group-hover:text-gray-600 dark:group-hover:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                            </svg>
+                        </button>
+
+                        <?php if (isset($component)) { $__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.index','data' => ['class' => 'w-[220px]']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.index','data' => ['class' => 'w-60']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('flux::menu'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['class' => 'w-[220px]']); ?>
-                    <?php if (isset($component)) { $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.radio.group','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.radio.group'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
-                                        <?php echo e(auth()->user()->initials()); ?>
-
-                                    </span>
-                                </span>
-
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold"><?php echo e(auth()->user()->name); ?></span>
-                                    <span class="truncate text-xs"><?php echo e(auth()->user()->email); ?></span>
-                                </div>
+<?php $component->withAttributes(['class' => 'w-60']); ?>
+                            <div class="px-3 py-2 border-b border-gray-100 dark:border-zinc-700">
+                                <p class="text-xs font-bold text-gray-800 dark:text-gray-100"><?php echo e(auth()->user()->name); ?></p>
+                                <p class="text-[11px] text-gray-400 truncate"><?php echo e(auth()->user()->email); ?></p>
                             </div>
-                        </div>
-                     <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $attributes = $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $component = $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
-<?php endif; ?>
-
-                    <?php if (isset($component)) { $__componentOriginald5e1eb3ae521062f8474178ba08933ca = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald5e1eb3ae521062f8474178ba08933ca = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.separator','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.separator'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald5e1eb3ae521062f8474178ba08933ca)): ?>
-<?php $attributes = $__attributesOriginald5e1eb3ae521062f8474178ba08933ca; ?>
-<?php unset($__attributesOriginald5e1eb3ae521062f8474178ba08933ca); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald5e1eb3ae521062f8474178ba08933ca)): ?>
-<?php $component = $__componentOriginald5e1eb3ae521062f8474178ba08933ca; ?>
-<?php unset($__componentOriginald5e1eb3ae521062f8474178ba08933ca); ?>
-<?php endif; ?>
-
-                    <?php if (isset($component)) { $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.radio.group','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.radio.group'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-                        <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
+                            <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['href' => route('settings.profile'),'icon' => 'cog','wire:navigate' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['href' => route('settings.profile'),'icon' => 'user','wire:navigate' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('flux::menu.item'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('settings.profile')),'icon' => 'cog','wire:navigate' => true]); ?><?php echo e(__('Settings')); ?> <?php echo $__env->renderComponent(); ?>
+<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('settings.profile')),'icon' => 'user','wire:navigate' => true]); ?><?php echo e(__('My Profile')); ?> <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
 <?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
@@ -294,18 +235,45 @@ if (isset($__slots)) unset($__slots);
 <?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
 <?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
 <?php endif; ?>
-                     <?php echo $__env->renderComponent(); ?>
+                            <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['href' => route('settings.password'),'icon' => 'key','wire:navigate' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('flux::menu.item'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php if (isset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $attributes = $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
+<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('settings.password')),'icon' => 'key','wire:navigate' => true]); ?><?php echo e(__('Password')); ?> <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
-<?php if (isset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $component = $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
+<?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
+<?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
+<?php unset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
 <?php endif; ?>
-
-                    <?php if (isset($component)) { $__componentOriginald5e1eb3ae521062f8474178ba08933ca = $component; } ?>
+<?php if (isset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
+<?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
+<?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
+<?php endif; ?>
+                            <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['href' => route('settings.appearance'),'icon' => 'paint-brush','wire:navigate' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('flux::menu.item'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('settings.appearance')),'icon' => 'paint-brush','wire:navigate' => true]); ?><?php echo e(__('Appearance')); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
+<?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
+<?php unset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
+<?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
+<?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
+<?php endif; ?>
+                            <?php if (isset($component)) { $__componentOriginald5e1eb3ae521062f8474178ba08933ca = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginald5e1eb3ae521062f8474178ba08933ca = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.separator','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('flux::menu.separator'); ?>
@@ -325,33 +293,32 @@ if (isset($__slots)) unset($__slots);
 <?php $component = $__componentOriginald5e1eb3ae521062f8474178ba08933ca; ?>
 <?php unset($__componentOriginald5e1eb3ae521062f8474178ba08933ca); ?>
 <?php endif; ?>
-
-                    <form method="POST" action="<?php echo e(route('logout')); ?>" class="w-full">
-                        <?php echo csrf_field(); ?>
-                        <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
+                            <form method="POST" action="<?php echo e(route('logout')); ?>" class="w-full">
+                                <?php echo csrf_field(); ?>
+                                <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['as' => 'button','type' => 'submit','icon' => 'arrow-right-start-on-rectangle','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['as' => 'button','type' => 'submit','icon' => 'arrow-right-start-on-rectangle','class' => 'w-full text-rose-600 dark:text-rose-400']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('flux::menu.item'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['as' => 'button','type' => 'submit','icon' => 'arrow-right-start-on-rectangle','class' => 'w-full']); ?>
-                            <?php echo e(__('Log Out')); ?>
+<?php $component->withAttributes(['as' => 'button','type' => 'submit','icon' => 'arrow-right-start-on-rectangle','class' => 'w-full text-rose-600 dark:text-rose-400']); ?>
+                                    <?php echo e(__('Log Out')); ?>
 
+                                 <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
+<?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
+<?php unset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
+<?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
+<?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
+<?php endif; ?>
+                            </form>
                          <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
-<?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
-<?php unset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
-<?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
-<?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
-<?php endif; ?>
-                    </form>
-                 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a)): ?>
 <?php $attributes = $__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a; ?>
@@ -361,7 +328,7 @@ if (isset($__slots)) unset($__slots);
 <?php $component = $__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a; ?>
 <?php unset($__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a); ?>
 <?php endif; ?>
-             <?php echo $__env->renderComponent(); ?>
+                     <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888)): ?>
 <?php $attributes = $__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888; ?>
@@ -371,6 +338,8 @@ if (isset($__slots)) unset($__slots);
 <?php $component = $__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888; ?>
 <?php unset($__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888); ?>
 <?php endif; ?>
+                </div>
+            <?php endif; ?>
          <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal17e56bc23bb0192e474b351c4358d446)): ?>
@@ -382,279 +351,24 @@ if (isset($__slots)) unset($__slots);
 <?php unset($__componentOriginal17e56bc23bb0192e474b351c4358d446); ?>
 <?php endif; ?>
 
-        <!-- Mobile User Menu -->
-        <?php if (isset($component)) { $__componentOriginale96c14d638c792103c11b984a4ed1896 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginale96c14d638c792103c11b984a4ed1896 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::header','data' => ['class' => 'lg:hidden']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::header'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['class' => 'lg:hidden']); ?>
-            <?php if (isset($component)) { $__componentOriginal1b6467b07b302021134396bbd98e74a9 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal1b6467b07b302021134396bbd98e74a9 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::sidebar.toggle','data' => ['class' => 'lg:hidden','icon' => 'bars-2','inset' => 'left']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::sidebar.toggle'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['class' => 'lg:hidden','icon' => 'bars-2','inset' => 'left']); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal1b6467b07b302021134396bbd98e74a9)): ?>
-<?php $attributes = $__attributesOriginal1b6467b07b302021134396bbd98e74a9; ?>
-<?php unset($__attributesOriginal1b6467b07b302021134396bbd98e74a9); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal1b6467b07b302021134396bbd98e74a9)): ?>
-<?php $component = $__componentOriginal1b6467b07b302021134396bbd98e74a9; ?>
-<?php unset($__componentOriginal1b6467b07b302021134396bbd98e74a9); ?>
-<?php endif; ?>
+        <!-- Global Header (Live Clock, Search Pages, Notifications, Messages, Profile, Refresh) -->
+        <?php
+$__split = function ($name, $params = []) {
+    return [$name, $params];
+};
+[$__name, $__params] = $__split('layouts.backend.global-header', []);
 
-            <?php if (isset($component)) { $__componentOriginal4a4f7aa062a095c651c2f80bb685a42a = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal4a4f7aa062a095c651c2f80bb685a42a = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::spacer','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::spacer'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal4a4f7aa062a095c651c2f80bb685a42a)): ?>
-<?php $attributes = $__attributesOriginal4a4f7aa062a095c651c2f80bb685a42a; ?>
-<?php unset($__attributesOriginal4a4f7aa062a095c651c2f80bb685a42a); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal4a4f7aa062a095c651c2f80bb685a42a)): ?>
-<?php $component = $__componentOriginal4a4f7aa062a095c651c2f80bb685a42a; ?>
-<?php unset($__componentOriginal4a4f7aa062a095c651c2f80bb685a42a); ?>
-<?php endif; ?>
+$__html = app('livewire')->mount($__name, $__params, 'lw-3926674621-1', $__slots ?? [], get_defined_vars());
 
-            <?php if (isset($component)) { $__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::dropdown','data' => ['position' => 'top','align' => 'end']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::dropdown'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['position' => 'top','align' => 'end']); ?>
-                <?php if (isset($component)) { $__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::profile','data' => ['initials' => auth()->user()->initials(),'iconTrailing' => 'chevron-down']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::profile'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['initials' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(auth()->user()->initials()),'icon-trailing' => 'chevron-down']); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994)): ?>
-<?php $attributes = $__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994; ?>
-<?php unset($__attributesOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994)): ?>
-<?php $component = $__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994; ?>
-<?php unset($__componentOriginal2e5cdd03843a4c4d68fb9a6d7bd7e994); ?>
-<?php endif; ?>
+echo $__html;
 
-                <?php if (isset($component)) { $__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.index','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-                    <?php if (isset($component)) { $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.radio.group','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.radio.group'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-                        <div class="p-0 text-sm font-normal">
-                            <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                                <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
-                                        <?php echo e(auth()->user()->initials()); ?>
+unset($__html);
+unset($__name);
+unset($__params);
+unset($__split);
+if (isset($__slots)) unset($__slots);
+?>
 
-                                    </span>
-                                </span>
-
-                                <div class="grid flex-1 text-start text-sm leading-tight">
-                                    <span class="truncate font-semibold"><?php echo e(auth()->user()->name); ?></span>
-                                    <span class="truncate text-xs"><?php echo e(auth()->user()->email); ?></span>
-                                </div>
-                            </div>
-                        </div>
-                     <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $attributes = $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $component = $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
-<?php endif; ?>
-
-                    <?php if (isset($component)) { $__componentOriginald5e1eb3ae521062f8474178ba08933ca = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald5e1eb3ae521062f8474178ba08933ca = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.separator','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.separator'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald5e1eb3ae521062f8474178ba08933ca)): ?>
-<?php $attributes = $__attributesOriginald5e1eb3ae521062f8474178ba08933ca; ?>
-<?php unset($__attributesOriginald5e1eb3ae521062f8474178ba08933ca); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald5e1eb3ae521062f8474178ba08933ca)): ?>
-<?php $component = $__componentOriginald5e1eb3ae521062f8474178ba08933ca; ?>
-<?php unset($__componentOriginald5e1eb3ae521062f8474178ba08933ca); ?>
-<?php endif; ?>
-
-                    <?php if (isset($component)) { $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.radio.group','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.radio.group'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-                        <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['href' => route('settings.profile'),'icon' => 'cog','wire:navigate' => true]] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.item'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['href' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(route('settings.profile')),'icon' => 'cog','wire:navigate' => true]); ?><?php echo e(__('Settings')); ?> <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
-<?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
-<?php unset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
-<?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
-<?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
-<?php endif; ?>
-                     <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $attributes = $__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__attributesOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1)): ?>
-<?php $component = $__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1; ?>
-<?php unset($__componentOriginal48a7a6275c4dbe43f3b08c99bf9c2ce1); ?>
-<?php endif; ?>
-
-                    <?php if (isset($component)) { $__componentOriginald5e1eb3ae521062f8474178ba08933ca = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginald5e1eb3ae521062f8474178ba08933ca = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.separator','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.separator'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes([]); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginald5e1eb3ae521062f8474178ba08933ca)): ?>
-<?php $attributes = $__attributesOriginald5e1eb3ae521062f8474178ba08933ca; ?>
-<?php unset($__attributesOriginald5e1eb3ae521062f8474178ba08933ca); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginald5e1eb3ae521062f8474178ba08933ca)): ?>
-<?php $component = $__componentOriginald5e1eb3ae521062f8474178ba08933ca; ?>
-<?php unset($__componentOriginald5e1eb3ae521062f8474178ba08933ca); ?>
-<?php endif; ?>
-
-                    <form method="POST" action="<?php echo e(route('logout')); ?>" class="w-full">
-                        <?php echo csrf_field(); ?>
-                        <?php if (isset($component)) { $__componentOriginal5027d420cfeeb03dd925cfc08ae44851 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'e60dd9d2c3a62d619c9acb38f20d5aa5::menu.item','data' => ['as' => 'button','type' => 'submit','icon' => 'arrow-right-start-on-rectangle','class' => 'w-full']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('flux::menu.item'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['as' => 'button','type' => 'submit','icon' => 'arrow-right-start-on-rectangle','class' => 'w-full']); ?>
-                            <?php echo e(__('Log Out')); ?>
-
-                         <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
-<?php $attributes = $__attributesOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
-<?php unset($__attributesOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851)): ?>
-<?php $component = $__componentOriginal5027d420cfeeb03dd925cfc08ae44851; ?>
-<?php unset($__componentOriginal5027d420cfeeb03dd925cfc08ae44851); ?>
-<?php endif; ?>
-                    </form>
-                 <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a)): ?>
-<?php $attributes = $__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a; ?>
-<?php unset($__attributesOriginalf7749b857446d2788d0b6ca0c63f9d3a); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a)): ?>
-<?php $component = $__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a; ?>
-<?php unset($__componentOriginalf7749b857446d2788d0b6ca0c63f9d3a); ?>
-<?php endif; ?>
-             <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888)): ?>
-<?php $attributes = $__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888; ?>
-<?php unset($__attributesOriginal2b4bb2cd4b8f1a3c08bae49ea918b888); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888)): ?>
-<?php $component = $__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888; ?>
-<?php unset($__componentOriginal2b4bb2cd4b8f1a3c08bae49ea918b888); ?>
-<?php endif; ?>
-         <?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginale96c14d638c792103c11b984a4ed1896)): ?>
-<?php $attributes = $__attributesOriginale96c14d638c792103c11b984a4ed1896; ?>
-<?php unset($__attributesOriginale96c14d638c792103c11b984a4ed1896); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginale96c14d638c792103c11b984a4ed1896)): ?>
-<?php $component = $__componentOriginale96c14d638c792103c11b984a4ed1896; ?>
-<?php unset($__componentOriginale96c14d638c792103c11b984a4ed1896); ?>
-<?php endif; ?>
-        
-        
-
-        
         <?php echo e($slot); ?>
 
 
@@ -664,7 +378,7 @@ $__split = function ($name, $params = []) {
 };
 [$__name, $__params] = $__split('media', []);
 
-$__html = app('livewire')->mount($__name, $__params, 'lw-3926674621-1', $__slots ?? [], get_defined_vars());
+$__html = app('livewire')->mount($__name, $__params, 'lw-3926674621-2', $__slots ?? [], get_defined_vars());
 
 echo $__html;
 

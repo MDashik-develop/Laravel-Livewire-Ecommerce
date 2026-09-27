@@ -22,4 +22,50 @@
         display: none !important;
         pointer-events: none !important;
     }
+
+    /* Keep hidden elements hidden, respecting Livewire and Alpine */
+    [x-cloak],
+    [hidden],
+    .hidden,
+    [style*="display: none"],
+    [style*="display:none"] {
+        display: none !important;
+    }
+
+    /* Force all admin buttons to keep icon and text in a single horizontal row */
+    button,
+    [data-flux-button],
+    .btn {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        vertical-align: middle;
+    }
+
+    button.text-start,
+    button.justify-start,
+    [data-flux-menu-item],
+    [data-flux-profile] {
+        justify-content: flex-start !important;
+    }
+
+    /* Flux button inner slot container when slot contains SVG & text */
+    [data-flux-button] > span:not([hidden]):not([style*="display: none"]) {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Keep all SVGs in buttons inline and non-shrinking */
+    button svg,
+    [data-flux-button] svg {
+        flex-shrink: 0 !important;
+        display: inline-block !important;
+        vertical-align: middle !important;
+    }
 </style>

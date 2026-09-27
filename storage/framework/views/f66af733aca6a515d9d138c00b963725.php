@@ -1,4 +1,4 @@
-<?php if(request()->routeIs('backend.*') || request()->is('dashboard*')): ?>
+<?php if(request()->routeIs('backend.*') || request()->is('dashboard*') || request()->is('settings*') || request()->is('admin*')): ?>
     <?php if (isset($component)) { $__componentOriginal5b3e50100890554846dee48a686a1c5c = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal5b3e50100890554846dee48a686a1c5c = $attributes; } ?>
 <?php $component = App\View\Components\Layouts\App\Backend::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>

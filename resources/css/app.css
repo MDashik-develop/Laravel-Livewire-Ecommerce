@@ -76,4 +76,104 @@ dialog:not([open]) {
     pointer-events: none !important;
 }
 
+[x-cloak] {
+    display: none !important;
+}
 
+/* Ensure buttons keep icon and text in a single horizontal row */
+button,
+[data-flux-button],
+.btn {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    vertical-align: middle;
+}
+
+button.text-start,
+button.justify-start,
+[data-flux-menu-item],
+[data-flux-profile] {
+    justify-content: flex-start !important;
+}
+
+[data-flux-button] > span:not([hidden]):not([style*="display: none"]) {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    gap: 0.5rem !important;
+}
+
+button svg,
+[data-flux-button] svg {
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+/* ==========================================================================
+   Admin Dashboard & Layout Grid / Responsive Behavior
+   ========================================================================== */
+
+/* Mobile & Tablet (< 1024px) */
+@media (max-width: 1023.98px) {
+    body:has(>[data-flux-main]),
+    body:has(>[data-flux-sidebar]) {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
+    [data-flux-main] {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    [data-flux-header] {
+        width: 100% !important;
+        max-width: 100vw !important;
+    }
+
+    /* Prevent fixed backdrop from taking up layout space */
+    body > div.fixed.inset-0 {
+        grid-area: unset !important;
+    }
+}
+
+/* Desktop (>= 1024px) */
+@media (min-width: 1024px) {
+    body:has(>[data-flux-main]) {
+        display: grid !important;
+        grid-template-rows: auto 1fr auto !important;
+        grid-template-columns: 16rem minmax(0, 1fr) !important;
+        grid-template-areas:
+            "sidebar header"
+            "sidebar main"
+            "sidebar footer" !important;
+    }
+
+    [data-flux-sidebar] {
+        grid-area: sidebar !important;
+        width: 16rem !important;
+    }
+
+    [data-flux-header] {
+        grid-area: header !important;
+    }
+
+    [data-flux-main] {
+        grid-area: main !important;
+        min-width: 0 !important;
+    }
+}

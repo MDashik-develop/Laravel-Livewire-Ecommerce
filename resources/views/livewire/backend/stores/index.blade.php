@@ -14,15 +14,8 @@
             </div>
 
             <div class="flex items-center gap-3">
-                <flux:button wire:click="save" @click="syncSummernoteBeforeSave()" variant="primary" class="cursor-pointer flex items-center gap-2 shadow-sm">
-                    <svg wire:loading.remove wire:target="save" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                    <svg wire:loading wire:target="save" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    <span>Save All Changes</span>
+                <flux:button wire:click="save" @click="syncSummernoteBeforeSave()" variant="primary" icon="check" class="cursor-pointer shadow-sm">
+                    Save All Changes
                 </flux:button>
             </div>
         </div>
@@ -440,7 +433,7 @@
                 <flux:button type="button" wire:click="loadDefaultStore" variant="ghost" class="cursor-pointer">
                     Reset Changes
                 </flux:button>
-                <flux:button type="submit" @click="syncSummernoteBeforeSave()" variant="primary" class="cursor-pointer px-6">
+                <flux:button type="submit" @click="syncSummernoteBeforeSave()" variant="primary" icon="check" class="cursor-pointer px-6">
                     Save Store Information
                 </flux:button>
             </div>
