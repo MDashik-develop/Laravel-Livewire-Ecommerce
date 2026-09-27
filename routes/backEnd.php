@@ -22,6 +22,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('backend.')->grou
    Route::get('/brands', BrandsIndex::class)->name('brands.index');
 
    Route::get('/stores', StoreIndex::class)->name('stores.index');
+   Route::get('/store/edit', StoreIndex::class)->name('stores.edit');
    Route::get('/stores/approval', StoreApproval::class)->name('stores.approval');
 
    Route::get('/products', ProductsIndex::class)->name('products.index');

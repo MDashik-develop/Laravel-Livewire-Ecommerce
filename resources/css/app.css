@@ -61,6 +61,19 @@ select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
+button,
+[role="button"],
+[data-flux-button],
+[data-flux-navlist-item],
+a[href],
+summary,
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+dialog:not([open]) {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+

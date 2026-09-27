@@ -290,6 +290,19 @@ class Media extends Component
 
     public function render(MediaService $service)
     {
+        if (!$this->isOpen) {
+            $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24);
+            return view('livewire.media', [
+                'mediaItems'         => $emptyPaginator,
+                'folders'            => [],
+                'selectedMedia'      => null,
+                'trashedCount'       => 0,
+                'trashedFolders'     => [],
+                'trashedItems'       => $emptyPaginator,
+                'selectedTrashMedia' => null,
+            ]);
+        }
+
         // Query active media
         $query = MediaModel::query()->latest();
 
@@ -314,10 +327,11 @@ class Media extends Component
 
         // Trash data
         $trashedCount = MediaModel::onlyTrashed()->count();
-        $trashedFolders = $service->getTrashedFolders();
-        $trashedItems = collect();
+        $trashedFolders = [];
+        $trashedItems = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 24);
 
         if ($this->tab === 'trash') {
+            $trashedFolders = $service->getTrashedFolders();
             $trashQuery = MediaModel::onlyTrashed()->latest('deleted_at');
 
             if ($this->trashFolder) {

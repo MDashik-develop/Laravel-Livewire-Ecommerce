@@ -14,7 +14,6 @@ use Illuminate\Support\Str;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductAttribute;
-use App\Models\Store;
 use App\Models\Category;
 use App\Models\SubCategory;
 use App\Models\Brand;
@@ -28,7 +27,6 @@ class Index extends Component
 
     public $search = '';
     public ?int $productId = null;
-    public ?int $store_id = null;
     public $category_id = null;
     public $sub_category_id = null;
     public $subcategories = [];
@@ -44,13 +42,12 @@ class Index extends Component
     public bool $status = true;
     public bool $is_featured = false;
 
-    public $visibleColumns = ['id', 'image', 'name', 'store', 'category', 'status', 'actions'];
+    public $visibleColumns = ['id', 'image', 'name', 'category', 'status', 'actions'];
 
     public $columns = [
         ['key' => 'id', 'label' => 'Id', 'sortable' => true],
         ['key' => 'image', 'label' => 'Image'],
         ['key' => 'name', 'label' => 'Name', 'sortable' => true],
-        ['key' => 'store', 'label' => 'Store'],
         ['key' => 'category', 'label' => 'Category'],
         ['key' => 'brand', 'label' => 'Brand'],
         ['key' => 'sku', 'label' => 'Sku'],
@@ -102,7 +99,6 @@ class Index extends Component
     protected function rules()
     {
         return [
-            'store_id' => 'required|exists:stores,id',
             'category_id' => 'required|exists:categories,id',
             'sub_category_id' => 'nullable|exists:sub_categories,id',
             'brand_id' => 'nullable|exists:brands,id',
@@ -174,7 +170,7 @@ class Index extends Component
     public function resetForm()
     {
         $this->reset([
-            'productId','store_id','category_id','sub_category_id','brand_id','name','slug',
+            'productId','category_id','sub_category_id','brand_id','name','slug',
             'short_description','long_description','media_id','mediaUrl',
             'existingGallery','productAttributes','status','is_featured'
         ]);
@@ -189,7 +185,6 @@ class Index extends Component
     {
         $this->resetForm();
         $this->productId = $product->id;
-        $this->store_id = $product->store_id;
         $this->category_id = $product->category_id;
         $this->sub_category_id = $product->sub_category_id;
         $this->brand_id = $product->brand_id;
@@ -289,19 +284,18 @@ class Index extends Component
 
     public function render()
     {
-        $stores = Store::where('user_id', Auth::id())->where('status', true)->where('is_approved', true)->get();
         $categories = Category::all();
         $subcategories = SubCategory::where('category_id', $this->category_id)->get();
         $brands = Brand::all();
 
         if (trim($this->search) === '') {
-            $products = Product::with(['store', 'category', 'brand', 'attributes', 'media'])
+            $products = Product::with(['category', 'brand', 'attributes', 'media'])
                 ->orderBy($this->sortField, $this->sortDirection)
                 ->paginate(10);
 
-            return view('livewire.backend.products.index', compact('products', 'stores', 'categories', 'subcategories', 'brands'));
+            return view('livewire.backend.products.index', compact('products', 'categories', 'subcategories', 'brands'));
         } else {
-            $attributes = ProductAttribute::with(['product.store', 'product.category', 'product.brand', 'product.media'])
+            $attributes = ProductAttribute::with(['product.category', 'product.brand', 'product.media'])
                 ->whereHas('product', function ($query) {
                     $query->where('name', 'like', '%' . $this->search . '%');
                 })
@@ -313,7 +307,6 @@ class Index extends Component
 
             return view('livewire.backend.products.index', [
                 'products' => $attributes,
-                'stores' => $stores,
                 'categories' => $categories,
                 'subcategories' => $subcategories,
                 'brands' => $brands,

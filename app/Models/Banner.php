@@ -8,13 +8,14 @@ class Banner extends Model
 {
     protected $fillable = [
         'media_id',
-        'mobile_media_id',
+        'video_media_id',
         'link',
         'category_id',
         'sub_category_id',
         'product_id',
         'status',
         'position',
+        'section',
     ];
 
     public function media()
@@ -22,9 +23,9 @@ class Banner extends Model
         return $this->belongsTo(Media::class, 'media_id');
     }
 
-    public function mobileMedia()
+    public function videoMedia()
     {
-        return $this->belongsTo(Media::class, 'mobile_media_id');
+        return $this->belongsTo(Media::class, 'video_media_id');
     }
 
     public function category()

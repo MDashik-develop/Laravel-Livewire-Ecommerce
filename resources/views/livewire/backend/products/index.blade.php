@@ -103,10 +103,6 @@
                                                         {{ $product->name }}
                                                     @break
 
-                                                    @case('store')
-                                                        {{ $product->store->name ?? '-' }}
-                                                    @break
-
                                                     @case('category')
                                                         {{ $product->category->name ?? '-' }}
                                                     @break
@@ -152,10 +148,10 @@
                                                     @case('actions')
                                                         <div class="flex items-center justify-center gap-2 text-sm font-medium">
                                                             <flux:button wire:click="edit({{ $product->id }})"
-                                                                icon="pencil-square"></flux:button>
+                                                                icon="pencil-square" class="cursor-pointer"></flux:button>
                                                             <flux:modal.trigger name="delete-modal">
                                                                 <flux:button wire:click="confirmDelete({{ $product->id }})"
-                                                                    icon="trash" variant="danger"></flux:button>
+                                                                    icon="trash" variant="danger" class="cursor-pointer"></flux:button>
                                                             </flux:modal.trigger>
                                                         </div>
                                                     @break
@@ -207,10 +203,6 @@
                                                             {{ $attribute->product->name }}
                                                         @break
 
-                                                        @case('store')
-                                                            {{ $attribute->product->store->name ?? '-' }}
-                                                        @break
-
                                                         @case('category')
                                                             {{ $attribute->product->category->name ?? '-' }}
                                                         @break
@@ -258,11 +250,11 @@
                                                         @case('actions')
                                                             <div class="flex items-center justify-center gap-2 text-sm font-medium">
                                                                 <flux:button wire:click="edit({{ $attribute->product->id }})"
-                                                                    icon="pencil-square"></flux:button>
+                                                                    icon="pencil-square" class="cursor-pointer"></flux:button>
                                                                 <flux:modal.trigger name="delete-modal">
                                                                     <flux:button
                                                                         wire:click="confirmDelete({{ $attribute->product->id }})"
-                                                                        icon="trash" variant="danger"></flux:button>
+                                                                        icon="trash" variant="danger" class="cursor-pointer"></flux:button>
                                                                 </flux:modal.trigger>
                                                             </div>
                                                         @break
@@ -302,18 +294,8 @@
                             <flux:text class="mt-2">Fill in the details for the product.</flux:text>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <flux:select wire:model="store_id" label="Store">
-                                @if (!$productId)
-                                    <option value="">Select Store</option>
-                                @endif
-                                @foreach ($stores as $store)
-                                    <option value="{{ $store->id }}" {{ $store_id == $store->id ? 'selected' : '' }}>
-                                        {{ $store->name }}</option>
-                                @endforeach
-                            </flux:select>
-
-                            <flux:select wire:model="brand_id" label="Brand">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <flux:select wire:model="brand_id" label="Brand" class="cursor-pointer">
                                 <option value="">Select Brand</option>
                                 @foreach ($brands as $brand)
                                     <option value="{{ $brand->id }}">{{ $brand->name }}</option>
@@ -337,29 +319,16 @@
                             </flux:select>
                         </div>
 
-                        <flux:input wire:model.live="name" label="Product Name" placeholder="Product Name" />
+                        <flux:input wire:model.blur="name" label="Product Name" placeholder="Product Name" />
                         <flux:input wire:model="slug" label="Slug" placeholder="product-slug" />
 
-                        <flux:input wire:model.live="short_description" label="Short Description"
+                        <flux:input wire:model="short_description" label="Short Description"
                             placeholder="Short description..." />
 
                         <!-- Summernote for long description -->
                         <flux:field>
-                            <div x-data x-init="const summernote = $($refs.editor).summernote({
-                                height: 250,
-                                callbacks: {
-                                    onChange: (description) => $wire.long_description = description
-                                }
-                            });
-                            
-                            $watch('$wire.long_description', value => {
-                                if (value !== $($refs.editor).summernote('code')) {
-                                    $($refs.editor).summernote('code', value);
-                                }
-                            });">
-                                <div wire:ignore>
-                                    <textarea x-ref="editor">{!! $long_description !!}</textarea>
-                                </div>
+                            <div wire:ignore>
+                                <textarea class="summernote-init w-full" data-field="long_description" data-height="250" placeholder="Product detailed description...">{!! $long_description !!}</textarea>
                             </div>
                             <flux:error name="long_description" />
                         </flux:field>
@@ -496,7 +465,7 @@
                             <flux:modal.close>
                                 <flux:button type="button" variant="filled">Cancel</flux:button>
                             </flux:modal.close>
-                            <flux:button type="submit" variant="primary" class="ml-3">Save</flux:button>
+                            <flux:button type="submit" @click="syncSummernoteBeforeSave()" variant="primary" class="ml-3">Save</flux:button>
                         </div>
                     </form>
                 </flux:modal>

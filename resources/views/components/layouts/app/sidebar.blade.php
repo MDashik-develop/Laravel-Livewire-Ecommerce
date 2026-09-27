@@ -31,12 +31,8 @@
                                         wire:navigate>{{__('All Brands') }}</flux:navlist.item>
                 </flux:navlist.group>
 
-                 <flux:navlist.group expandable :expanded="request()->routeIs('backend.stores.*')" heading="Stores" class="lg:grid">
-                    <flux:navlist.item icon="building-storefront" :href="route('backend.stores.index')" :current="request()->routeIs('backend.stores.index')"
-                                        wire:navigate>{{__('All Stores') }}</flux:navlist.item>
-                    <flux:navlist.item icon="check-badge" :href="route('backend.stores.approval')" :current="request()->routeIs('backend.stores.approval')"
-                                        wire:navigate>{{__('Stores Approval') }}</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item icon="building-storefront" :href="route('backend.stores.index')" :current="request()->routeIs('backend.stores.*')"
+                                    wire:navigate class="cursor-pointer">{{__('Store Edit') }}</flux:navlist.item>
             </flux:navlist>
 
             <flux:spacer />
@@ -155,10 +151,3 @@
 
     </body>
 </html>
-
-
-<x-layouts.app.backend :title="$title ?? null" :>
-    <flux:main>
-        {{ $slot }}
-    </flux:main>
-</x-layouts.app.backend>

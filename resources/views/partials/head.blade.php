@@ -16,3 +16,10 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
+
+<style>
+    dialog:not([open]) {
+        display: none !important;
+        pointer-events: none !important;
+    }
+</style>

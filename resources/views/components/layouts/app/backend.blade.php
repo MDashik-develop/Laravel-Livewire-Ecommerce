@@ -132,5 +132,75 @@
 
         @fluxScripts
 
+        <!-- Livewire lifecycle re-initialization system -->
+        <script data-navigate-once>
+            function initializePageContent() {
+                if (!window.jQuery || !window.jQuery.fn.summernote) return;
+
+                // Defer to next frame so clicks and DOM updates complete smoothly
+                requestAnimationFrame(function () {
+                    $('.summernote-init:visible').each(function () {
+                        let $el = $(this);
+                        if (!$el.next('.note-editor').length) {
+                            let height = $el.data('height') || 220;
+                            $el.summernote({
+                                height: height,
+                                placeholder: $el.attr('placeholder') || 'Write content...',
+                                toolbar: [
+                                    ['style', ['style', 'bold', 'italic', 'underline', 'clear']],
+                                    ['font', ['strikethrough']],
+                                    ['para', ['ul', 'ol', 'paragraph']],
+                                    ['insert', ['link', 'table']],
+                                    ['view', ['fullscreen', 'codeview']]
+                                ]
+                            });
+                        }
+                    });
+                });
+            }
+
+            function syncSummernoteBeforeSave() {
+                if (window.jQuery && window.jQuery.fn.summernote) {
+                    $('.summernote-init').each(function () {
+                        let $el = $(this);
+                        let field = $el.data('field');
+                        if ($el.next('.note-editor').length && field) {
+                            let code = $el.summernote('code');
+                            let comp = $el.closest('[wire\\:id]');
+                            if (comp.length && window.Livewire) {
+                                let livewireComp = Livewire.find(comp.attr('wire:id'));
+                                if (livewireComp) {
+                                    livewireComp.set(field, code, false);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Register lifecycle events exactly as requested, protected against duplicate stacking
+            if (!window.__app_lifecycle_initialized) {
+                window.__app_lifecycle_initialized = true;
+
+                document.addEventListener('DOMContentLoaded', initializePageContent);
+                document.addEventListener('livewire:load', initializePageContent);
+                document.addEventListener('livewire:init', initializePageContent);
+                document.addEventListener('livewire:updated', initializePageContent);
+                document.addEventListener('livewire:navigated', initializePageContent);
+
+                // Clean up before navigating to prevent memory traps and detached DOM
+                document.addEventListener('livewire:navigating', function () {
+                    if (window.jQuery && window.jQuery.fn.summernote) {
+                        $('.summernote-init').each(function () {
+                            if ($(this).next('.note-editor').length) {
+                                try {
+                                    $(this).summernote('destroy');
+                                } catch(e) {}
+                            }
+                        });
+                    }
+                });
+            }
+        </script>
     </body>
 </html>

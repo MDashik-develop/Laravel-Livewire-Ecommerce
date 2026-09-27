@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('banners', function (Blueprint $table) {
             $table->id();
             $table->foreignId('media_id')->nullable()->constrained('media')->nullOnDelete();
-            $table->foreignId('mobile_media_id')->nullable()->constrained('media')->nullOnDelete();
+            $table->foreignId('video_media_id')->nullable()->constrained('media')->nullOnDelete();
             $table->string('link')->nullable();
 
             // optional relations
@@ -24,6 +24,7 @@ return new class extends Migration
 
             $table->boolean('status')->default(true);
             $table->integer('position')->default(0);
+            $table->string('section', 50)->default('slider');
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Forntend\Home;
 
+use App\Models\Banner;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -49,10 +50,43 @@ class Index extends Component
 
     public function render()
     {
-        $products = Product::with('attributes')->latest()->get();
+        $sliderBanners = Banner::with(['media', 'videoMedia', 'category', 'product'])
+            ->where('status', true)
+            ->where(function ($q) {
+                $q->where('section', 'slider')
+                  ->orWhereNull('section')
+                  ->orWhere('section', '');
+            })
+            ->orderBy('position', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $featuredBanners = Banner::with(['media', 'videoMedia', 'category', 'product'])
+            ->where('status', true)
+            ->where('section', 'featured')
+            ->orderBy('position', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $footerBanners = Banner::with(['media', 'videoMedia', 'category', 'product'])
+            ->where('status', true)
+            ->where('section', 'footer')
+            ->orderBy('position', 'asc')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $products = Product::with(['attributes', 'media'])
+            ->where('status', true)
+            ->latest()
+            ->take(16)
+            ->get();
 
         return view('livewire.forntend.home.index', [
-            'products' => $products,
+            'banners'         => $sliderBanners,
+            'sliderBanners'   => $sliderBanners,
+            'featuredBanners' => $featuredBanners,
+            'footerBanners'   => $footerBanners,
+            'products'        => $products,
         ]);
     }
 }

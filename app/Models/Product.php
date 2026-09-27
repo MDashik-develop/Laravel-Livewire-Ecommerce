@@ -10,7 +10,6 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
-        'store_id',
         'category_id',
         'sub_category_id',
         'brand_id',
@@ -31,11 +30,6 @@ class Product extends Model
     public function gallery()
     {
         return $this->hasManyThrough(Media::class, ProductImage::class, 'product_id', 'id', 'id', 'media_id');
-    }
-
-    public function store()
-    {
-        return $this->belongsTo(Store::class);
     }
 
     public function category()

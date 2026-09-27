@@ -98,41 +98,54 @@ class MediaService
             $smallPath = storage_path('app/public/media/small/' . $fileName);
             $thumbPath = storage_path('app/public/media/thumb/' . $fileName);
 
+            $processed = false;
+
             if ($this->imageManager) {
-                // 1. Original
-                $origImage = $this->readImage($sourcePath);
-                $this->saveAsWebp($origImage, $origPath, 90);
+                try {
+                    $baseImage = $this->readImage($sourcePath);
+                    if ($baseImage) {
+                        // 1. Original (Preserve original dimensions & aspect ratio untouched)
+                        $origImage = clone $baseImage;
+                        $this->saveAsWebp($origImage, $origPath, 85);
 
-                // 2. Large (max width 1000px)
-                $largeImage = $this->readImage($sourcePath);
-                if ($largeImage && $largeImage->width() > 1000) {
-                    if (method_exists($largeImage, 'scaleDown')) {
-                        $largeImage->scaleDown(width: 1000);
-                    } elseif (method_exists($largeImage, 'scale')) {
-                        $largeImage->scale(width: 1000);
+                        // 2. Large (Scale width to max 1000px, preserving aspect ratio)
+                        $largeImage = clone $baseImage;
+                        if ($largeImage->width() > 1000) {
+                            if (method_exists($largeImage, 'scaleDown')) {
+                                $largeImage->scaleDown(width: 1000);
+                            } elseif (method_exists($largeImage, 'scale')) {
+                                $largeImage->scale(width: 1000);
+                            }
+                        }
+                        $this->saveAsWebp($largeImage, $largePath, 85);
+
+                        // 3. Small (Scale width to max 400px, preserving aspect ratio)
+                        $smallImage = clone $largeImage;
+                        if ($smallImage->width() > 400) {
+                            if (method_exists($smallImage, 'scaleDown')) {
+                                $smallImage->scaleDown(width: 400);
+                            } elseif (method_exists($smallImage, 'scale')) {
+                                $smallImage->scale(width: 400);
+                            }
+                        }
+                        $this->saveAsWebp($smallImage, $smallPath, 85);
+
+                        // 4. Thumb (150x150 square crop with best quality from base image)
+                        $thumbImage = clone $baseImage;
+                        if (method_exists($thumbImage, 'cover')) {
+                            $thumbImage->cover(150, 150);
+                        }
+                        $this->saveAsWebp($thumbImage, $thumbPath, 85);
+
+                        $processed = true;
                     }
+                } catch (\Throwable $e) {
+                    $processed = false;
                 }
-                $this->saveAsWebp($largeImage, $largePath, 90);
+            }
 
-                // 3. Small (max width 400px)
-                $smallImage = $this->readImage($sourcePath);
-                if ($smallImage && $smallImage->width() > 400) {
-                    if (method_exists($smallImage, 'scaleDown')) {
-                        $smallImage->scaleDown(width: 400);
-                    } elseif (method_exists($smallImage, 'scale')) {
-                        $smallImage->scale(width: 400);
-                    }
-                }
-                $this->saveAsWebp($smallImage, $smallPath, 90);
-
-                // 4. Thumb (150x150 square crop)
-                $thumbImage = $this->readImage($sourcePath);
-                if ($thumbImage && method_exists($thumbImage, 'cover')) {
-                    $thumbImage->cover(150, 150);
-                }
-                $this->saveAsWebp($thumbImage, $thumbPath, 90);
-            } else {
-                // Pure Native GD Fallback Engine
+            if (!$processed) {
+                // Pure Native GD Fallback Engine (keeping aspect ratio, quality 85)
                 $this->processWithNativeGd($sourcePath, $origPath, $largePath, $smallPath, $thumbPath);
             }
 
@@ -189,31 +202,68 @@ class MediaService
             return;
         }
 
-        // 1. Original (WebP format)
-        if (function_exists('imagewebp')) {
-            imagewebp($srcImg, $origPath, 90);
-        } else {
-            imagejpeg($srcImg, $origPath, 90);
+        // Auto-orient JPEG if EXIF is present
+        if (function_exists('exif_read_data') && ($mime === 'image/jpeg')) {
+            $exif = @exif_read_data($sourcePath);
+            if (!empty($exif['Orientation'])) {
+                $srcImg = match ($exif['Orientation']) {
+                    3 => imagerotate($srcImg, 180, 0),
+                    6 => imagerotate($srcImg, -90, 0),
+                    8 => imagerotate($srcImg, 90, 0),
+                    default => $srcImg,
+                };
+                $width = imagesx($srcImg);
+                $height = imagesy($srcImg);
+            }
         }
 
-        // 2. Large (Scale width to max 1000px)
-        $this->resizeNativeGd($srcImg, $width, $height, 1000, null, $largePath);
+        // 1. Original (WebP format, quality 85, exact original aspect ratio and dimensions)
+        if (function_exists('imagewebp')) {
+            imagewebp($srcImg, $origPath, 85);
+        } else {
+            imagejpeg($srcImg, $origPath, 85);
+        }
 
-        // 3. Small (Scale width to max 400px)
-        $this->resizeNativeGd($srcImg, $width, $height, 400, null, $smallPath);
+        // 2. Large (Scale width to max 1000px, keeping exact aspect ratio)
+        $largeImg = $this->createResizedGd($srcImg, $width, $height, 1000);
+        $largeW = imagesx($largeImg);
+        $largeH = imagesy($largeImg);
+        if (function_exists('imagewebp')) {
+            imagewebp($largeImg, $largePath, 85);
+        } else {
+            imagejpeg($largeImg, $largePath, 85);
+        }
 
-        // 4. Thumb (Square 150x150 crop)
-        $this->cropSquareNativeGd($srcImg, $width, $height, 150, $thumbPath);
+        // 3. Small (Scale width to max 400px, keeping exact aspect ratio)
+        $smallImg = $this->createResizedGd($largeImg, $largeW, $largeH, 400);
+        $smallW = imagesx($smallImg);
+        $smallH = imagesy($smallImg);
+        if (function_exists('imagewebp')) {
+            imagewebp($smallImg, $smallPath, 85);
+        } else {
+            imagejpeg($smallImg, $smallPath, 85);
+        }
 
+        // 4. Thumb (Square 150x150 crop directly from source)
+        $thumbImg = $this->createCropSquareGd($srcImg, $width, $height, 150);
+        if (function_exists('imagewebp')) {
+            imagewebp($thumbImg, $thumbPath, 85);
+        } else {
+            imagejpeg($thumbImg, $thumbPath, 85);
+        }
+
+        imagedestroy($thumbImg);
+        imagedestroy($smallImg);
+        imagedestroy($largeImg);
         imagedestroy($srcImg);
     }
 
-    protected function resizeNativeGd($srcImg, int $srcW, int $srcH, ?int $maxW, ?int $maxH, string $destination): void
+    protected function createResizedGd($srcImg, int $srcW, int $srcH, int $maxW)
     {
         $targetW = $srcW;
         $targetH = $srcH;
 
-        if ($maxW && $srcW > $maxW) {
+        if ($srcW > $maxW) {
             $targetW = $maxW;
             $targetH = (int) round(($srcH * $maxW) / $srcW);
         }
@@ -222,17 +272,10 @@ class MediaService
         imagealphablending($dstImg, false);
         imagesavealpha($dstImg, true);
         imagecopyresampled($dstImg, $srcImg, 0, 0, 0, 0, $targetW, $targetH, $srcW, $srcH);
-
-        if (function_exists('imagewebp')) {
-            imagewebp($dstImg, $destination, 90);
-        } else {
-            imagejpeg($dstImg, $destination, 90);
-        }
-
-        imagedestroy($dstImg);
+        return $dstImg;
     }
 
-    protected function cropSquareNativeGd($srcImg, int $srcW, int $srcH, int $size, string $destination): void
+    protected function createCropSquareGd($srcImg, int $srcW, int $srcH, int $size)
     {
         $minDim = min($srcW, $srcH);
         $srcX = (int) round(($srcW - $minDim) / 2);
@@ -242,14 +285,7 @@ class MediaService
         imagealphablending($dstImg, false);
         imagesavealpha($dstImg, true);
         imagecopyresampled($dstImg, $srcImg, 0, 0, $srcX, $srcY, $size, $size, $minDim, $minDim);
-
-        if (function_exists('imagewebp')) {
-            imagewebp($dstImg, $destination, 90);
-        } else {
-            imagejpeg($dstImg, $destination, 90);
-        }
-
-        imagedestroy($dstImg);
+        return $dstImg;
     }
 
     /**
@@ -276,7 +312,7 @@ class MediaService
     /**
      * Save image as WebP format with quality.
      */
-    protected function saveAsWebp($image, string $destination, int $quality = 90): void
+    protected function saveAsWebp($image, string $destination, int $quality = 85): void
     {
         if (!$image) {
             return;

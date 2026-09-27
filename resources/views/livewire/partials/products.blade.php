@@ -2,8 +2,9 @@
 <div class="card group">
     <div class="relative overflow-hidden">
         <img class="w-full h-72 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out"
-            src="{{ asset('storage') . '/' . $product->thumbnail_image ?? 'https://placehold.co/400x500/DBEAFE/1E3A8A?text=Product+1' }}"
-            alt="[Stylish Jacket er chobi]">
+            src="{{ $product->media ? $product->media->url : 'https://placehold.co/400x500/DBEAFE/1E3A8A?text=' . urlencode($product->name) }}"
+            alt="{{ $product->name }}"
+            loading="lazy">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div class="absolute top-4 left-4">
             <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">Demo</span>

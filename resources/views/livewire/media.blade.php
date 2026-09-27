@@ -7,7 +7,9 @@
     }
 }">
     <!-- Large Flux Modal for Media Management -->
-    <flux:modal name="media-manager-modal" :closable="false" class="!max-w-7xl !w-[96vw] !h-[92vh] flex flex-col p-0 overflow-hidden bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-2xl">
+    <flux:modal name="media-manager-modal" :closable="false" class="!max-w-7xl !w-[96vw] !h-[92vh] p-0 overflow-hidden bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-2xl">
+        @if ($isOpen)
+        <div class="flex flex-col h-full w-full">
         <!-- Top Navigation Bar -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-4 bg-gray-50/70 dark:bg-zinc-900/90 shrink-0">
             <!-- Left Side: 3 Option Tabs -->
@@ -241,7 +243,93 @@
 
                 <!-- TAB 3: UPLOAD -->
                 @if ($tab === 'upload')
-                    <div class="max-w-3xl mx-auto space-y-6">
+                    <div x-data="{
+                        isUploading: false,
+                        progress: 0,
+                        statusText: '',
+                        isDragging: false,
+                        async handleFiles(files) {
+                            const fileList = Array.from(files || []);
+                            if (!fileList.length) return;
+
+                            this.isUploading = true;
+                            this.progress = 5;
+                            this.statusText = 'Optimizing media for ultra-fast upload...';
+
+                            const processed = [];
+                            for (let i = 0; i < fileList.length; i++) {
+                                const f = fileList[i];
+                                if (f.type.startsWith('image/') && !f.type.includes('gif') && !f.type.includes('svg') && !f.name.toLowerCase().endsWith('.gif')) {
+                                    try {
+                                        const c = await this.compress(f);
+                                        processed.push(c);
+                                    } catch(err) {
+                                        processed.push(f);
+                                    }
+                                } else {
+                                    processed.push(f);
+                                }
+                            }
+
+                            this.statusText = 'Uploading to server...';
+                            this.progress = 20;
+
+                            @this.uploadMultiple('uploads', processed,
+                                () => {
+                                    this.isUploading = false;
+                                    this.progress = 100;
+                                    this.statusText = '';
+                                },
+                                () => {
+                                    this.isUploading = false;
+                                    this.statusText = 'Upload failed. Please try again.';
+                                },
+                                (evt) => {
+                                    this.progress = Math.max(20, evt.detail.progress);
+                                    this.statusText = `Uploading: ${this.progress}%`;
+                                }
+                            );
+                        },
+                        compress(file) {
+                            return new Promise((resolve) => {
+                                if (file.size < 400 * 1024) return resolve(file);
+                                const img = new Image();
+                                const src = URL.createObjectURL(file);
+                                img.src = src;
+                                img.onload = () => {
+                                    URL.revokeObjectURL(src);
+                                    const max = 1920;
+                                    let w = img.naturalWidth || img.width;
+                                    let h = img.naturalHeight || img.height;
+                                    if (w > max || h > max) {
+                                        if (w > h) {
+                                            h = Math.round((h * max) / w);
+                                            w = max;
+                                        } else {
+                                            w = Math.round((w * max) / h);
+                                            h = max;
+                                        }
+                                    } else if (file.size < 800 * 1024) {
+                                        return resolve(file);
+                                    }
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = w;
+                                    canvas.height = h;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(img, 0, 0, w, h);
+                                    canvas.toBlob((blob) => {
+                                        if (!blob || blob.size >= file.size) return resolve(file);
+                                        const name = file.name.replace(/\.[^/.]+$/, '') + '.webp';
+                                        resolve(new File([blob], name, { type: 'image/webp', lastModified: Date.now() }));
+                                    }, 'image/webp', 0.85);
+                                };
+                                img.onerror = () => {
+                                    URL.revokeObjectURL(src);
+                                    resolve(file);
+                                };
+                            });
+                        }
+                    }" class="max-w-3xl mx-auto space-y-6">
                         <!-- Folder Selection for Upload -->
                         <div class="bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-center justify-between">
                             <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Target Folder:</label>
@@ -255,9 +343,14 @@
                         </div>
 
                         <!-- Drag and Drop Upload Area -->
-                        <div class="relative border-2 border-dashed border-gray-300 dark:border-zinc-700 hover:border-indigo-500 dark:hover:border-indigo-400 rounded-2xl p-10 text-center transition-colors bg-white dark:bg-zinc-900 group">
+                        <div 
+                            @dragover.prevent="isDragging = true"
+                            @dragleave.prevent="isDragging = false"
+                            @drop.prevent="isDragging = false; handleFiles($event.dataTransfer.files)"
+                            :class="isDragging ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-950/20' : 'border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-900'"
+                            class="relative border-2 border-dashed hover:border-indigo-500 dark:hover:border-indigo-400 rounded-2xl p-10 text-center transition-colors group">
                             <input type="file"
-                                wire:model="uploads"
+                                @change="handleFiles($event.target.files); $event.target.value = ''"
                                 multiple
                                 accept="image/*,video/*,.gif"
                                 class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
@@ -280,7 +373,7 @@
                                         <svg class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                         </svg>
-                                        <span>Auto WebP Compression</span>
+                                        <span>Client &amp; Server WebP Speed Engine</span>
                                     </span>
 
                                     <!-- Video Direct Storage -->
@@ -302,14 +395,20 @@
                             </div>
                         </div>
 
-                        <!-- Upload Loading State / Progress -->
-                        <div wire:loading wire:target="uploads" class="w-full text-center py-4 space-y-2">
-                            <div class="inline-flex items-center space-x-2 text-indigo-600 font-semibold text-xs">
-                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Uploading files to server (up to 200MB)... Please wait.</span>
+                        <!-- Real-time Upload Progress Bar -->
+                        <div x-show="isUploading" x-cloak class="w-full bg-white dark:bg-zinc-800/90 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm space-y-2">
+                            <div class="flex items-center justify-between text-xs font-semibold text-indigo-700 dark:text-indigo-300">
+                                <span class="flex items-center gap-2">
+                                    <svg class="animate-spin h-4 w-4 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="statusText"></span>
+                                </span>
+                                <span class="font-mono" x-text="progress + '%'"></span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-zinc-700 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-indigo-600 h-full rounded-full transition-all duration-200 ease-out" :style="`width: ${progress}%`"></div>
                             </div>
                         </div>
 
@@ -362,6 +461,7 @@
                                                     @if ($isImg || $isGif)
                                                         <img src="{{ $u->temporaryUrl() }}" 
                                                             alt="{{ $u->getClientOriginalName() }}"
+                                                            loading="lazy"
                                                             class="w-full h-full object-cover" />
                                                     @elseif ($isVid)
                                                         <div class="w-full h-full bg-slate-900 flex flex-col items-center justify-center text-indigo-400">
@@ -743,5 +843,7 @@
                 </div>
             @endif
         </div>
+        </div>
+        @endif
     </flux:modal>
 </div>
