@@ -7,6 +7,8 @@ use App\Livewire\Backend\Categories\Index as CategoriesIndex;
 use App\Livewire\Backend\Permission\Index as PermissionIndex;
 use App\Livewire\Backend\Products\Index as ProductsIndex;
 use App\Livewire\Backend\Products\ProductForm;
+use App\Livewire\Backend\PaymentMethods\Index as PaymentMethodsIndex;
+use App\Livewire\Backend\ShippingMethods\Index as ShippingMethodsIndex;
 use App\Livewire\Backend\Stores\Approval as StoreApproval;
 use App\Livewire\Backend\Stores\Index as StoreIndex;
 use App\Livewire\Backend\SubCategories\Index as SubCategoriesIndex;
@@ -34,6 +36,9 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('backend.')->grou
    Route::get('/products/{id}/edit', ProductForm::class)->name('products.edit');
 
    Route::get('/banners', BannersIndex::class)->name('banners.index');
+
+   Route::get('/shipping-methods', ShippingMethodsIndex::class)->name('shipping-methods.index');
+   Route::get('/payment-methods', PaymentMethodsIndex::class)->name('payment-methods.index');
 
 });
 

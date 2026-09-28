@@ -113,7 +113,7 @@ class Index extends Component
                     'message' => 'Product deleted successfully!',
                     'type'    => 'success',
                 ]);
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 DB::rollBack();
                 report($e);
                 Log::error('Failed to delete product: ' . $e->getMessage(), [

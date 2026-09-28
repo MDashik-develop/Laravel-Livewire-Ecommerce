@@ -14,6 +14,8 @@
             { name: 'All Products', url: '{{ route('backend.products.index') }}', icon: 'shopping-bag', category: 'Catalog' },
             { name: 'Banners & Sliders', url: '{{ route('backend.banners.index') }}', icon: 'squares-2x2', category: 'Marketing' },
             { name: 'Store Configuration', url: '{{ route('backend.stores.index') }}', icon: 'building-storefront', category: 'Settings' },
+            { name: 'Shipping Methods', url: '{{ route('backend.shipping-methods.index') }}', icon: 'truck', category: 'Logistics' },
+            { name: 'Payment Methods', url: '{{ route('backend.payment-methods.index') }}', icon: 'credit-card', category: 'Settings' },
             { name: 'Permissions & Roles', url: '{{ route('backend.permissions.index') }}', icon: 'shield-check', category: 'Security' },
             { name: 'My Profile Settings', url: '{{ route('settings.profile') }}', icon: 'user', category: 'Account' }
         ],

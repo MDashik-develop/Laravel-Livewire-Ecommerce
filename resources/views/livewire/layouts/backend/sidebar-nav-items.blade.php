@@ -55,6 +55,37 @@
         @endcan
     </flux:navlist.group>
 
+    <!-- Group: Logistics & Payments -->
+    <flux:navlist.group wire:key="nav-group-logistics" :heading="__('Logistics & Payments')" class="grid">
+        @can ('shipping.view')
+            <flux:navlist.item wire:key="nav-item-shipping-methods" icon="truck" badge="{{ $totalShippingMethods }}" :href="route('backend.shipping-methods.index')"
+                :current="request()->routeIs('backend.shipping-methods.*')" wire:navigate class="cursor-pointer">
+                {{ __('Shipping Methods') }}
+            </flux:navlist.item>
+        @else
+            @if (auth()->user())
+                <flux:navlist.item wire:key="nav-item-shipping-methods-fallback" icon="truck" badge="{{ $totalShippingMethods }}" :href="route('backend.shipping-methods.index')"
+                    :current="request()->routeIs('backend.shipping-methods.*')" wire:navigate class="cursor-pointer">
+                    {{ __('Shipping Methods') }}
+                </flux:navlist.item>
+            @endif
+        @endcan
+
+        @can ('payment.view')
+            <flux:navlist.item wire:key="nav-item-payment-methods" icon="credit-card" badge="{{ $totalPaymentMethods }}" :href="route('backend.payment-methods.index')"
+                :current="request()->routeIs('backend.payment-methods.*')" wire:navigate class="cursor-pointer">
+                {{ __('Payment Methods') }}
+            </flux:navlist.item>
+        @else
+            @if (auth()->user())
+                <flux:navlist.item wire:key="nav-item-payment-methods-fallback" icon="credit-card" badge="{{ $totalPaymentMethods }}" :href="route('backend.payment-methods.index')"
+                    :current="request()->routeIs('backend.payment-methods.*')" wire:navigate class="cursor-pointer">
+                    {{ __('Payment Methods') }}
+                </flux:navlist.item>
+            @endif
+        @endcan
+    </flux:navlist.group>
+
     <!-- Group: Administration -->
     <flux:navlist.group wire:key="nav-group-admin" :heading="__('Administration')" class="grid">
         @canany (['store.view', 'store.edit'])

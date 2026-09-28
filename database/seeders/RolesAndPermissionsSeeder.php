@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -14,56 +13,68 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // create permissions
+        $permissions = [
             // Category
-                Permission::create(['name' => 'category.view', 'group' => 'category']);
-                Permission::create(['name' => 'category.create', 'group' => 'category']);
-                Permission::create(['name' => 'category.edit', 'group' => 'category']);
-                Permission::create(['name' => 'category.delete', 'group' => 'category']);
-            // SubCategory
-                Permission::create(['name' => 'subcategory.view', 'group' => 'subcategory']);
-                Permission::create(['name' => 'subcategory.create', 'group' => 'subcategory']);
-                Permission::create(['name' => 'subcategory.edit', 'group' => 'subcategory']);
-                Permission::create(['name' => 'subcategory.delete', 'group' => 'subcategory']);
-            // Brand
-                Permission::create(['name' => 'brand.view', 'group' => 'brand']);
-                Permission::create(['name' => 'brand.create', 'group' => 'brand']);
-                Permission::create(['name' => 'brand.edit', 'group' => 'brand']);
-                Permission::create(['name' => 'brand.delete', 'group' => 'brand']);
-            // Store
-                Permission::create(['name' => 'store.view', 'group' => 'store']);
-                Permission::create(['name' => 'store.create', 'group' => 'store']);
-                Permission::create(['name' => 'store.edit', 'group' => 'store']);
-                Permission::create(['name' => 'store.delete', 'group' => 'store']);
-                Permission::create(['name' => 'store.approval', 'group' => 'store']);
-                Permission::create(['name' => 'store.status', 'group' => 'store']);
-            //Product
-                Permission::create(['name' => 'product.view', 'group' => 'product']);
-                Permission::create(['name' => 'product.create', 'group' => 'product']);
-                Permission::create(['name' => 'product.edit', 'group' => 'product']);
-                Permission::create(['name' => 'product.delete', 'group' => 'product']);
-            //Banner
-                Permission::create(['name' => 'banner.view', 'group' => 'banner']);
-                Permission::create(['name' => 'banner.create', 'group' => 'banner']);
-                Permission::create(['name' => 'banner.edit', 'group' => 'banner']);
-                Permission::create(['name' => 'banner.delete', 'group' => 'banner']);
-                
+            ['name' => 'category.view', 'group' => 'category'],
+            ['name' => 'category.create', 'group' => 'category'],
+            ['name' => 'category.edit', 'group' => 'category'],
+            ['name' => 'category.delete', 'group' => 'category'],
 
-        // update cache to know about the newly created permissions (required if using WithoutModelEvents in seeders)
+            // SubCategory
+            ['name' => 'subcategory.view', 'group' => 'subcategory'],
+            ['name' => 'subcategory.create', 'group' => 'subcategory'],
+            ['name' => 'subcategory.edit', 'group' => 'subcategory'],
+            ['name' => 'subcategory.delete', 'group' => 'subcategory'],
+
+            // Brand
+            ['name' => 'brand.view', 'group' => 'brand'],
+            ['name' => 'brand.create', 'group' => 'brand'],
+            ['name' => 'brand.edit', 'group' => 'brand'],
+            ['name' => 'brand.delete', 'group' => 'brand'],
+
+            // Store
+            ['name' => 'store.view', 'group' => 'store'],
+            ['name' => 'store.create', 'group' => 'store'],
+            ['name' => 'store.edit', 'group' => 'store'],
+            ['name' => 'store.delete', 'group' => 'store'],
+            ['name' => 'store.approval', 'group' => 'store'],
+            ['name' => 'store.status', 'group' => 'store'],
+
+            // Product
+            ['name' => 'product.view', 'group' => 'product'],
+            ['name' => 'product.create', 'group' => 'product'],
+            ['name' => 'product.edit', 'group' => 'product'],
+            ['name' => 'product.delete', 'group' => 'product'],
+
+            // Banner
+            ['name' => 'banner.view', 'group' => 'banner'],
+            ['name' => 'banner.create', 'group' => 'banner'],
+            ['name' => 'banner.edit', 'group' => 'banner'],
+            ['name' => 'banner.delete', 'group' => 'banner'],
+
+            // Shipping Method
+            ['name' => 'shipping.view', 'group' => 'shipping'],
+            ['name' => 'shipping.create', 'group' => 'shipping'],
+            ['name' => 'shipping.edit', 'group' => 'shipping'],
+            ['name' => 'shipping.delete', 'group' => 'shipping'],
+
+            // Payment Method
+            ['name' => 'payment.view', 'group' => 'payment'],
+            ['name' => 'payment.create', 'group' => 'payment'],
+            ['name' => 'payment.edit', 'group' => 'payment'],
+            ['name' => 'payment.delete', 'group' => 'payment'],
+        ];
+
+        foreach ($permissions as $perm) {
+            $p = Permission::findOrCreate($perm['name'], 'web');
+            $p->group = $perm['group'];
+            $p->save();
+        }
+
+        // update cache to know about the newly created permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-
-        // create roles and assign created permissions
-
-        // this can be done as separate statements
-        // $role = Role::create(['name' => 'writer']);
-        // $role->givePermissionTo('edit articles');
-
-        // or may be done by chaining
-        // $role = Role::create(['name' => 'moderator'])
-        //     ->givePermissionTo(['publish articles', 'unpublish articles']);
-
-        $role = Role::create(['name' => 'Super Admin']);
+        $role = Role::findOrCreate('Super Admin', 'web');
         // $role->givePermissionTo(Permission::all());
     }
 }

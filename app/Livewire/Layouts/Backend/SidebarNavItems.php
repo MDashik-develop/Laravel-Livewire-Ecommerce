@@ -7,7 +7,9 @@ use App\Models\Banner;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Media;
+use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Models\ShippingMethod;
 use App\Models\Store;
 use App\Models\SubCategory;
 use Livewire\Component;
@@ -24,6 +26,8 @@ class SidebarNavItems extends Component
     public int $totalProducts;
     public int $totalBanners;
     public int $totalMedia;
+    public int $totalShippingMethods;
+    public int $totalPaymentMethods;
 
     public function render()
     {
@@ -36,6 +40,8 @@ class SidebarNavItems extends Component
             $this->totalProducts = Product::count();
             $this->totalBanners = Banner::count();
             $this->totalMedia = Media::count();
+            $this->totalShippingMethods = ShippingMethod::count();
+            $this->totalPaymentMethods = PaymentMethod::count();
             
         return view('livewire.layouts.backend.sidebar-nav-items');
     }
