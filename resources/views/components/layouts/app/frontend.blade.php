@@ -69,7 +69,7 @@
             </aside>
 
             <!-- Hero Section -->
-            <div class="w-full md:w-4/5 border border-gray-200 rounded-lg shadow-sm">
+            <div class="w-full md:w-4/5 rounded-2xl overflow-hidden shadow-sm">
                 <livewire:partials.hero-section-slider />
             </div>
         </div>
