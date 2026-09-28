@@ -2,78 +2,76 @@
 
 namespace App\Livewire\Backend\Products;
 
-use Illuminate\Validation\Rule;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\SubCategory;
+use Flux\Flux;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\WithFileUploads;
-use Livewire\Attributes\On;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-
-use App\Models\Product;
-use App\Models\ProductImage;
-use App\Models\ProductAttribute;
-use App\Models\Category;
-use App\Models\SubCategory;
-use App\Models\Brand;
-use App\Models\Media;
-
-use Flux\Flux;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination;
 
     public $search = '';
+    public string $sortField = 'id';
+    public string $sortDirection = 'desc';
+    public array $expandedProducts = [];
+
+    // Delete Modal
     public ?int $productId = null;
-    public $category_id = null;
-    public $sub_category_id = null;
-    public $subcategories = [];
-    public ?int $brand_id = null;
-    public string $name = '';
-    public string $slug = '';
-    public ?string $short_description = null;
-    public ?string $long_description = null;
-    public ?int $media_id = null;
-    public ?string $mediaUrl = null;
-    public array $existingGallery = [];
-    public array $productAttributes = [];
-    public bool $status = true;
-    public bool $is_featured = false;
 
-    public $visibleColumns = ['id', 'image', 'name', 'category', 'status', 'actions'];
+    // Stock History Modal
+    public ?int $historyProductId = null;
+    public ?string $historyProductName = null;
+    public $productStockLogs = [];
 
-    public $columns = [
-        ['key' => 'id', 'label' => 'Id', 'sortable' => true],
+    // Visible columns in table
+    public array $visibleColumns = ['id', 'image', 'name', 'type', 'category', 'brand', 'sku', 'price', 'stock', 'status', 'actions'];
+
+    public array $columns = [
+        ['key' => 'id', 'label' => 'ID', 'sortable' => true],
         ['key' => 'image', 'label' => 'Image'],
-        ['key' => 'name', 'label' => 'Name', 'sortable' => true],
+        ['key' => 'name', 'label' => 'Product Name', 'sortable' => true],
+        ['key' => 'type', 'label' => 'Type'],
         ['key' => 'category', 'label' => 'Category'],
         ['key' => 'brand', 'label' => 'Brand'],
-        ['key' => 'sku', 'label' => 'Sku'],
-        ['key' => 'size', 'label' => 'Size'],
-        ['key' => 'color', 'label' => 'Color'],
-        ['key' => 'quantity', 'label' => 'Quantity'],
+        ['key' => 'sku', 'label' => 'Base SKU'],
         ['key' => 'price', 'label' => 'Price'],
-        ['key' => 'offer_price', 'label' => 'Offer Price'],
-        ['key' => 'offer_end_date', 'label' => 'Offer End Date'],
+        ['key' => 'stock', 'label' => 'Stock'],
         ['key' => 'status', 'label' => 'Status'],
         ['key' => 'actions', 'label' => 'Actions'],
     ];
 
-    public $sortField = 'id';
-    public $sortDirection = 'desc';
+    public function mount(): void
+    {
+        if (session()->has('toast')) {
+            $this->dispatch('show-toast', session('toast'));
+        }
+    }
 
-    public function toggleColumn($key)
+    public function toggleColumn(string $key): void
     {
         if (in_array($key, $this->visibleColumns)) {
-            $this->visibleColumns = array_diff($this->visibleColumns, [$key]);
+            $this->visibleColumns = array_values(array_diff($this->visibleColumns, [$key]));
         } else {
             $this->visibleColumns[] = $key;
         }
     }
 
-    public function sortBy($field)
+    public function toggleExpand(int $productId): void
+    {
+        if (in_array($productId, $this->expandedProducts)) {
+            $this->expandedProducts = array_values(array_diff($this->expandedProducts, [$productId]));
+        } else {
+            $this->expandedProducts[] = $productId;
+        }
+    }
+
+    public function sortBy(string $field): void
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -83,234 +81,154 @@ class Index extends Component
         }
     }
 
-    public function mount()
-    {
-        $this->productAttributes[] = [
-            'color' => '',
-            'size' => '',
-            'price' => 0,
-            'offer_price' => null,
-            'offer_end_date' => null,
-            'quantity' => 0,
-            'sku' => '',
-        ];
-    }
-
-    protected function rules()
-    {
-        return [
-            'category_id' => 'required|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:sub_categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'name' => 'required|string|max:255',
-            'slug' => ['required','string','max:255', $this->productId ? "unique:products,slug,{$this->productId}" : 'unique:products,slug'],
-            'short_description' => 'nullable|string|max:500',
-            'long_description' => 'nullable|string',
-            'media_id' => 'nullable|exists:media,id',
-            'status' => 'required|boolean',
-            'is_featured' => 'required|boolean',
-            'productAttributes.*.color' => 'nullable|string|max:50',
-            'productAttributes.*.size' => 'nullable|string|max:50',
-            'productAttributes.*.price' => 'required|numeric|min:0',
-            'productAttributes.*.offer_price' => 'nullable|numeric|min:0|lt:productAttributes.*.price',
-            'productAttributes.*.offer_end_date' => 'nullable|date',
-            'productAttributes.*.quantity' => 'required|integer|min:0',
-            'productAttributes.*.sku' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('product_attributes', 'sku')->where(function ($query) {
-                    if ($this->productId) {
-                        return $query->where('product_id', '!=', $this->productId);
-                    }
-                    return $query;
-                })
-            ],
-        ];
-    }
-
-    #[On('product-media-selected')]
-    public function handleMediaSelected($media): void
-    {
-        if (is_array($media)) {
-            $this->media_id = $media['id'] ?? null;
-            $this->mediaUrl = $media['urls']['small'] ?? $media['url'] ?? null;
-        } elseif (is_numeric($media)) {
-            $this->media_id = (int) $media;
-            $m = Media::find($media);
-            $this->mediaUrl = $m?->urls['small'] ?? $m?->url;
-        }
-    }
-
-    public function removeMedia(): void
-    {
-        $this->media_id = null;
-        $this->mediaUrl = null;
-    }
-
-    #[On('product-gallery-media-selected')]
-    public function handleGalleryMediaSelected($media): void
-    {
-        $mediaId = is_array($media) ? ($media['id'] ?? null) : (int) $media;
-        if ($mediaId && $this->productId) {
-            ProductImage::create([
-                'product_id' => $this->productId,
-                'media_id'   => $mediaId,
-            ]);
-            $product = Product::find($this->productId);
-            $this->existingGallery = $product ? $product->images()->with('media')->get()->toArray() : [];
-        }
-    }
-
-    public function updatedName($value)
-    {
-        $this->slug = Str::slug($value);
-    }
-
-    public function resetForm()
-    {
-        $this->reset([
-            'productId','category_id','sub_category_id','brand_id','name','slug',
-            'short_description','long_description','media_id','mediaUrl',
-            'existingGallery','productAttributes','status','is_featured'
-        ]);
-        $this->status = true;
-        $this->is_featured = false;
-        $this->productAttributes = [
-            ['color'=>'','size'=>'','price'=>0,'offer_price'=>null,'offer_end_date'=>null, 'quantity'=>0,'sku'=>'']
-        ];
-    }
-
-    public function edit(Product $product)
-    {
-        $this->resetForm();
-        $this->productId = $product->id;
-        $this->category_id = $product->category_id;
-        $this->sub_category_id = $product->sub_category_id;
-        $this->brand_id = $product->brand_id;
-        $this->name = $product->name;
-        $this->slug = $product->slug;
-        $this->short_description = $product->short_description;
-        $this->long_description = $product->long_description;
-        $this->status = (bool) $product->status;
-        $this->is_featured = (bool) $product->is_featured;
-        $this->media_id = $product->media_id;
-        $this->mediaUrl = $product->media?->urls['small'] ?? $product->media?->url;
-        $this->existingGallery = $product->images()->with('media')->get()->toArray();
-        $this->productAttributes = $product->attributes()->get()->toArray();
-        $this->subcategories = SubCategory::where('category_id', $this->category_id)->get();
-
-        Flux::modal('product-modal')->show();
-    }
-
-    public function save()
-    {
-        $validated = $this->validate();
-
-        if ($this->productId) {
-            $product = Product::findOrFail($this->productId);
-            $product->update($validated);
-        } else {
-            $product = Product::create($validated);
-            $this->productId = $product->id;
-        }
-
-        ProductAttribute::where('product_id', $product->id)->delete();
-        foreach ($this->productAttributes as $attr) {
-            $attr['product_id'] = $product->id;
-            ProductAttribute::create($attr);
-        }
-
-        $this->dispatch('show-toast',[
-            'title'=>'Success 🎉',
-            'message'=>'Product saved successfully!',
-            'type'=>'success'
-        ]);
-        Flux::modal('product-modal')->close();
-        $this->resetForm();
-        $this->resetPage();
-    }
-
-    public function confirmDelete($id)
+    public function confirmDelete(int $id): void
     {
         $this->productId = $id;
+        Flux::modal('delete-modal')->show();
     }
 
-    public function delete()
+    public function delete(): void
     {
-        $product = Product::findOrFail($this->productId);
-        $product->delete();
-        Flux::modal('delete-modal')->close();
-        $this->resetForm();
-        $this->dispatch('show-toast',['title'=>'Success 🎉','message'=>'Product deleted successfully!','type'=>'success']);
+        if ($this->productId) {
+            DB::beginTransaction();
+            try {
+                $product = Product::findOrFail($this->productId);
+
+                // Cascade delete associated variant attributes and variants
+                foreach ($product->variants as $variant) {
+                    $variant->variantAttributes()->delete();
+                    $variant->stockLogs()->delete();
+                    $variant->delete();
+                }
+                $product->galleries()->delete();
+                $product->stockLogs()->delete();
+                $product->delete();
+
+                DB::commit();
+                $this->productId = null;
+                Flux::modal('delete-modal')->close();
+
+                $this->dispatch('show-toast', [
+                    'title'   => 'Deleted',
+                    'message' => 'Product deleted successfully!',
+                    'type'    => 'success',
+                ]);
+            } catch (\Throwable $e) {
+                DB::rollBack();
+                report($e);
+                Log::error('Failed to delete product: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'productId' => $this->productId,
+                ]);
+
+                $this->dispatch('show-toast', [
+                    'title'   => 'Error ❌',
+                    'message' => 'Failed to delete product: ' . $e->getMessage(),
+                    'type'    => 'danger',
+                ]);
+            }
+        }
     }
 
-    public function removeGalleryImage($id)
+    // View Stock History
+    public function viewStockHistory(int $productId): void
     {
-        $img = ProductImage::findOrFail($id);
-        $img->delete();
-        $this->existingGallery = ProductImage::with('media')->where('product_id', $this->productId)->get()->toArray();
-    }
+        $product = Product::with(['stockLogs.user', 'stockLogs.variant'])->findOrFail($productId);
+        $this->historyProductId = $product->id;
+        $this->historyProductName = $product->name;
+        $this->productStockLogs = $product->stockLogs()->with(['user', 'variant.variantAttributes.attributeValue'])->latest('id')->take(50)->get();
 
-    public function addAttribute()
-    {
-        $this->productAttributes[] = ['color'=>'','size'=>'','price'=>0,'offer_price'=>null,'offer_end_date'=>null,'quantity'=>0,'sku'=>''];
-    }
-
-    public function removeAttribute($index)
-    {
-        unset($this->productAttributes[$index]);
-        $this->productAttributes = array_values($this->productAttributes);
-    }
-
-    public function generateSKU($index)
-    {
-        if (!isset($this->productAttributes[$index])) return;
-
-        $color = $this->productAttributes[$index]['color'] ?? '';
-        $size = $this->productAttributes[$index]['size'] ?? '';
-        $productId = $this->productId ?? 'NEW';
-
-        $this->productAttributes[$index]['sku'] = ($color || $size) 
-            ? strtoupper("PROD{$productId}-".Str::slug($color)."-".Str::slug($size)) 
-            : '';
-    }
-
-    public function updatedCategoryId($value)
-    {
-        $this->sub_category_id = null;
-        $this->subcategories = SubCategory::where('category_id', $value)->get();
+        Flux::modal('stock-history-modal')->show();
     }
 
     public function render()
     {
-        $categories = Category::all();
-        $subcategories = SubCategory::where('category_id', $this->category_id)->get();
-        $brands = Brand::all();
-
-        if (trim($this->search) === '') {
-            $products = Product::with(['category', 'brand', 'attributes', 'media'])
-                ->orderBy($this->sortField, $this->sortDirection)
-                ->paginate(10);
-
-            return view('livewire.backend.products.index', compact('products', 'categories', 'subcategories', 'brands'));
-        } else {
-            $attributes = ProductAttribute::with(['product.category', 'product.brand', 'product.media'])
-                ->whereHas('product', function ($query) {
-                    $query->where('name', 'like', '%' . $this->search . '%');
-                })
-                ->orWhere('color', 'like', '%' . $this->search . '%')
-                ->orWhere('size', 'like', '%' . $this->search . '%')
-                ->orWhere('sku', 'like', '%' . $this->search . '%')
-                ->orderBy($this->sortField, $this->sortDirection)
-                ->paginate(10);
-
-            return view('livewire.backend.products.index', [
-                'products' => $attributes,
-                'categories' => $categories,
-                'subcategories' => $subcategories,
-                'brands' => $brands,
+        // Optimized query with explicit column selection and eager loading
+        $query = Product::query()
+            ->select([
+                'id',
+                'category_id',
+                'sub_category_id',
+                'brand_id',
+                'media_id',
+                'name',
+                'slug',
+                'has_variants',
+                'sku',
+                'barcode',
+                'price',
+                'cost_price',
+                'discount_price',
+                'stock',
+                'weight',
+                'status',
+                'is_featured',
+                'created_at',
+            ])
+            ->with([
+                'category:id,name',
+                'subCategory:id,name',
+                'brand:id,name',
+                'media:id,path,type,folder,sizes',
+                'variants' => function ($vq) {
+                    $vq->select([
+                        'id',
+                        'product_id',
+                        'sku',
+                        'barcode',
+                        'cost_price',
+                        'selling_price',
+                        'discount_price',
+                        'stock',
+                        'weight',
+                        'media_id',
+                        'is_default',
+                        'status',
+                    ])->with([
+                        'media:id,path,type,folder,sizes',
+                        'variantAttributes' => function ($vaq) {
+                            $vaq->select([
+                                'id',
+                                'product_variant_id',
+                                'attribute_id',
+                                'attribute_value_id',
+                                'media_id',
+                            ])->with([
+                                'attribute:id,name,type',
+                                'attributeValue:id,attribute_id,value,color_code,media_id',
+                                'media:id,path,type,folder,sizes',
+                            ]);
+                        },
+                    ]);
+                },
             ]);
+
+        if (!empty($this->search)) {
+            $search = trim($this->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%")
+                  ->orWhere('barcode', 'like', "%{$search}%")
+                  ->orWhereHas('variants', function ($vq) use ($search) {
+                      $vq->where('sku', 'like', "%{$search}%")
+                        ->orWhere('barcode', 'like', "%{$search}%")
+                        ->orWhereHas('variantAttributes.attributeValue', function ($avq) use ($search) {
+                            $avq->where('value', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('variantAttributes.attribute', function ($aq) use ($search) {
+                            $aq->where('name', 'like', "%{$search}%");
+                        });
+                  });
+            });
         }
+
+        $query->orderBy($this->sortField, $this->sortDirection);
+
+        $products = $query->paginate(12);
+
+        return view('livewire.backend.products.index', [
+            'products' => $products,
+        ]);
     }
 }

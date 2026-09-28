@@ -88,11 +88,11 @@
             function initializePageContent() {
                 if (!window.jQuery || !window.jQuery.fn.summernote) return;
 
-                // Defer to next frame so clicks and DOM updates complete smoothly
                 requestAnimationFrame(function () {
-                    $('.summernote-init:visible').each(function () {
+                    $('.summernote-init').each(function () {
                         let $el = $(this);
-                        if (!$el.next('.note-editor').length) {
+                        let isVisible = $el.is(':visible') || $el.closest('dialog[open]').length > 0 || $el.closest('[open]').length > 0;
+                        if (isVisible && !$el.next('.note-editor').length) {
                             let height = $el.data('height') || 220;
                             $el.summernote({
                                 height: height,
@@ -103,7 +103,19 @@
                                     ['para', ['ul', 'ol', 'paragraph']],
                                     ['insert', ['link', 'table']],
                                     ['view', ['fullscreen', 'codeview']]
-                                ]
+                                ],
+                                callbacks: {
+                                    onChange: function(contents) {
+                                        let field = $el.data('field');
+                                        let comp = $el.closest('[wire\\:id]');
+                                        if (comp.length && window.Livewire && field) {
+                                            let livewireComp = Livewire.find(comp.attr('wire:id'));
+                                            if (livewireComp) {
+                                                livewireComp.set(field, contents, false);
+                                            }
+                                        }
+                                    }
+                                }
                             });
                         }
                     });
@@ -138,6 +150,25 @@
                 document.addEventListener('livewire:init', initializePageContent);
                 document.addEventListener('livewire:updated', initializePageContent);
                 document.addEventListener('livewire:navigated', initializePageContent);
+                window.addEventListener('product-modal-opened', function() {
+                    setTimeout(initializePageContent, 100);
+                    setTimeout(initializePageContent, 250);
+                });
+
+                // Observe any modal dialog opening in the DOM
+                const observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'open') {
+                            if (mutation.target.hasAttribute('open')) {
+                                setTimeout(initializePageContent, 100);
+                                setTimeout(initializePageContent, 250);
+                            }
+                        }
+                    });
+                });
+                document.querySelectorAll('dialog').forEach(function(diag) {
+                    observer.observe(diag, { attributes: true, attributeFilter: ['open'] });
+                });
 
                 // Clean up before navigating to prevent memory traps and detached DOM
                 document.addEventListener('livewire:navigating', function () {

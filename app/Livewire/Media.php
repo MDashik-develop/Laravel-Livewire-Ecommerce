@@ -23,7 +23,9 @@ class Media extends Component
     public bool $isOpen = false;
     public ?string $targetEvent = null;
     public bool $isPicker = false;
+    public bool $multiple = false;
     public ?int $selectedMediaId = null;
+    public array $selectedMediaIds = [];
 
     // Filter & Search
     public string $search = '';
@@ -58,12 +60,31 @@ class Media extends Component
     ];
 
     #[On('open-media-modal')]
-    public function openModal(?string $targetEvent = null, ?string $folder = null, ?string $type = null, bool $isPicker = true): void
-    {
+    public function openModal(
+        $targetEvent = null,
+        $folder = null,
+        $type = null,
+        bool $isPicker = true,
+        bool $multiple = false,
+        $selectedId = null,
+        $selectedIds = []
+    ): void {
+        // If first argument is an associative payload array
+        if (is_array($targetEvent)) {
+            $payload = $targetEvent;
+            $targetEvent = $payload['targetEvent'] ?? null;
+            $folder = $payload['folder'] ?? null;
+            $type = $payload['type'] ?? null;
+            $isPicker = $payload['isPicker'] ?? true;
+            $multiple = $payload['multiple'] ?? false;
+            $selectedId = $payload['selectedId'] ?? null;
+            $selectedIds = $payload['selectedIds'] ?? [];
+        }
+
         $this->isOpen = true;
         $this->targetEvent = $targetEvent;
-        $this->isPicker = $isPicker;
-        $this->selectedMediaId = null;
+        $this->isPicker = (bool) $isPicker;
+        $this->multiple = (bool) $multiple;
         $this->currentFolder = $folder;
         if ($folder) {
             $this->uploadFolder = $folder;
@@ -71,6 +92,23 @@ class Media extends Component
         $this->typeFilter = $type ?: 'all';
         $this->tab = 'all';
         $this->search = '';
+
+        // Process pre-selected IDs
+        $this->selectedMediaIds = [];
+        if (!empty($selectedIds)) {
+            $this->selectedMediaIds = array_values(array_unique(array_filter(array_map('intval', (array) $selectedIds))));
+        }
+        if (!empty($selectedId)) {
+            $sId = (int) $selectedId;
+            if (!in_array($sId, $this->selectedMediaIds)) {
+                $this->selectedMediaIds[] = $sId;
+            }
+            $this->selectedMediaId = $sId;
+        } elseif (!empty($this->selectedMediaIds)) {
+            $this->selectedMediaId = end($this->selectedMediaIds);
+        } else {
+            $this->selectedMediaId = null;
+        }
 
         try {
             Flux::modal('media-manager-modal')->show();
@@ -84,6 +122,8 @@ class Media extends Component
     {
         $this->isOpen = false;
         $this->selectedMediaId = null;
+        $this->selectedMediaIds = [];
+        $this->multiple = false;
 
         try {
             Flux::modal('media-manager-modal')->close();
@@ -120,41 +160,115 @@ class Media extends Component
 
     public function selectMedia(int $id): void
     {
-        if ($this->selectedMediaId === $id) {
-            $this->selectedMediaId = null;
+        if ($this->multiple) {
+            if (in_array($id, $this->selectedMediaIds)) {
+                $this->selectedMediaIds = array_values(array_diff($this->selectedMediaIds, [$id]));
+                if ($this->selectedMediaId === $id) {
+                    $this->selectedMediaId = !empty($this->selectedMediaIds) ? end($this->selectedMediaIds) : null;
+                }
+            } else {
+                $this->selectedMediaIds[] = $id;
+                $this->selectedMediaId = $id;
+            }
         } else {
-            $this->selectedMediaId = $id;
+            if ($this->selectedMediaId === $id) {
+                $this->selectedMediaId = null;
+                $this->selectedMediaIds = [];
+            } else {
+                $this->selectedMediaId = $id;
+                $this->selectedMediaIds = [$id];
+            }
         }
+    }
+
+    public function selectAllVisible(): void
+    {
+        $query = MediaModel::query()->latest();
+        if ($this->currentFolder) {
+            $query->where('folder', $this->currentFolder);
+        }
+        if ($this->typeFilter && $this->typeFilter !== 'all') {
+            $query->where('type', $this->typeFilter);
+        }
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('title', 'like', '%' . $this->search . '%')
+                  ->orWhere('path', 'like', '%' . $this->search . '%');
+            });
+        }
+        $visibleIds = $query->limit(60)->pluck('id')->toArray();
+        $this->selectedMediaIds = array_values(array_unique(array_merge($this->selectedMediaIds, $visibleIds)));
+        if (!empty($this->selectedMediaIds)) {
+            $this->selectedMediaId = end($this->selectedMediaIds);
+        }
+    }
+
+    public function deselectAll(): void
+    {
+        $this->selectedMediaIds = [];
+        $this->selectedMediaId = null;
     }
 
     public function confirmSelection(): void
     {
-        if (!$this->selectedMediaId) {
-            return;
-        }
+        if ($this->multiple) {
+            if (empty($this->selectedMediaIds)) {
+                return;
+            }
 
-        $media = MediaModel::find($this->selectedMediaId);
-        if (!$media) {
-            return;
-        }
+            $mediaList = MediaModel::whereIn('id', $this->selectedMediaIds)->get();
+            if ($mediaList->isEmpty()) {
+                return;
+            }
 
-        if ($this->targetEvent) {
-            $this->dispatch($this->targetEvent, mediaId: $media->id, url: $media->url, media: [
+            $formatted = $mediaList->map(function ($media) {
+                return [
+                    'id'    => $media->id,
+                    'title' => $media->title,
+                    'url'   => $media->url,
+                    'urls'  => $media->urls,
+                    'type'  => $media->type,
+                ];
+            })->toArray();
+
+            $mediaIds = $mediaList->pluck('id')->toArray();
+            $first = $formatted[0];
+
+            if ($this->targetEvent) {
+                $this->dispatch(
+                    $this->targetEvent,
+                    media: $formatted,
+                    mediaIds: $mediaIds,
+                    mediaId: $first['id'],
+                    url: $first['url']
+                );
+            }
+
+            $this->dispatch('media-selected-multiple', media: $formatted, mediaIds: $mediaIds);
+        } else {
+            if (!$this->selectedMediaId) {
+                return;
+            }
+
+            $media = MediaModel::find($this->selectedMediaId);
+            if (!$media) {
+                return;
+            }
+
+            $mediaData = [
                 'id'    => $media->id,
                 'title' => $media->title,
                 'url'   => $media->url,
                 'urls'  => $media->urls,
                 'type'  => $media->type,
-            ]);
-        }
+            ];
 
-        $this->dispatch('media-selected', mediaId: $media->id, url: $media->url, media: [
-            'id'    => $media->id,
-            'title' => $media->title,
-            'url'   => $media->url,
-            'urls'  => $media->urls,
-            'type'  => $media->type,
-        ]);
+            if ($this->targetEvent) {
+                $this->dispatch($this->targetEvent, mediaId: $media->id, url: $media->url, media: $mediaData);
+            }
+
+            $this->dispatch('media-selected', mediaId: $media->id, url: $media->url, media: $mediaData);
+        }
 
         $this->closeModal();
     }
@@ -221,8 +335,9 @@ class Media extends Component
     {
         $service->delete($id, force: false); // Soft delete
 
+        $this->selectedMediaIds = array_values(array_diff($this->selectedMediaIds, [$id]));
         if ($this->selectedMediaId === $id) {
-            $this->selectedMediaId = null;
+            $this->selectedMediaId = !empty($this->selectedMediaIds) ? end($this->selectedMediaIds) : null;
         }
 
         $this->showNotification('Media moved to Trash.', 'success');

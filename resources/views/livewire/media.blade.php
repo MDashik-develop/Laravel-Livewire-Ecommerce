@@ -56,8 +56,37 @@
                 </button>
             </div>
 
-            <!-- Right Controls: Search, Filter, and Close -->
+            <!-- Right Controls: Search, Filter, Selection Status, and Close -->
             <div class="flex items-center space-x-3">
+                @if ($isPicker)
+                    @if ($multiple)
+                        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 px-3 py-1.5 rounded-xl text-xs">
+                            <span class="font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span>{{ count($selectedMediaIds) }} selected</span>
+                            </span>
+                            @if (count($selectedMediaIds) > 0)
+                                <button type="button" wire:click="deselectAll" class="text-rose-600 hover:text-rose-700 font-semibold text-[11px] underline cursor-pointer">
+                                    Clear
+                                </button>
+                            @endif
+                            <button type="button" wire:click="selectAllVisible" title="Select all items visible in this view" class="text-indigo-600 hover:text-indigo-700 font-semibold text-[11px] pl-1.5 border-l border-indigo-200 dark:border-indigo-800 cursor-pointer">
+                                Select Visible
+                            </button>
+                        </div>
+                    @elseif ($selectedMediaId)
+                        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 px-2.5 py-1.5 rounded-xl text-xs text-indigo-700 dark:text-indigo-300 font-semibold">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span>1 selected</span>
+                            </span>
+                            <button type="button" wire:click="deselectAll" class="text-rose-500 hover:text-rose-700 text-xs font-bold ml-1 cursor-pointer">
+                                &times;
+                            </button>
+                        </div>
+                    @endif
+                @endif
+
                 @if ($tab === 'all' || $tab === 'trash')
                     <!-- Search Input -->
                     <div class="relative w-56">
@@ -116,9 +145,13 @@
                     @if ($mediaItems->count() > 0)
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
                             @foreach ($mediaItems as $item)
+                                @php
+                                    $isSelected = $multiple ? in_array($item->id, $selectedMediaIds) : ($selectedMediaId === $item->id);
+                                    $selectionNum = ($multiple && $isSelected) ? (array_search($item->id, $selectedMediaIds) + 1) : null;
+                                @endphp
                                 <div wire:key="media-item-{{ $item->id }}"
                                     wire:click="selectMedia({{ $item->id }})"
-                                    class="group relative rounded-xl overflow-hidden border cursor-pointer transition-all duration-200 bg-gray-50 dark:bg-zinc-800/60 {{ $selectedMediaId === $item->id ? 'border-indigo-600 ring-2 ring-indigo-500 shadow-md' : 'border-gray-200 dark:border-zinc-700 hover:border-indigo-400 hover:shadow-sm' }}">
+                                    class="group relative rounded-xl overflow-hidden border-2 cursor-pointer transition-all duration-200 bg-gray-50 dark:bg-zinc-800/60 {{ $isSelected ? 'border-indigo-600 ring-2 ring-indigo-500/60 shadow-lg bg-indigo-50/15 dark:bg-indigo-950/25 scale-[0.98]' : 'border-gray-200 dark:border-zinc-700 hover:border-indigo-400 hover:shadow-sm' }}">
 
                                     <!-- Media Preview Thumbnail -->
                                     <div class="aspect-square w-full relative overflow-hidden bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -144,12 +177,20 @@
                                             <span class="absolute top-2 left-2 bg-indigo-600/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs">VIDEO</span>
                                         @endif
 
-                                        <!-- Selection Checkmark -->
-                                        @if ($selectedMediaId === $item->id)
-                                            <div class="absolute top-2 right-2 bg-indigo-600 text-white p-1 rounded-full shadow-md">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
-                                                </svg>
+                                        <!-- Selection Indicator Checkmark/Sequence Badge -->
+                                        @if ($isSelected)
+                                            <div class="absolute top-2 right-2 bg-indigo-600 text-white w-6 h-6 rounded-full shadow-md flex items-center justify-center text-xs font-bold ring-2 ring-white dark:ring-zinc-900 z-10 transition-transform">
+                                                @if ($multiple)
+                                                    <span>{{ $selectionNum }}</span>
+                                                @else
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                                                    </svg>
+                                                @endif
+                                            </div>
+                                        @elseif ($multiple)
+                                            <!-- Multi-select hover target circle -->
+                                            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-black/40 hover:bg-black/60 text-white w-6 h-6 rounded-full border-2 border-white/80 shadow-xs flex items-center justify-center transition-all z-10">
                                             </div>
                                         @endif
                                     </div>
@@ -673,75 +714,103 @@
                 @endif
             </div>
 
-            <!-- Right Details Sidebar (When a media item is selected) -->
-            @if ($tab === 'all' && $selectedMedia)
+            <!-- Right Details Sidebar (When a media item is selected or items are selected in multi mode) -->
+            @if ($tab === 'all' && ($selectedMedia || ($multiple && count($selectedMediaIds) > 0)))
                 <div class="w-full md:w-80 border-t md:border-t-0 md:border-l border-gray-200 dark:border-zinc-800 p-5 bg-gray-50/50 dark:bg-zinc-900/60 overflow-y-auto flex flex-col justify-between shrink-0">
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">File Details</h4>
-                            <button type="button" wire:click="selectMedia({{ $selectedMedia->id }})" class="text-gray-400 hover:text-gray-600 text-xs">
-                                Deselect
-                            </button>
-                        </div>
+                        @if ($multiple)
+                            <!-- Multi-select Summary Banner -->
+                            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 rounded-xl space-y-1.5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span>{{ count($selectedMediaIds) }} item(s) selected</span>
+                                    </span>
+                                    <button type="button" wire:click="deselectAll" class="text-[11px] font-semibold text-rose-600 hover:text-rose-700 cursor-pointer">
+                                        Clear All
+                                    </button>
+                                </div>
+                                <p class="text-[10px] text-gray-500 dark:text-gray-400">
+                                    Click any image to add/remove from selection.
+                                </p>
+                            </div>
+                        @endif
 
-                        <!-- Media Preview -->
-                        <div class="aspect-video w-full rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-zinc-700 flex items-center justify-center">
-                            @if ($selectedMedia->type === 'image')
-                                <img src="{{ asset('storage/media/small/' . $selectedMedia->path) }}"
-                                    alt="{{ $selectedMedia->title }}"
-                                    class="max-h-full max-w-full object-contain" />
-                            @elseif ($selectedMedia->type === 'gif')
-                                <img src="{{ asset('storage/media/gif/' . $selectedMedia->path) }}"
-                                    alt="{{ $selectedMedia->title }}"
-                                    class="max-h-full max-w-full object-contain" />
-                            @elseif ($selectedMedia->type === 'video')
-                                <video controls class="max-h-full max-w-full">
-                                    <source src="{{ asset('storage/media/videos/' . $selectedMedia->path) }}" type="{{ $selectedMedia->mime_type }}">
-                                    Your browser does not support the video tag.
-                                </video>
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500">
+                                {{ $multiple ? 'Active File Details' : 'File Details' }}
+                            </h4>
+                            @if ($selectedMedia)
+                                <button type="button" wire:click="selectMedia({{ $selectedMedia->id }})" class="text-gray-400 hover:text-gray-600 text-xs cursor-pointer">
+                                    {{ $multiple && in_array($selectedMedia->id, $selectedMediaIds) ? 'Uncheck item' : 'Deselect' }}
+                                </button>
                             @endif
                         </div>
 
-                        <!-- Meta Info -->
-                        <div class="space-y-2 text-xs">
-                            <div>
-                                <p class="text-gray-400 text-[10px] uppercase font-bold">Title</p>
-                                <p class="font-semibold text-gray-800 dark:text-gray-200 break-words">{{ $selectedMedia->title }}</p>
+                        @if ($selectedMedia)
+                            <!-- Media Preview -->
+                            <div class="aspect-video w-full rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-zinc-700 flex items-center justify-center">
+                                @if ($selectedMedia->type === 'image')
+                                    <img src="{{ asset('storage/media/small/' . $selectedMedia->path) }}"
+                                        alt="{{ $selectedMedia->title }}"
+                                        class="max-h-full max-w-full object-contain" />
+                                @elseif ($selectedMedia->type === 'gif')
+                                    <img src="{{ asset('storage/media/gif/' . $selectedMedia->path) }}"
+                                        alt="{{ $selectedMedia->title }}"
+                                        class="max-h-full max-w-full object-contain" />
+                                @elseif ($selectedMedia->type === 'video')
+                                    <video controls class="max-h-full max-w-full">
+                                        <source src="{{ asset('storage/media/videos/' . $selectedMedia->path) }}" type="{{ $selectedMedia->mime_type }}">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                @endif
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
+
+                            <!-- Meta Info -->
+                            <div class="space-y-2 text-xs">
                                 <div>
-                                    <p class="text-gray-400 text-[10px] uppercase font-bold">Type</p>
-                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $selectedMedia->type === 'video' ? 'bg-indigo-100 text-indigo-800' : ($selectedMedia->type === 'gif' ? 'bg-pink-100 text-pink-800' : 'bg-emerald-100 text-emerald-800') }}">
-                                        {{ $selectedMedia->type }}
-                                    </span>
+                                    <p class="text-gray-400 text-[10px] uppercase font-bold">Title</p>
+                                    <p class="font-semibold text-gray-800 dark:text-gray-200 break-words">{{ $selectedMedia->title }}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <p class="text-gray-400 text-[10px] uppercase font-bold">Type</p>
+                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $selectedMedia->type === 'video' ? 'bg-indigo-100 text-indigo-800' : ($selectedMedia->type === 'gif' ? 'bg-pink-100 text-pink-800' : 'bg-emerald-100 text-emerald-800') }}">
+                                            {{ $selectedMedia->type }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 text-[10px] uppercase font-bold">Folder</p>
+                                        <span class="font-mono text-gray-700 dark:text-gray-300">{{ $selectedMedia->folder }}</span>
+                                    </div>
                                 </div>
                                 <div>
-                                    <p class="text-gray-400 text-[10px] uppercase font-bold">Folder</p>
-                                    <span class="font-mono text-gray-700 dark:text-gray-300">{{ $selectedMedia->folder }}</span>
+                                    <p class="text-gray-400 text-[10px] uppercase font-bold">Size</p>
+                                    <p class="font-mono text-gray-700 dark:text-gray-300">
+                                        {{ $selectedMedia->sizes['original'] ?? round($selectedMedia->size / 1024, 1) . ' KB' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-400 text-[10px] uppercase font-bold">Direct URL</p>
+                                    <div class="flex items-center space-x-1 mt-1">
+                                        <input type="text"
+                                            readonly
+                                            value="{{ $selectedMedia->url }}"
+                                            class="flex-1 text-[11px] px-2 py-1 rounded bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 truncate font-mono" />
+                                        <button type="button"
+                                            @click="copyUrl('{{ $selectedMedia->url }}')"
+                                            class="px-2 py-1 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 text-[11px] rounded font-medium cursor-pointer">
+                                            <span x-show="!copied">Copy</span>
+                                            <span x-show="copied" class="text-emerald-600 font-bold">Copied!</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <p class="text-gray-400 text-[10px] uppercase font-bold">Size</p>
-                                <p class="font-mono text-gray-700 dark:text-gray-300">
-                                    {{ $selectedMedia->sizes['original'] ?? round($selectedMedia->size / 1024, 1) . ' KB' }}
-                                </p>
+                        @else
+                            <div class="py-10 text-center text-gray-400 text-xs">
+                                <p>Click an image to view its preview and details.</p>
                             </div>
-                            <div>
-                                <p class="text-gray-400 text-[10px] uppercase font-bold">Direct URL</p>
-                                <div class="flex items-center space-x-1 mt-1">
-                                    <input type="text"
-                                        readonly
-                                        value="{{ $selectedMedia->url }}"
-                                        class="flex-1 text-[11px] px-2 py-1 rounded bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-600 dark:text-gray-400 truncate font-mono" />
-                                    <button type="button"
-                                        @click="copyUrl('{{ $selectedMedia->url }}')"
-                                        class="px-2 py-1 bg-gray-200 dark:bg-zinc-700 hover:bg-gray-300 text-[11px] rounded font-medium">
-                                        <span x-show="!copied">Copy</span>
-                                        <span x-show="copied" class="text-emerald-600 font-bold">Copied!</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        @endif
                     </div>
 
                     <!-- Bottom Actions -->
@@ -749,21 +818,28 @@
                         @if ($isPicker)
                             <button type="button"
                                 wire:click="confirmSelection"
-                                class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5">
+                                @if ($multiple ? empty($selectedMediaIds) : !$selectedMediaId) disabled @endif
+                                class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                <span>Insert / Select Media</span>
+                                @if ($multiple)
+                                    <span>Insert Selected ({{ count($selectedMediaIds) }})</span>
+                                @else
+                                    <span>Insert / Select Media</span>
+                                @endif
                             </button>
                         @endif
 
-                        <button type="button"
-                            wire:click="deleteMedia({{ $selectedMedia->id }})"
-                            wire:confirm="Move this media to Trash?"
-                            class="w-full py-2 px-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-lg transition text-center flex items-center justify-center space-x-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            <span>Move to Trash</span>
-                        </button>
+                        @if ($selectedMedia)
+                            <button type="button"
+                                wire:click="deleteMedia({{ $selectedMedia->id }})"
+                                wire:confirm="Move this media to Trash?"
+                                class="w-full py-2 px-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-lg transition text-center flex items-center justify-center space-x-1.5 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                <span>Move to Trash</span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             @endif

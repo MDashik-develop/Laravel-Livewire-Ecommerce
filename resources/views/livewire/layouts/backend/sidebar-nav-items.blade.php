@@ -33,6 +33,13 @@
             </flux:navlist.item>
         @endcan
 
+        @can ('attribute.view')
+            <flux:navlist.item wire:key="nav-item-attributes" icon="swatch" badge="{{ $totalAttributes }}" :href="route('backend.attributes.index')"
+                :current="request()->routeIs('backend.attributes.*')" wire:navigate class="cursor-pointer">
+                {{ __('Attributes') }}
+            </flux:navlist.item>
+        @endcan
+
         @can ('product.view')
             <flux:navlist.item wire:key="nav-item-products" icon="shopping-bag" badge="{{ $totalProducts }}" :href="route('backend.products.index')"
                 :current="request()->routeIs('backend.products.*')" wire:navigate class="cursor-pointer">

@@ -10,6 +10,7 @@
             { name: 'All Categories', url: '{{ route('backend.categories.index') }}', icon: 'rectangle-stack', category: 'Catalog' },
             { name: 'All Sub-Categories', url: '{{ route('backend.subcategories.index') }}', icon: 'queue-list', category: 'Catalog' },
             { name: 'All Brands', url: '{{ route('backend.brands.index') }}', icon: 'tag', category: 'Catalog' },
+            { name: 'Product Attributes', url: '{{ route('backend.attributes.index') }}', icon: 'swatch', category: 'Catalog' },
             { name: 'All Products', url: '{{ route('backend.products.index') }}', icon: 'shopping-bag', category: 'Catalog' },
             { name: 'Banners & Sliders', url: '{{ route('backend.banners.index') }}', icon: 'squares-2x2', category: 'Marketing' },
             { name: 'Store Configuration', url: '{{ route('backend.stores.index') }}', icon: 'building-storefront', category: 'Settings' },

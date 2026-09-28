@@ -68,4 +68,32 @@
         display: inline-block !important;
         vertical-align: middle !important;
     }
+
+    /* Summernote Modern & Dark Mode Styling */
+    .note-editor.note-frame {
+        border-radius: 0.75rem !important;
+        border: 1px solid #e4e4e7 !important;
+        overflow: hidden;
+        background: #ffffff;
+    }
+    .dark .note-editor.note-frame {
+        border-color: #3f3f46 !important;
+        background: #18181b !important;
+    }
+    .dark .note-toolbar {
+        background-color: #27272a !important;
+        border-bottom: 1px solid #3f3f46 !important;
+    }
+    .dark .note-btn {
+        background-color: #3f3f46 !important;
+        color: #f4f4f5 !important;
+        border-color: #52525b !important;
+    }
+    .dark .note-editable {
+        background-color: #18181b !important;
+        color: #f4f4f5 !important;
+    }
+    .dark .note-placeholder {
+        color: #71717a !important;
+    }
 </style>
