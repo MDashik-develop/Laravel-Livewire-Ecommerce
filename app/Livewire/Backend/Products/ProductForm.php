@@ -266,8 +266,9 @@ class ProductForm extends Component
     }
 
     #[On('product-gallery-media-selected')]
-    public function handleGalleryMediaSelected($media): void
+    public function handleGalleryMediaSelected($media, $mediaIds = []): void
     {
+        // Build the confirmed media list from what the modal returned
         $items = [];
         if (is_array($media) && isset($media[0])) {
             $items = $media;
@@ -275,45 +276,80 @@ class ProductForm extends Component
             $items = [$media];
         }
 
-        $addedCount = 0;
+        // Collect confirmed media IDs from the modal selection
+        $confirmedIds = [];
         foreach ($items as $item) {
-            $mediaId = is_array($item) ? ($item['id'] ?? null) : (int) $item;
-            $url = is_array($item) ? ($item['urls']['small'] ?? $item['urls']['thumb'] ?? $item['url'] ?? '') : '';
-            if (!$url && $mediaId) {
-                $m = Media::find($mediaId);
-                $url = $m?->urls['small'] ?? $m?->urls['thumb'] ?? $m?->url ?? '';
-            }
-
-            if ($mediaId) {
-                if ($this->productId) {
-                    ProductGallery::firstOrCreate([
-                        'product_id' => $this->productId,
-                        'media_id'   => $mediaId,
-                    ], [
-                        'sort_order' => count($this->existingGallery) + $addedCount + 1,
-                    ]);
-                    $addedCount++;
-                } else {
-                    $alreadyQueued = collect($this->galleryMedia)->contains('id', $mediaId);
-                    if (!$alreadyQueued) {
-                        $this->galleryMedia[] = [
-                            'id'  => $mediaId,
-                            'url' => $url,
-                        ];
-                        $addedCount++;
-                    }
-                }
+            $mid = is_array($item) ? ($item['id'] ?? null) : (int) $item;
+            if ($mid) {
+                $confirmedIds[] = (int) $mid;
             }
         }
+        // Also respect the raw $mediaIds payload if provided
+        if (!empty($mediaIds)) {
+            foreach ($mediaIds as $mid) {
+                $confirmedIds[] = (int) $mid;
+            }
+        }
+        $confirmedIds = array_values(array_unique(array_filter($confirmedIds)));
 
         if ($this->productId) {
-            $this->loadExistingGallery();
-        }
+            // SYNC mode: delete gallery rows whose media_id is no longer selected
+            if (empty($confirmedIds)) {
+                // Nothing selected → remove all
+                ProductGallery::where('product_id', $this->productId)->delete();
+            } else {
+                // Remove only those not in the confirmed list
+                ProductGallery::where('product_id', $this->productId)
+                    ->whereNotIn('media_id', $confirmedIds)
+                    ->delete();
+            }
 
-        if ($addedCount > 0) {
+            // Re-load to know current state after deletions
+            $this->loadExistingGallery();
+            $existingMediaIds = collect($this->existingGallery)->pluck('media_id')->map(fn($v) => (int)$v)->toArray();
+
+            // Add newly confirmed IDs that don't exist yet
+            $addedCount = 0;
+            foreach ($confirmedIds as $mediaId) {
+                if (!in_array($mediaId, $existingMediaIds)) {
+                    $url = '';
+                    $m = Media::find($mediaId);
+                    $url = $m?->urls['small'] ?? $m?->urls['thumb'] ?? $m?->url ?? '';
+
+                    ProductGallery::create([
+                        'product_id' => $this->productId,
+                        'media_id'   => $mediaId,
+                        'sort_order' => count($existingMediaIds) + $addedCount + 1,
+                    ]);
+                    $addedCount++;
+                }
+            }
+
+            $this->loadExistingGallery();
+
+            $this->dispatch('show-toast', [
+                'title'   => 'Gallery Synced',
+                'message' => "Gallery updated successfully!",
+                'type'    => 'success',
+            ]);
+        } else {
+            // For new (unsaved) products: replace galleryMedia with confirmed selection
+            $newGalleryMedia = [];
+            foreach ($confirmedIds as $mediaId) {
+                $existing = collect($this->galleryMedia)->firstWhere('id', $mediaId);
+                if ($existing) {
+                    $newGalleryMedia[] = $existing;
+                } else {
+                    $m = Media::find($mediaId);
+                    $url = $m?->urls['small'] ?? $m?->urls['thumb'] ?? $m?->url ?? '';
+                    $newGalleryMedia[] = ['id' => $mediaId, 'url' => $url];
+                }
+            }
+            $this->galleryMedia = array_values($newGalleryMedia);
+
             $this->dispatch('show-toast', [
                 'title'   => 'Gallery Updated',
-                'message' => "{$addedCount} photo(s) added to product gallery!",
+                'message' => count($this->galleryMedia) . " photo(s) in gallery.",
                 'type'    => 'success',
             ]);
         }
