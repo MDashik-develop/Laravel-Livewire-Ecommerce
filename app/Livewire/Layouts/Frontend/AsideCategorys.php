@@ -9,7 +9,14 @@ class AsideCategorys extends Component
 {
     public function render()
     {
-        $categories = Category::withCount('products')->get();
+        $categories = Category::where('status', true)
+            ->with('media')
+            ->withCount('products')
+            ->get();
+
+        if ($categories->isEmpty()) {
+            $categories = Category::with('media')->withCount('products')->get();
+        }
 
         return view('livewire.layouts.frontend.aside-categorys', [
             'categorys' => $categories,

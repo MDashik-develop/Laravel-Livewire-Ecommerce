@@ -3,6 +3,7 @@
 namespace App\Livewire\Forntend\Home;
 
 use App\Models\Banner;
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -10,6 +11,13 @@ use Livewire\Component;
 
 class Index extends Component
 {
+    public ?int $selectedCategory = null;
+
+    public function selectCategory(?int $categoryId): void
+    {
+        $this->selectedCategory = $categoryId;
+    }
+
     public function addToCart($productId)
     {
         $user = Auth::user();
@@ -75,18 +83,28 @@ class Index extends Component
             ->orderBy('id', 'desc')
             ->get();
 
-        $products = Product::with(['attributes', 'media'])
-            ->where('status', true)
-            ->latest()
-            ->take(16)
+        $categories = Category::where('status', true)
+            ->whereHas('products', fn($q) => $q->where('status', true))
+            ->withCount(['products' => fn($q) => $q->where('status', true)])
+            ->orderBy('name')
             ->get();
 
+        $productsQuery = Product::with(['attributes', 'media'])
+            ->where('status', true);
+
+        if ($this->selectedCategory) {
+            $productsQuery->where('category_id', $this->selectedCategory);
+        }
+
+        $products = $productsQuery->latest()->take(16)->get();
+
         return view('livewire.forntend.home.index', [
-            'banners'         => $sliderBanners,
-            'sliderBanners'   => $sliderBanners,
-            'featuredBanners' => $featuredBanners,
-            'footerBanners'   => $footerBanners,
-            'products'        => $products,
+            'banners'          => $sliderBanners,
+            'sliderBanners'    => $sliderBanners,
+            'featuredBanners'  => $featuredBanners,
+            'footerBanners'    => $footerBanners,
+            'categories'       => $categories,
+            'products'         => $products,
         ]);
     }
 }

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>ShopNest - Apnar Proyojoner Dokan</title>
     
 
@@ -58,14 +59,7 @@
                 <!-- Categories --> 
                 <livewire:layouts.frontend.aside-categorys />
                 <!-- Price Filter -->
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <h3 class="text-xl font-bold mb-4 text-gray-800">Fill by price</h3>
-                    <input type="range" min="364" max="1000" value="500" class="range-slider out-of-range:border-red-500">
-                    <div class="flex justify-between text-sm text-gray-500 mt-2">
-                        <span>From: <span class="font-bold text-emerald-500">$364</span></span>
-                        <span>To: <span class="font-bold text-emerald-500">$1,000</span></span>
-                    </div>
-                </div>
+                <livewire:layouts.frontend.aside-filter />
             </aside>
 
             <!-- Hero Section -->
@@ -75,47 +69,7 @@
         </div>
         <!-- Popular Products -->
         <div class="mt-12">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold text-gray-800">Popular Products</h2>
-                <div class="flex space-x-6 text-gray-600">
-                    <a href="#" class="hover:text-emerald-500 font-semibold text-emerald-500">All</a>
-                    <a href="#" class="hover:text-emerald-500 font-semibold">Milks & Dairies</a>
-                    <a href="#" class="hover:text-emerald-500 font-semibold">Coffes & Teas</a>
-                    <a href="#" class="hover:text-emerald-500 font-semibold">Pet Foods</a>
-                    <a href="#" class="hover:text-emerald-500 font-semibold">Meats</a>
-                    <a href="#" class="hover:text-emerald-500 font-semibold">Vegetables</a>
-                    <a href="#" class="hover:text-emerald-500 font-semibold">Fruits</a>
-                </div>
-            </div>
-            <!-- Product grid would go here -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                <!-- Placeholder for product cards -->
-                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
-                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
-                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
-                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
-                </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
-                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
-                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
-                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
-                </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
-                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
-                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
-                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
-                </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
-                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
-                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
-                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
-                </div>
-                <div class="bg-white p-4 rounded-lg border border-gray-200 text-center animate-pulse">
-                    <div class="bg-gray-200 h-40 rounded-md mb-4"></div>
-                    <div class="bg-gray-200 h-4 w-3/4 mx-auto mb-2 rounded"></div>
-                    <div class="bg-gray-200 h-4 w-1/2 mx-auto rounded"></div>
-                </div>
-            </div>
+            <livewire:forntend.popular-products />
         </div>
         <section>
             <livewire:utilities.toast-modal />
@@ -181,47 +135,11 @@
         </div>
     </footer>
 
-
-        @fluxScripts
-        @stack('cdn-end')
-        @stack('scripts-end')
-        @stack('styles-end')
-        @stack('scripts')
-        
-
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mobile Menu Toggle
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            mobileMenuButton.addEventListener('click', function() {
-                mobileMenu.classList.toggle('hidden');
-            });
-
-            // Add to Cart Functionality
-            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
-            const cartCountElement = document.getElementById('cart-count');
-            const toastElement = document.getElementById('toast');
-            let cartCount = 0;
-
-            addToCartButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    cartCount++;
-                    cartCountElement.textContent = cartCount;
-
-                    // Show notification
-                    toastElement.classList.remove('opacity-0', 'translate-x-10');
-                    
-                    // Hide notification after 3 seconds
-                    setTimeout(() => {
-                        toastElement.classList.add('opacity-0', 'translate-x-10');
-                    }, 3000);
-                });
-            });
-        });
-    </script> --}}
-
+    @fluxScripts
+    @stack('cdn-end')
+    @stack('scripts-end')
+    @stack('styles-end')
+    @stack('scripts')
 </body>
 </html>
 

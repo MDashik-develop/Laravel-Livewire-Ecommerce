@@ -2,7 +2,7 @@
 <div class="card group">
     <div class="relative overflow-hidden">
         <img class="w-full h-72 object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out"
-            src="{{ $product->media ? $product->media->url : 'https://placehold.co/400x500/DBEAFE/1E3A8A?text=' . urlencode($product->name) }}"
+            src="{{ $product->media?->url ?? $product->galleries->first()?->media?->url ?? 'https://placehold.co/400x500/DBEAFE/1E3A8A?text=' . urlencode($product->name) }}"
             alt="{{ $product->name }}"
             loading="lazy">
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -18,7 +18,7 @@
                         d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                 </svg>
             </button>
-            <button title="Quick View" class="text-gray-600 hover:text-indigo-600 transition-colors">
+            <button type="button" @click="$dispatch('open-quick-view', { id: {{ $product->id }} })" title="Quick View" class="text-gray-600 hover:text-indigo-600 transition-colors cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="w-6 h-6">
                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -29,7 +29,11 @@
         </div>
     </div>
     <div class="p-5 text-center">
-        <h3 class="font-bold text-xl text-slate-800 mb-1 truncate">{{ $product->name }}</h3>
+        <h3 class="font-bold text-xl text-slate-800 mb-1 truncate">
+            <a href="{{ $product->slug ? route('product.show', $product->slug) : '#' }}" class="hover:text-indigo-600 transition-colors">
+                {{ $product->name }}
+            </a>
+        </h3>
         <div class="flex justify-center items-center my-2">
             <!-- Star Rating -->
             <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">

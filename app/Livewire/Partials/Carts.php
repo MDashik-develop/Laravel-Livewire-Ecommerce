@@ -3,6 +3,7 @@
 namespace App\Livewire\Partials;
 
 use Illuminate\Support\Facades\Session;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,6 +18,7 @@ class Carts extends Component
         $this->updateCartCount();
     }
 
+    #[On('cartUpdated')]
     public function updateCartCount()
     {
         if (Auth::check()) {
