@@ -61,11 +61,23 @@
         <p class="text-indigo-600 font-bold text-2xl mb-4">
             {{ $product->attributes->pluck('price')->filter()->first() ?: '' }}</p>
 
-            <flux:button class="w-full"
-                        variant="primary"
-                        wire:click="addToCart({{ $product->id }})"
-                        icon="shopping-cart">
-                        Primary
-            </flux:button>
+        <button
+            type="button"
+            wire:click="addToCart({{ $product->id }})"
+            wire:loading.attr="disabled"
+            wire:target="addToCart({{ $product->id }})"
+            class="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 px-4 rounded-xl transition duration-200 cursor-pointer shadow-sm text-sm disabled:opacity-60"
+        >
+            <svg wire:loading.remove wire:target="addToCart({{ $product->id }})" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <svg wire:loading wire:target="addToCart({{ $product->id }})" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24" style="display: none;">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span wire:loading.remove wire:target="addToCart({{ $product->id }})">Add to Cart</span>
+            <span wire:loading wire:target="addToCart({{ $product->id }})" style="display: none;">Adding...</span>
+        </button>
     </div>
 </div>

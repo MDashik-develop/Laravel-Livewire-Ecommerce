@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @fluxAppearance
+    @livewireStyles
 
     <style>
         body {
@@ -76,7 +76,8 @@
         </div>
     </footer>
 
-    @fluxScripts
+    @include('partials.debug-click-tracker')
+    @livewireScripts
     @stack('cdn-end')
     @stack('scripts-end')
     @stack('styles-end')

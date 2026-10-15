@@ -6,8 +6,8 @@
     </x-layouts.app.backend>
 @else
     <x-layouts.app.frontend :title="$title ?? null">
-        <flux:main>
+        <div class="w-full">
             {{ $slot }}
-        </flux:main>
+        </div>
     </x-layouts.app.frontend>
 @endif

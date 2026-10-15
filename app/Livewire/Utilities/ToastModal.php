@@ -2,13 +2,17 @@
 
 namespace App\Livewire\Utilities;
 
-use Flux\Flux;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ToastModal extends Component
 {
-    public array $toast = [];
+    public bool $isOpen = false;
+    public array $toast = [
+        'title'   => '',
+        'message' => '',
+        'type'    => 'success',
+    ];
 
     protected $listeners = ['show-toast' => 'showToast'];
 
@@ -16,7 +20,11 @@ class ToastModal extends Component
     public function showToast($data = null, $title = null, $message = null, $type = 'success'): void
     {
         if (is_array($data)) {
-            $this->toast = $data;
+            $this->toast = [
+                'title'   => $data['title'] ?? 'Notice',
+                'message' => $data['message'] ?? '',
+                'type'    => $data['type'] ?? 'success',
+            ];
         } else {
             $this->toast = [
                 'title'   => $title ?? (is_string($data) ? $data : 'Notice'),
@@ -25,7 +33,12 @@ class ToastModal extends Component
             ];
         }
 
-        Flux::modal('toast-modal')->show();
+        $this->isOpen = true;
+    }
+
+    public function closeToast(): void
+    {
+        $this->isOpen = false;
     }
 
     public function render()

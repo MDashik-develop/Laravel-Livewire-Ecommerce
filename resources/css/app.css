@@ -110,9 +110,31 @@ button.justify-start,
 
 button svg,
 [data-flux-button] svg {
-    flex-shrink: 0 !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+/* ==========================================================================
+   Livewire Loading Visibility
+   ========================================================================== */
+[wire\:loading]:not([wire\:loading\.remove]) {
+    display: none !important;
+}
+
+[wire\:loading][style*="display: inline-block"],
+[wire\:loading][style*="display:inline-block"],
+[wire\:loading][style*="display: block"],
+[wire\:loading][style*="display:block"],
+[wire\:loading][style*="display: flex"],
+[wire\:loading][style*="display:flex"],
+[wire\:loading][style*="display: inline-flex"],
+[wire\:loading][style*="display:inline-flex"] {
+    display: inline-flex !important;
+}
+
+[wire\:loading\.remove][style*="display: none"],
+[wire\:loading\.remove][style*="display:none"] {
+    display: none !important;
 }
 
 /* ==========================================================================

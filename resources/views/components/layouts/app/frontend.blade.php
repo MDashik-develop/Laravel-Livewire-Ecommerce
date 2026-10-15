@@ -29,7 +29,7 @@
     {{-- @stack('cdn') --}}
     
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @fluxAppearance
+    @livewireStyles
 
     <style>
         /* Custom styles */
@@ -135,7 +135,8 @@
         </div>
     </footer>
 
-    @fluxScripts
+    @include('partials.debug-click-tracker')
+    @livewireScripts
     @stack('cdn-end')
     @stack('scripts-end')
     @stack('styles-end')

@@ -126,7 +126,7 @@
             </div>
 
             {{-- Loading Indicator --}}
-            <div wire:loading class="flex justify-center mt-8">
+            <div wire:loading.flex wire:target="selectCategory" class="justify-center mt-8" style="display: none;">
                 <div class="flex items-center gap-2 text-indigo-600 font-medium">
                     <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
