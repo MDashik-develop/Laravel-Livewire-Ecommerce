@@ -1,4 +1,4 @@
-<div class="relative w-full h-full min-h-[260px] sm:min-h-[340px] md:min-h-[420px] lg:min-h-[460px] rounded-2xl overflow-hidden shadow-sm bg-slate-900 border border-gray-100 dark:border-zinc-800"
+<div class="relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[400px] rounded-2xl overflow-hidden shadow-sm bg-slate-900 border border-gray-100 dark:border-zinc-800"
     x-data="{
         current: 0,
         total: {{ $banners->count() }},

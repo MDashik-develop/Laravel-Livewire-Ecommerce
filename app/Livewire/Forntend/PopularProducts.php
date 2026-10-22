@@ -231,7 +231,7 @@ class PopularProducts extends Component
             $productsQuery->where('category_id', $this->selectedCategory);
         }
 
-        $products = $productsQuery->latest()->take(10)->get();
+        $products = $productsQuery->latest()->take(12)->get();
 
         $quickViewProduct = null;
         $groupedAttributes = collect();

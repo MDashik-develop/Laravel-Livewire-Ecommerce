@@ -36,6 +36,7 @@ class Index extends Component
     public array $availableSections = [
         'slider'   => 'Main Slider',
         'featured' => 'Featured Banner',
+        'sidebar'  => 'Sidebar Banner',
         'footer'   => 'Footer Banner',
     ];
 

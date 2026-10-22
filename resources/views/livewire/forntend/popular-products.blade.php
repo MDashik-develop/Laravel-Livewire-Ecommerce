@@ -39,8 +39,8 @@
 
     {{-- ── Skeleton Placeholder Grid (shown while switching category) ── --}}
     <div wire:loading wire:target="selectCategory" class="w-full">
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        @for($i = 0; $i < 5; $i++)
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        @for($i = 0; $i < 4; $i++)
             <div class="bg-white rounded-xl overflow-hidden border border-gray-100 p-4 space-y-3 animate-pulse">
                 {{-- Image Area Skeleton --}}
                 <div class="bg-gray-100 rounded-lg w-full h-44 flex items-center justify-center">
@@ -66,7 +66,7 @@
 
     {{-- ── Real Products Grid (hidden while selectCategory is loading) ── --}}
     <div wire:loading.remove wire:target="selectCategory"
-         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 transition-opacity duration-200">
+         class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 transition-opacity duration-200">
 
         @forelse($products as $product)
             @php

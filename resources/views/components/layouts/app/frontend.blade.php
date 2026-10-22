@@ -37,6 +37,13 @@
             font-family: 'Quicksand', sans-serif;
             background-color: #f8fafc; /* slate-50 */
         }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
     
 </head>
@@ -53,24 +60,33 @@
 
 
     <main class="py-8 container mx-auto px-4 sm:px-0">
-        <div class="flex flex-col md:flex-row gap-8">
-            <!-- Sidebar -->
-            <aside class="w-full md:w-1/5 space-y-6">
+        <!-- Section: Asides + Hero Slider + Popular Products -->
+        <section class="flex flex-col md:flex-row gap-8 items-start relative mb-12">
+            <!-- Sidebar (Sticky) -->
+            <aside class="w-full md:w-1/4 lg:w-1/5 space-y-6 md:sticky md:top-6 self-start md:max-h-[calc(100vh-2.5rem)] md:overflow-y-auto no-scrollbar">
                 <!-- Categories --> 
                 <livewire:layouts.frontend.aside-categorys />
                 <!-- Price Filter -->
                 <livewire:layouts.frontend.aside-filter />
+                <!-- New Products -->
+                <livewire:layouts.frontend.aside-new-products />
+                <!-- Sidebar Promo Banner -->
+                <livewire:layouts.frontend.aside-banner />
             </aside>
 
-            <!-- Hero Section -->
-            <div class="w-full md:w-4/5 rounded-2xl overflow-hidden shadow-sm">
-                <livewire:partials.hero-section-slider />
+            <!-- Main Content (Hero Banner + Popular Products) -->
+            <div class="w-full md:w-3/4 lg:w-4/5 min-w-0 space-y-8">
+                <!-- Hero Section -->
+                <div class="rounded-2xl overflow-hidden shadow-sm">
+                    <livewire:partials.hero-section-slider />
+                </div>
+
+                <!-- Popular Products -->
+                <div>
+                    <livewire:forntend.popular-products />
+                </div>
             </div>
-        </div>
-        <!-- Popular Products -->
-        <div class="mt-12">
-            <livewire:forntend.popular-products />
-        </div>
+        </section>
         <section>
             <livewire:utilities.toast-modal />
             {{ $slot }}
