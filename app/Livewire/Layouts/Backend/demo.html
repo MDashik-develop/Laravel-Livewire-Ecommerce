@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Enterprise Admin | Modern Crisp Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Geist"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f5ff',
+              100: '#e5edff',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#172554',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom low-radius scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 2px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Fixed hover tooltips for mini rail */
+    .rail-tooltip {
+      position: absolute;
+      left: 100%;
+      margin-left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%) translateX(-4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.15s ease-out;
+      white-space: nowrap;
+      z-index: 60;
+    }
+    .rail-item:hover .rail-tooltip {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+    /* Sidebar smooth width animation */
+    .sidebar-transition {
+      transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-100/70 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans text-sm selection:bg-brand-600 selection:text-white antialiased overflow-hidden">
+
+  <!-- Mobile Off-Canvas Backdrop -->
+  <div id="mobileBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs hidden opacity-0 transition-opacity duration-200 md:hidden"></div>
+
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- ENTERPRISE SIDEBAR (Sharp / low border radius) -->
+    <aside id="mainSidebar" class="fixed md:static inset-y-0 left-0 z-50 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800/80 shadow-lg md:shadow-none w-64 md:w-64 sidebar-transition -translate-x-full md:translate-x-0 shrink-0">
+      
+      <!-- Top Brand Header with integrated collapse button -->
+      <div id="sidebarHeader" class="h-14 px-3.5 flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 shrink-0 bg-slate-50/50 dark:bg-slate-900/50 transition-all duration-200">
+        
+        <!-- Logo Section (Logo mark + brand title) - will be completely hidden in rail mode -->
+        <div id="sidebarBrandBlock" class="flex items-center gap-2.5 overflow-hidden transition-all duration-200">
+          <!-- Logo symbol (Low radius rounded-sm) -->
+          <div class="h-8 w-8 shrink-0 rounded-sm bg-gradient-to-br from-brand-600 to-indigo-700 flex items-center justify-center text-white shadow-xs font-bold text-base tracking-tighter">
+            <span>AX</span>
+          </div>
+          <!-- Brand title -->
+          <div class="sidebar-text truncate leading-tight">
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-xs tracking-wider uppercase text-slate-900 dark:text-white">APEX CORE</span>
+              <span class="text-[9px] px-1 py-0.5 font-semibold bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-400 border border-brand-200 dark:border-brand-800/80 rounded-xs">v3.2</span>
+            </div>
+            <p class="text-[10px] text-slate-500 font-mono tracking-tight">CMS & Config Hub</p>
+          </div>
+        </div>
+
+        <!-- Top Sidebar Collapse Toggle Button (beside logo when expanded, centered when collapsed) -->
+        <div id="sidebarCollapseWrapper" class="flex items-center justify-center">
+          <button id="sidebarCollapseBtn" onclick="toggleSidebarRail()" title="Collapse / Expand Sidebar" class="hidden md:inline-flex p-1.5 rounded-sm border border-slate-200 dark:border-slate-700/80 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i id="collapseIcon" data-lucide="panel-left-close" class="w-4 h-4"></i>
+          </button>
+          <button onclick="toggleMobileSidebar()" class="md:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Command Bar / Search (Hidden in rail mode) -->
+      <div class="p-2.5 sidebar-text border-b border-slate-100 dark:border-slate-800/60">
+        <div class="relative">
+          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+          <input type="text" placeholder="Jump to setting..." class="w-full bg-slate-50 dark:bg-slate-800/70 text-xs text-slate-800 dark:text-slate-200 pl-8 pr-12 py-1.5 rounded-sm border border-slate-200 dark:border-slate-700/60 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 focus:outline-none transition-all placeholder:text-slate-400">
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] font-mono text-slate-400 bg-white dark:bg-slate-700/80 px-1 py-0.5 rounded-xs border border-slate-200 dark:border-slate-600">⌘K</span>
+        </div>
+      </div>
+
+      <!-- Navigation Section -->
+      <nav class="flex-1 overflow-y-auto no-scrollbar p-2 space-y-1">
+        
+        <div class="px-2 pt-2 pb-1 text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest sidebar-text">Navigation</div>
+
+        <!-- Dashboard Link (Active style with sharp left highlight border) -->
+        <div class="relative rail-item group">
+          <a href="#" class="flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-xs font-semibold bg-brand-50/80 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 border-l-2 border-brand-600 transition-colors">
+            <i data-lucide="layout-grid" class="w-4 h-4 shrink-0 text-brand-600 dark:text-brand-400"></i>
+            <span class="sidebar-text truncate">Dashboard Overview</span>
+          </a>
+          <span class="rail-tooltip hidden bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium py-1 px-2 rounded-xs shadow-md border border-slate-700">Dashboard Overview</span>
+        </div>
+
+        <!-- Section: Multi-language Website Content Settings (Accordion) -->
+        <div class="relative rail-item group">
+          <button onclick="toggleAccordion('settingsMenu', 'settingsChevron')" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors border-l-2 border-transparent">
+            <i data-lucide="sliders" class="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400"></i>
+            <span class="sidebar-text truncate text-left flex-1">Site Content (EN/BN)</span>
+            <i id="settingsChevron" data-lucide="chevron-down" class="w-3.5 h-3.5 shrink-0 text-slate-400 transition-transform duration-200 sidebar-text"></i>
+          </button>
+          <span class="rail-tooltip hidden bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium py-1 px-2 rounded-xs shadow-md border border-slate-700">Site Content (EN/BN)</span>
+
+          <!-- Nested Submenu List with crisp hierarchy lines -->
+          <div id="settingsMenu" class="pl-7 pr-1 py-1 space-y-0.5 sidebar-text border-l border-slate-200 dark:border-slate-800 ml-4 my-1">
+            <a href="#hero-section" class="flex items-center justify-between text-[11px] py-1.5 px-2 text-brand-600 dark:text-brand-400 font-medium rounded-sm bg-brand-50/50 dark:bg-brand-950/20">
+              <span>Hero Header</span>
+              <span class="text-[9px] font-mono px-1 py-0.2 bg-slate-200/60 dark:bg-slate-800 text-slate-500 rounded-xs">JSON</span>
+            </a>
+            <a href="#about-section" class="flex items-center justify-between text-[11px] py-1.5 px-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 rounded-sm">
+              <span>Qualifications / Degrees</span>
+            </a>
+            <a href="#seo-section" class="flex items-center justify-between text-[11px] py-1.5 px-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 rounded-sm">
+              <span>Metadata & SEO</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Section: Content Grouping -->
+        <div class="px-2 pt-3 pb-1 text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest sidebar-text">System Data</div>
+
+        <!-- Pages Link -->
+        <div class="relative rail-item group">
+          <a href="#" class="flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors border-l-2 border-transparent">
+            <i data-lucide="files" class="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400"></i>
+            <span class="sidebar-text truncate">Pages & Modules</span>
+            <span class="sidebar-text ml-auto text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-1.5 py-0.5 rounded-xs border border-slate-200 dark:border-slate-700">14</span>
+          </a>
+          <span class="rail-tooltip hidden bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium py-1 px-2 rounded-xs shadow-md border border-slate-700">Pages (14)</span>
+        </div>
+
+        <!-- Database Key-Value Records -->
+        <div class="relative rail-item group">
+          <a href="#" class="flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors border-l-2 border-transparent">
+            <i data-lucide="database" class="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400"></i>
+            <span class="sidebar-text truncate">Key-Value Configs</span>
+            <span class="sidebar-text ml-auto text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded-xs border border-emerald-200 dark:border-emerald-800">Redis</span>
+          </a>
+          <span class="rail-tooltip hidden bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium py-1 px-2 rounded-xs shadow-md border border-slate-700">Key-Value Configs</span>
+        </div>
+
+        <!-- Localization & Translations -->
+        <div class="relative rail-item group">
+          <a href="#" class="flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors border-l-2 border-transparent">
+            <i data-lucide="languages" class="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400"></i>
+            <span class="sidebar-text truncate">Language Locales</span>
+            <span class="sidebar-text ml-auto text-[9px] font-mono px-1 py-0.5 rounded-xs bg-slate-100 dark:bg-slate-800 text-slate-500">EN+BN</span>
+          </a>
+          <span class="rail-tooltip hidden bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium py-1 px-2 rounded-xs shadow-md border border-slate-700">Language Locales (EN/BN)</span>
+        </div>
+
+        <!-- Audit & Logs -->
+        <div class="relative rail-item group">
+          <a href="#" class="flex items-center gap-2.5 px-2.5 py-2 rounded-sm text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white transition-colors border-l-2 border-transparent">
+            <i data-lucide="shield-check" class="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400"></i>
+            <span class="sidebar-text truncate">Security & Roles</span>
+          </a>
+          <span class="rail-tooltip hidden bg-slate-900 dark:bg-slate-800 text-white text-[11px] font-medium py-1 px-2 rounded-xs shadow-md border border-slate-700">Security & Roles</span>
+        </div>
+
+      </nav>
+
+      <!-- Sidebar Status Card (low radius rounded-xs, hidden in rail) -->
+      <div class="p-3 m-2 border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 rounded-sm sidebar-text">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cache Layer</span>
+          <span class="flex items-center gap-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1 truncate">Setting::rememberForever()</p>
+      </div>
+
+      <!-- User mini status bottom bar -->
+      <div class="p-2 border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 flex items-center justify-between">
+        <div class="flex items-center gap-2 overflow-hidden px-1">
+          <div class="h-7 w-7 rounded-sm bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200 shrink-0">
+            AP
+          </div>
+          <div class="sidebar-text truncate leading-tight">
+            <p class="text-xs font-semibold truncate text-slate-800 dark:text-slate-200">Admin Portal</p>
+            <p class="text-[10px] text-slate-400">Production Mode</p>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- MAIN APPLICATION WRAPPER -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100/60 dark:bg-slate-950">
+
+      <!-- TOP ENTERPRISE HEADER -->
+      <header class="h-14 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800/80 sticky top-0 z-30 flex items-center justify-between px-3 sm:px-5">
+        
+        <!-- Left Section: Mobile trigger + Breadcrumb trail -->
+        <div class="flex items-center gap-3">
+          <!-- Mobile Hamburger -->
+          <button onclick="toggleMobileSidebar()" class="md:hidden p-1.5 rounded-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <i data-lucide="menu" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Breadcrumb indicator -->
+          <nav class="hidden sm:flex items-center space-x-1.5 text-xs text-slate-500 font-medium">
+            <span class="hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors">Admin Hub</span>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+            <span class="hover:text-slate-900 dark:hover:text-white cursor-pointer transition-colors">Settings</span>
+            <i data-lucide="chevron-right" class="w-3 h-3 text-slate-400"></i>
+            <span class="text-slate-900 dark:text-slate-100 font-semibold bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-xs border border-slate-200 dark:border-slate-700">Multi-Language Content</span>
+          </nav>
+        </div>
+
+        <!-- Center: Real-time Live Clock and Date Ticker -->
+        <div class="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 rounded-sm font-mono text-xs">
+          <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-600 dark:text-brand-400"></i>
+          <span id="liveDate" class="text-slate-600 dark:text-slate-400 font-sans text-[11px] font-medium">Loading date...</span>
+          <span class="text-slate-300 dark:text-slate-700 font-normal">|</span>
+          <span id="liveClock" class="font-semibold text-slate-800 dark:text-slate-200 text-xs tracking-wider">--:--:-- --</span>
+          <span class="text-[9px] font-sans font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950 px-1 py-0.2 rounded-xs">UTC+6</span>
+        </div>
+
+        <!-- Right Controls: Language switcher, theme toggle, notifications bell, user profile -->
+        <div class="flex items-center gap-1.5 sm:gap-2">
+
+          <!-- Language Selector Switcher (BN/EN) with active states -->
+          <div class="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-sm p-0.5 text-xs font-semibold">
+            <button id="btnLangBN" onclick="switchLanguage('bn')" class="px-2 py-0.5 rounded-xs transition-colors bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-300 shadow-2xs font-bold text-[11px]">
+              বাংলা
+            </button>
+            <button id="btnLangEN" onclick="switchLanguage('en')" class="px-2 py-0.5 rounded-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 text-[11px]">
+              EN
+            </button>
+          </div>
+
+          <!-- Dark / Light Mode Toggle Button -->
+          <button onclick="toggleDarkMode()" title="Toggle Dark/Light Mode" class="p-1.5 rounded-sm border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i id="themeToggleIcon" data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Notification Bell with Ping Badge & Interactive Dropdown -->
+          <div class="relative">
+            <button onclick="toggleNotificationsMenu()" class="relative p-1.5 rounded-sm border border-slate-200 dark:border-slate-700/80 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <i data-lucide="bell" class="w-4 h-4"></i>
+              <!-- Ping Dot -->
+              <span class="absolute top-1 right-1 flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+              </span>
+            </button>
+
+            <!-- Notifications Dropdown Box -->
+            <div id="notificationsBox" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-sm z-50 overflow-hidden text-xs">
+              <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+                <span class="font-bold text-slate-900 dark:text-white">Recent Alerts</span>
+                <span class="text-[10px] font-semibold text-brand-600 dark:text-brand-400 cursor-pointer hover:underline">Mark all read</span>
+              </div>
+              <div class="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-64 overflow-y-auto">
+                <div class="p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <div class="flex items-center justify-between">
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">Cache Invalidated</span>
+                    <span class="text-[10px] text-slate-400">2m ago</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">`website_settings` cache key purged after saving hero values.</p>
+                </div>
+                <div class="p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <div class="flex items-center justify-between">
+                    <span class="font-semibold text-slate-800 dark:text-slate-200">Language Sync</span>
+                    <span class="text-[10px] text-slate-400">1h ago</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Bangla translation for Degree 2 updated successfully.</p>
+                </div>
+              </div>
+              <div class="p-2 text-center border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30">
+                <a href="#" class="text-[11px] font-semibold text-brand-600 dark:text-brand-400 hover:underline">View System Activity Log</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Dropdown Component -->
+          <div class="relative ml-1">
+            <button onclick="toggleUserDropdown()" class="flex items-center gap-2 p-1 rounded-sm border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <img class="h-6 w-6 rounded-sm object-cover" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80" alt="Avatar">
+              <span class="hidden md:inline-block font-semibold text-xs text-slate-800 dark:text-slate-200">Alex Morgan</span>
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+            </button>
+
+            <!-- User Menu Dropdown -->
+            <div id="userMenuBox" class="hidden absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl rounded-sm z-50 py-1 text-xs">
+              <div class="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                <p class="font-bold text-slate-800 dark:text-white">Alex Morgan</p>
+                <p class="text-[10px] text-slate-400 font-mono">admin@apexcore.org</p>
+              </div>
+              <a href="#" class="flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i> Administrator Profile
+              </a>
+              <a href="#" class="flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="key" class="w-3.5 h-3.5 text-slate-400"></i> API Keys & Tokens
+              </a>
+              <a href="#" class="flex items-center gap-2 px-3 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+                <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-slate-400"></i> Global Preferences
+              </a>
+              <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+              <a href="#" class="flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30">
+                <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Sign Out
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </header>
+
+      <!-- MAIN BODY CONTENT AREA -->
+      <main class="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 space-y-5">
+        
+        <!-- Action bar & Section Headline -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 border border-slate-200 dark:border-slate-800 rounded-sm shadow-xs">
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-bold text-lg text-slate-900 dark:text-white">Multilingual Website Settings</h1>
+              <span class="text-[10px] font-semibold uppercase bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-xs border border-emerald-200 dark:border-emerald-800">
+                Active Locale: <span id="currentLocaleIndicator">BN</span>
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Manage dynamic page key-value dictionary. Values stored as JSON objects: <code class="font-mono text-brand-600 dark:text-brand-400">{"en": "...", "bn": "..."}</code>
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="purgeCache()" class="px-3 py-1.5 text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 rounded-sm transition-colors flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-400"></i> Purge Cache
+            </button>
+            <button onclick="saveChangesToast()" class="px-3.5 py-1.5 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-sm transition-colors flex items-center gap-1.5 shadow-xs">
+              <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Settings
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Overview Cards (Crisp, low rounded-sm) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Total Keys</span>
+              <i data-lucide="hash" class="w-4 h-4 text-brand-600"></i>
+            </div>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white mt-1">48</p>
+            <p class="text-[10px] text-slate-400 mt-1 font-mono">Groups: home, about, header</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Dual Language Coverage</span>
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+            </div>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">100%</p>
+            <p class="text-[10px] text-slate-400 mt-1">Both EN & BN values populated</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Cache Status</span>
+              <i data-lucide="zap" class="w-4 h-4 text-amber-500"></i>
+            </div>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white mt-1">Hit (0.4ms)</p>
+            <p class="text-[10px] text-emerald-500 font-semibold mt-1">Zero SQL on public pages</p>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Helper Integration</span>
+              <i data-lucide="code" class="w-4 h-4 text-purple-600"></i>
+            </div>
+            <p class="text-xs font-mono font-bold text-purple-700 dark:text-purple-400 mt-2 bg-purple-50 dark:bg-purple-950/60 p-1 rounded-xs truncate">
+              setting('home', 'hero.title')
+            </p>
+            <p class="text-[10px] text-slate-400 mt-1">Autoresolves to current locale</p>
+          </div>
+
+        </div>
+
+        <!-- Bilingual Settings Editor Form (Sharp low-radius containers) -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-sm">
+          
+          <div class="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40">
+            <div>
+              <h2 class="font-bold text-xs uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                Section: Home Page Hero (group: <span class="font-mono text-brand-600">home</span>)
+              </h2>
+              <p class="text-[11px] text-slate-400">Configure text and callouts shown in main hero view.</p>
+            </div>
+            <span class="text-[10px] font-mono bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-xs text-slate-500">
+              key prefix: hero.*
+            </span>
+          </div>
+
+          <div class="p-4 space-y-4">
+
+            <!-- Field 1: hero.title -->
+            <div class="border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm bg-slate-50/30 dark:bg-slate-950/30">
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
+                  key: hero.title
+                </label>
+                <span class="text-[10px] font-semibold text-slate-400">Type: String (Single Line)</span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <!-- English Input -->
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                    <span class="px-1 py-0.2 rounded-xs bg-slate-200 dark:bg-slate-700 text-[9px] font-bold text-slate-800 dark:text-slate-200">EN</span>
+                    <span>English Value</span>
+                  </div>
+                  <input type="text" value="Modern Medical Expertise for Your Family" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs px-3 py-2 rounded-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">
+                </div>
+
+                <!-- Bengali Input -->
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span class="px-1 py-0.2 rounded-xs bg-emerald-100 dark:bg-emerald-950 text-[9px] font-bold text-emerald-800 dark:text-emerald-300">BN</span>
+                    <span>বাংলা অনুবাদ</span>
+                  </div>
+                  <input type="text" value="আপনার পরিবারের জন্য বিশ্বস্ত আধুনিক চিকিৎসা পরামর্শ" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs px-3 py-2 rounded-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none font-medium">
+                </div>
+              </div>
+            </div>
+
+            <!-- Field 2: hero.description -->
+            <div class="border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm bg-slate-50/30 dark:bg-slate-950/30">
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
+                  key: hero.description
+                </label>
+                <span class="text-[10px] font-semibold text-slate-400">Type: Textarea</span>
+              </div>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <!-- English -->
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400">
+                    <span class="px-1 py-0.2 rounded-xs bg-slate-200 dark:bg-slate-700 text-[9px] font-bold text-slate-800 dark:text-slate-200">EN</span>
+                    <span>English Description</span>
+                  </div>
+                  <textarea rows="2" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs p-2 rounded-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">Book appointments with specialized practitioners in minutes with our transparent scheduling.</textarea>
+                </div>
+
+                <!-- Bengali -->
+                <div>
+                  <div class="flex items-center gap-1.5 mb-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span class="px-1 py-0.2 rounded-xs bg-emerald-100 dark:bg-emerald-950 text-[9px] font-bold text-emerald-800 dark:text-emerald-300">BN</span>
+                    <span>বাংলা বিবরণ</span>
+                  </div>
+                  <textarea rows="2" class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs p-2 rounded-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none">সহজেই বিশেষজ্ঞ ডাক্তারের অ্যাপয়েন্টমেন্ট নিন এবং দ্রুত চিকিৎসাসেবা গ্রহণ করুন।</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Field 3: Repeater JSON Degrees / Qualifications -->
+            <div class="border border-slate-200 dark:border-slate-800 p-3.5 rounded-sm bg-slate-50/30 dark:bg-slate-950/30">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <label class="text-xs font-bold text-slate-800 dark:text-slate-200 font-mono">
+                    key: degrees (group: about)
+                  </label>
+                  <p class="text-[10px] text-slate-400">Repeatable collection managed as array of JSON objects</p>
+                </div>
+                <button onclick="addDegreeItem()" class="px-2 py-1 text-[11px] font-semibold bg-brand-50 dark:bg-brand-950 text-brand-600 dark:text-brand-300 border border-brand-200 dark:border-brand-800 rounded-sm hover:bg-brand-100 transition-colors flex items-center gap-1">
+                  <i data-lucide="plus" class="w-3 h-3"></i> Add Degree
+                </button>
+              </div>
+
+              <!-- Degree List Container -->
+              <div id="degreesContainer" class="space-y-2 mt-3">
+                
+                <!-- Degree Item 1 -->
+                <div class="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                  <div class="sm:col-span-5">
+                    <span class="text-[10px] font-mono text-slate-400 block mb-0.5">EN Title</span>
+                    <input type="text" value="MBBS, FCPS (Medicine)" class="w-full text-xs p-1.5 rounded-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+                  </div>
+                  <div class="sm:col-span-6">
+                    <span class="text-[10px] font-mono text-emerald-500 block mb-0.5">BN Title (বাংলা)</span>
+                    <input type="text" value="এমবিবিএস, এফসিপিএস (মেডিসিন)" class="w-full text-xs p-1.5 rounded-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+                  </div>
+                  <div class="sm:col-span-1 flex justify-end">
+                    <button class="text-slate-400 hover:text-rose-500 p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700" title="Remove Item">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Degree Item 2 -->
+                <div class="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                  <div class="sm:col-span-5">
+                    <span class="text-[10px] font-mono text-slate-400 block mb-0.5">EN Title</span>
+                    <input type="text" value="Fellowship in Cardiology (Singapore)" class="w-full text-xs p-1.5 rounded-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+                  </div>
+                  <div class="sm:col-span-6">
+                    <span class="text-[10px] font-mono text-emerald-500 block mb-0.5">BN Title (বাংলা)</span>
+                    <input type="text" value="ফেলোশিপ ইন কার্ডিওলজি (সিঙ্গাপুর)" class="w-full text-xs p-1.5 rounded-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+                  </div>
+                  <div class="sm:col-span-1 flex justify-end">
+                    <button class="text-slate-400 hover:text-rose-500 p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700" title="Remove Item">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Footer Action Area -->
+          <div class="p-3 bg-slate-50/70 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-mono">Last updated: Today at 04:30 PM by alex</span>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700 rounded-sm">Discard</button>
+              <button onclick="saveChangesToast()" class="px-4 py-1.5 text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white rounded-sm">Save All Changes</button>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+  </div>
+
+  <!-- Notification Toast message container -->
+  <div id="toastMessage" class="fixed bottom-4 right-4 z-50 transform translate-y-12 opacity-0 transition-all duration-200 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs px-3.5 py-2.5 rounded-sm shadow-xl flex items-center gap-2 border border-slate-700 dark:border-slate-300">
+    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 dark:text-emerald-600"></i>
+    <span id="toastText">Changes saved successfully!</span>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // 1. Live Date & Time Clock Ticker (Real-Time)
+    function updateLiveClock() {
+      const now = new Date();
+
+      // Formatted date string (e.g., "Sun, Oct 4, 2026")
+      const dateOptions = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+      const formattedDate = now.toLocaleDateString('en-US', dateOptions);
+
+      // 12-hour formatted time with AM/PM & seconds
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // 0 becomes 12
+      const formattedHours = String(hours).padStart(2, '0');
+
+      const timeString = `${formattedHours}:${minutes}:${seconds} ${ampm}`;
+
+      const clockEl = document.getElementById('liveClock');
+      const dateEl = document.getElementById('liveDate');
+      
+      if (clockEl) clockEl.textContent = timeString;
+      if (dateEl) dateEl.textContent = formattedDate;
+    }
+
+    // Run immediately and every second
+    updateLiveClock();
+    setInterval(updateLiveClock, 1000);
+
+    // 2. Sidebar Rail Mode Toggle (Desktop Top Button beside Logo)
+    let isRailCollapsed = false;
+
+    function toggleSidebarRail() {
+      const sidebar = document.getElementById('mainSidebar');
+      const sidebarHeader = document.getElementById('sidebarHeader');
+      const sidebarBrandBlock = document.getElementById('sidebarBrandBlock');
+      const collapseWrapper = document.getElementById('sidebarCollapseWrapper');
+      const textElements = document.querySelectorAll('.sidebar-text');
+      const railTooltips = document.querySelectorAll('.rail-tooltip');
+      const collapseIcon = document.getElementById('collapseIcon');
+      const settingsMenu = document.getElementById('settingsMenu');
+
+      isRailCollapsed = !isRailCollapsed;
+
+      if (isRailCollapsed) {
+        // Shrink to crisp mini-rail (~68px)
+        sidebar.classList.remove('md:w-64');
+        sidebar.classList.add('md:w-[68px]');
+
+        // COMPLETELY HIDE the Logo block (icon + text)
+        if (sidebarBrandBlock) {
+          sidebarBrandBlock.classList.add('hidden');
+        }
+
+        // Center the collapse button in the mini-rail header
+        if (sidebarHeader) {
+          sidebarHeader.classList.remove('justify-between', 'px-3.5');
+          sidebarHeader.classList.add('justify-center', 'px-0');
+        }
+        if (collapseWrapper) {
+          collapseWrapper.classList.add('w-full');
+        }
+
+        // Hide sidebar text & collapse submenus
+        textElements.forEach(el => el.classList.add('hidden'));
+        if (settingsMenu) settingsMenu.classList.add('hidden');
+
+        // Reveal floating tooltips on hover
+        railTooltips.forEach(t => t.classList.remove('hidden'));
+
+        // Change collapse icon state to panel-left-open
+        if (collapseIcon) {
+          collapseIcon.setAttribute('data-lucide', 'panel-left-open');
+        }
+      } else {
+        // Expand to standard enterprise width
+        sidebar.classList.remove('md:w-[68px]');
+        sidebar.classList.add('md:w-64');
+
+        // RESTORE the Logo block (both logo icon and text)
+        if (sidebarBrandBlock) {
+          sidebarBrandBlock.classList.remove('hidden');
+        }
+
+        // Restore header layout (between logo and button)
+        if (sidebarHeader) {
+          sidebarHeader.classList.remove('justify-center', 'px-0');
+          sidebarHeader.classList.add('justify-between', 'px-3.5');
+        }
+        if (collapseWrapper) {
+          collapseWrapper.classList.remove('w-full');
+        }
+
+        // Restore sidebar text
+        textElements.forEach(el => el.classList.remove('hidden'));
+
+        // Hide floating tooltips
+        railTooltips.forEach(t => t.classList.add('hidden'));
+
+        // Change collapse icon back to panel-left-close
+        if (collapseIcon) {
+          collapseIcon.setAttribute('data-lucide', 'panel-left-close');
+        }
+      }
+
+      lucide.createIcons();
+    }
+
+    // 3. Mobile Off-Canvas Drawer Toggle
+    let isMobileSidebarOpen = false;
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('mainSidebar');
+      const backdrop = document.getElementById('mobileBackdrop');
+
+      isMobileSidebarOpen = !isMobileSidebarOpen;
+
+      if (isMobileSidebarOpen) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.remove('opacity-100');
+        setTimeout(() => backdrop.classList.add('hidden'), 200);
+      }
+    }
+
+    // 4. Submenu Accordion
+    function toggleAccordion(menuId, chevronId) {
+      if (isRailCollapsed) {
+        toggleSidebarRail(); // Auto expand if currently in mini-rail
+      }
+
+      const menu = document.getElementById(menuId);
+      const chevron = document.getElementById(chevronId);
+
+      if (menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        if (chevron) chevron.classList.add('rotate-180');
+      } else {
+        menu.classList.add('hidden');
+        if (chevron) chevron.classList.remove('rotate-180');
+      }
+    }
+
+    // 5. Dark / Light Theme Toggle
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('themeToggleIcon');
+
+      html.classList.toggle('dark');
+
+      if (html.classList.contains('dark')) {
+        themeIcon.setAttribute('data-lucide', 'sun');
+      } else {
+        themeIcon.setAttribute('data-lucide', 'moon');
+      }
+      lucide.createIcons();
+    }
+
+    // 6. Header Dropdowns (Notifications & Profile)
+    function toggleNotificationsMenu() {
+      const box = document.getElementById('notificationsBox');
+      const userBox = document.getElementById('userMenuBox');
+      if (userBox) userBox.classList.add('hidden');
+      box.classList.toggle('hidden');
+    }
+
+    function toggleUserDropdown() {
+      const userBox = document.getElementById('userMenuBox');
+      const notifyBox = document.getElementById('notificationsBox');
+      if (notifyBox) notifyBox.classList.add('hidden');
+      userBox.classList.toggle('hidden');
+    }
+
+    // Close popovers when clicking outside
+    document.addEventListener('click', function(e) {
+      const notifyBox = document.getElementById('notificationsBox');
+      const userBox = document.getElementById('userMenuBox');
+
+      if (!e.target.closest('#notificationsBox') && !e.target.closest('button[onclick="toggleNotificationsMenu()"]')) {
+        if (notifyBox) notifyBox.classList.add('hidden');
+      }
+      if (!e.target.closest('#userMenuBox') && !e.target.closest('button[onclick="toggleUserDropdown()"]')) {
+        if (userBox) userBox.classList.add('hidden');
+      }
+    });
+
+    // 7. Language Switcher Indicator (BN / EN)
+    function switchLanguage(lang) {
+      const btnBN = document.getElementById('btnLangBN');
+      const btnEN = document.getElementById('btnLangEN');
+      const indicator = document.getElementById('currentLocaleIndicator');
+
+      if (lang === 'bn') {
+        btnBN.className = "px-2 py-0.5 rounded-xs transition-colors bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-300 shadow-2xs font-bold text-[11px]";
+        btnEN.className = "px-2 py-0.5 rounded-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 text-[11px]";
+        if (indicator) indicator.textContent = 'BN';
+        showToast('Active locale switched to বাংলা (BN)');
+      } else {
+        btnEN.className = "px-2 py-0.5 rounded-xs transition-colors bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-300 shadow-2xs font-bold text-[11px]";
+        btnBN.className = "px-2 py-0.5 rounded-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 text-[11px]";
+        if (indicator) indicator.textContent = 'EN';
+        showToast('Active locale switched to English (EN)');
+      }
+    }
+
+    // 8. Toast Helper
+    function showToast(text) {
+      const toast = document.getElementById('toastMessage');
+      const toastText = document.getElementById('toastText');
+      if (toast && toastText) {
+        toastText.textContent = text;
+        toast.classList.remove('translate-y-12', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-12', 'opacity-0');
+        }, 2500);
+      }
+    }
+
+    function saveChangesToast() {
+      showToast('Settings successfully updated and Redis cache refreshed.');
+    }
+
+    function purgeCache() {
+      showToast('Cache invalidated: setting() cache cleared.');
+    }
+
+    // 9. Add Degree Dynamic Row (Repeater Demo)
+    function addDegreeItem() {
+      const container = document.getElementById('degreesContainer');
+      const newRow = document.createElement('div');
+      newRow.className = "p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-sm grid grid-cols-1 sm:grid-cols-12 gap-2 items-center animate-fadeIn";
+      newRow.innerHTML = `
+        <div class="sm:col-span-5">
+          <span class="text-[10px] font-mono text-slate-400 block mb-0.5">EN Title</span>
+          <input type="text" placeholder="Degree title in English" class="w-full text-xs p-1.5 rounded-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+        </div>
+        <div class="sm:col-span-6">
+          <span class="text-[10px] font-mono text-emerald-500 block mb-0.5">BN Title (বাংলা)</span>
+          <input type="text" placeholder="ডিগ্রির নাম বাংলায়" class="w-full text-xs p-1.5 rounded-sm border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+        </div>
+        <div class="sm:col-span-1 flex justify-end">
+          <button onclick="this.closest('.grid').remove()" class="text-slate-400 hover:text-rose-500 p-1.5 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-700" title="Remove Item">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      `;
+      container.appendChild(newRow);
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>

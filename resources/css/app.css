@@ -8,8 +8,99 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ==========================================================================
+   DYNAMIC COLOR SYSTEM (Easy Admin Theme Customization)
+   Modify these hex values to instantly update the Admin & Theme colors!
+   ========================================================================== */
+:root {
+    /* Primary / Brand Palette */
+    --color-primary-50: #f0f5ff;
+    --color-primary-100: #e5edff;
+    --color-primary-200: #c7d7fe;
+    --color-primary-300: #a4bcfe;
+    --color-primary-400: #8098f9;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb; /* <-- PRIMARY MAIN */
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #172554;
+    --color-primary-950: #0f172a;
+
+    /* Secondary Palette (Success / Accent) */
+    --color-secondary-50: #f0fdf4;
+    --color-secondary-100: #dcfce7;
+    --color-secondary-200: #bbf7d0;
+    --color-secondary-300: #86efac;
+    --color-secondary-400: #4ade80;
+    --color-secondary-500: #22c55e;
+    --color-secondary-600: #16a34a; /* <-- SECONDARY MAIN */
+    --color-secondary-700: #15803d;
+    --color-secondary-800: #166534;
+    --color-secondary-900: #14532d;
+
+    /* Accent Palette */
+    --color-accent-500: #f59e0b;
+    --color-accent-600: #d97706;
+
+    /* Admin Surfaces */
+    --color-admin-bg: #f8fafc;
+    --color-admin-sidebar: #ffffff;
+    --color-admin-border: #e2e8f0;
+}
+
+.dark {
+    --color-primary-50: #172554;
+    --color-primary-100: #1e3a8a;
+    --color-primary-200: #1e40af;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #60a5fa;
+
+    --color-secondary-50: #052e16;
+    --color-secondary-100: #064e3b;
+    --color-secondary-500: #10b981;
+    --color-secondary-600: #059669;
+
+    --color-admin-bg: #090d16;
+    --color-admin-sidebar: #0f172a;
+    --color-admin-border: #1e293b;
+}
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Geist', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --color-brand-50: var(--color-primary-50);
+    --color-brand-100: var(--color-primary-100);
+    --color-brand-200: var(--color-primary-200);
+    --color-brand-300: var(--color-primary-300);
+    --color-brand-400: var(--color-primary-400);
+    --color-brand-500: var(--color-primary-500);
+    --color-brand-600: var(--color-primary-600);
+    --color-brand-700: var(--color-primary-700);
+    --color-brand-800: var(--color-primary-800);
+    --color-brand-900: var(--color-primary-900);
+    --color-brand-950: var(--color-primary-950);
+
+    --color-primary-50: var(--color-primary-50);
+    --color-primary-100: var(--color-primary-100);
+    --color-primary-200: var(--color-primary-200);
+    --color-primary-300: var(--color-primary-300);
+    --color-primary-400: var(--color-primary-400);
+    --color-primary-500: var(--color-primary-500);
+    --color-primary-600: var(--color-primary-600);
+    --color-primary-700: var(--color-primary-700);
+    --color-primary-800: var(--color-primary-800);
+    --color-primary-900: var(--color-primary-900);
+
+    --color-secondary-50: var(--color-secondary-50);
+    --color-secondary-100: var(--color-secondary-100);
+    --color-secondary-200: var(--color-secondary-200);
+    --color-secondary-300: var(--color-secondary-300);
+    --color-secondary-400: var(--color-secondary-400);
+    --color-secondary-500: var(--color-secondary-500);
+    --color-secondary-600: var(--color-secondary-600);
+    --color-secondary-700: var(--color-secondary-700);
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -26,6 +117,52 @@
     --color-accent: var(--color-neutral-800);
     --color-accent-content: var(--color-neutral-800);
     --color-accent-foreground: var(--color-white);
+}
+
+/* Custom Low-Radius Scrollbar & Rail Styling from demo.html */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Fixed hover tooltips for mini rail */
+.rail-tooltip {
+  position: absolute;
+  left: 100%;
+  margin-left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s ease-out;
+  white-space: nowrap;
+  z-index: 60;
+}
+.rail-item:hover .rail-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Sidebar smooth width animation */
+.sidebar-transition {
+  transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer theme {
