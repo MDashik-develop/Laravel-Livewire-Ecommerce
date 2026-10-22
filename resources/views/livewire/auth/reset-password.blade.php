@@ -74,9 +74,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form method="POST" wire:submit="resetPassword" class="flex flex-col gap-6">
+    <form method="POST" wire:submit="resetPassword" class="flex flex-col gap-4">
         <!-- Email Address -->
-        <flux:input
+        <x-admin.input
             wire:model="email"
             :label="__('Email')"
             type="email"
@@ -85,31 +85,29 @@ new #[Layout('components.layouts.auth')] class extends Component {
         />
 
         <!-- Password -->
-        <flux:input
+        <x-admin.input
             wire:model="password"
             :label="__('Password')"
             type="password"
             required
             autocomplete="new-password"
             :placeholder="__('Password')"
-            viewable
         />
 
         <!-- Confirm Password -->
-        <flux:input
+        <x-admin.input
             wire:model="password_confirmation"
             :label="__('Confirm password')"
             type="password"
             required
             autocomplete="new-password"
             :placeholder="__('Confirm password')"
-            viewable
         />
 
-        <div class="flex items-center justify-end">
-            <flux:button type="submit" variant="primary" class="w-full">
+        <div class="flex items-center justify-end pt-1">
+            <x-admin.button type="submit" variant="primary" class="w-full justify-center">
                 {{ __('Reset password') }}
-            </flux:button>
+            </x-admin.button>
         </div>
     </form>
 </div>

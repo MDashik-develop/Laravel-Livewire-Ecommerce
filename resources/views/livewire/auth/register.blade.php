@@ -41,9 +41,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form method="POST" wire:submit="register" class="flex flex-col gap-6">
+    <form method="POST" wire:submit="register" class="flex flex-col gap-4">
         <!-- Name -->
-        <flux:input
+        <x-admin.input
             wire:model="name"
             :label="__('Name')"
             type="text"
@@ -54,7 +54,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         />
 
         <!-- Email Address -->
-        <flux:input
+        <x-admin.input
             wire:model="email"
             :label="__('Email address')"
             type="email"
@@ -64,36 +64,34 @@ new #[Layout('components.layouts.auth')] class extends Component {
         />
 
         <!-- Password -->
-        <flux:input
+        <x-admin.input
             wire:model="password"
             :label="__('Password')"
             type="password"
             required
             autocomplete="new-password"
             :placeholder="__('Password')"
-            viewable
         />
 
         <!-- Confirm Password -->
-        <flux:input
+        <x-admin.input
             wire:model="password_confirmation"
             :label="__('Confirm password')"
             type="password"
             required
             autocomplete="new-password"
             :placeholder="__('Confirm password')"
-            viewable
         />
 
-        <div class="flex items-center justify-end">
-            <flux:button type="submit" variant="primary" class="w-full">
+        <div class="flex items-center justify-end pt-1">
+            <x-admin.button type="submit" variant="primary" class="w-full justify-center">
                 {{ __('Create account') }}
-            </flux:button>
+            </x-admin.button>
         </div>
     </form>
 
-    <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
+    <div class="space-x-1 text-center text-xs text-slate-600 dark:text-zinc-400">
         <span>{{ __('Already have an account?') }}</span>
-        <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+        <a href="{{ route('login') }}" class="font-semibold text-brand-600 hover:text-brand-700 underline" wire:navigate>{{ __('Log in') }}</a>
     </div>
 </div>

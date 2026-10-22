@@ -15,7 +15,14 @@
 <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
-@fluxAppearance
+<script>
+    // Initialize theme cleanly (Default: Light Mode)
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
 
 <style>
     dialog:not([open]) {
@@ -71,7 +78,7 @@
 
     /* Summernote Modern & Dark Mode Styling */
     .note-editor.note-frame {
-        border-radius: 0.75rem !important;
+        border-radius: 4px !important;
         border: 1px solid #e4e4e7 !important;
         overflow: hidden;
         background: #ffffff;

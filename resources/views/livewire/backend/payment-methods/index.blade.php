@@ -1,317 +1,280 @@
-<section>
+<section class="space-y-5">
     <livewire:utilities.toast-modal />
 
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Top Bar -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <div>
-                <flux:breadcrumbs>
-                    <flux:breadcrumbs.item href="{{ route('dashboard') }}">Dashboard</flux:breadcrumbs.item>
-                    <flux:breadcrumbs.item>Payment Methods</flux:breadcrumbs.item>
-                </flux:breadcrumbs>
-                <flux:heading size="xl" class="mt-2 font-bold text-gray-900 dark:text-white">Payment Methods</flux:heading>
-                <flux:subheading class="text-sm text-gray-500 dark:text-gray-400">Manage payment gateways, sandbox modes, API credentials, and checkout instructions.</flux:subheading>
-            </div>
-
-            <flux:button wire:click="create" variant="primary" icon="plus" class="shadow-sm cursor-pointer">
-                Add Payment Method
-            </flux:button>
+    <!-- Top Bar -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <x-admin.breadcrumb :items="[
+                ['label' => 'Dashboard', 'url' => route('dashboard')],
+                ['label' => 'Payment Methods']
+            ]" />
+            <h1 class="mt-2 text-lg font-bold text-slate-900 dark:text-zinc-100">Payment Methods</h1>
+            <p class="text-xs text-slate-500 dark:text-zinc-400">Manage payment gateways, sandbox modes, API credentials, and checkout instructions.</p>
         </div>
 
-        <!-- Search & Table Card -->
-        <div class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-sm rounded-xl overflow-hidden">
-            <!-- Search bar -->
-            <div class="p-4 border-b border-gray-100 dark:border-zinc-700/60 bg-gray-50/50 dark:bg-zinc-800/50">
-                <div class="relative max-w-md">
-                    <input wire:model.live.debounce.300ms="search" type="text"
-                        placeholder="Search payment gateways by name, slug, or instruction..."
-                        class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-zinc-600 rounded-lg text-sm bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
+        <x-admin.button wire:click="create" variant="primary" icon="plus">
+            Add Payment Method
+        </x-admin.button>
+    </div>
 
-            <!-- Table -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-700 text-left">
-                    <thead class="bg-gray-50 dark:bg-zinc-900/60">
-                        <tr>
-                            <th class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider text-center">
-                                Logo
-                            </th>
-                            <th wire:click="sortBy('name')" class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-indigo-600">
-                                <div class="flex items-center space-x-1">
-                                    <span>Gateway Name</span>
-                                    @if ($sortField === 'name')
-                                        <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
-                                    @endif
-                                </div>
-                            </th>
-                            <th class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                Slug
-                            </th>
-                            <th class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                Credentials
-                            </th>
-                            <th class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider text-center">
-                                Mode
-                            </th>
-                            <th class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider text-center">
-                                Status
-                            </th>
-                            <th class="px-6 py-3.5 text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider text-right">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white dark:bg-zinc-800 divide-y divide-gray-200 dark:divide-zinc-700/60">
-                        @forelse ($methods as $method)
-                            <tr wire:key="payment-method-{{ $method->id }}" class="hover:bg-gray-50/75 dark:hover:bg-zinc-700/40 transition">
-                                <td class="px-6 py-4 flex justify-center">
-                                    @if ($method->media)
-                                        <img src="{{ $method->media->urls['thumb'] ?? $method->media->urls['small'] ?? $method->media->url }}"
-                                            alt="{{ $method->name }}"
-                                            class="w-12 h-12 object-contain p-1 rounded-lg border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-2xs">
-                                    @else
-                                        <div class="w-12 h-12 bg-gray-100 dark:bg-zinc-700/80 rounded-lg flex items-center justify-center text-gray-400">
-                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="font-semibold text-sm text-gray-900 dark:text-gray-100">
-                                        {{ $method->name }}
-                                    </div>
-                                    @if ($method->instruction)
-                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1 max-w-xs">
-                                            {{ $method->instruction }}
-                                        </p>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-mono font-medium bg-gray-100 text-gray-800 dark:bg-zinc-700 dark:text-zinc-200">
-                                        {{ $method->slug }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    @php
-                                        $credCount = is_array($method->credentials) ? count($method->credentials) : 0;
-                                    @endphp
-                                    @if ($credCount > 0)
-                                        <div class="flex items-center space-x-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                                            </svg>
-                                            <span>{{ $credCount }} {{ Str::plural('key', $credCount) }}</span>
-                                        </div>
-                                    @else
-                                        <span class="text-xs text-gray-400 dark:text-gray-500 italic">None</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <button type="button" wire:click="toggleSandbox({{ $method->id }})" class="cursor-pointer focus:outline-none">
-                                        @if ($method->sandbox_mode)
-                                            <flux:badge color="amber" class="cursor-pointer hover:opacity-80">Sandbox</flux:badge>
-                                        @else
-                                            <flux:badge color="blue" class="cursor-pointer hover:opacity-80">Live</flux:badge>
-                                        @endif
-                                    </button>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <button type="button" wire:click="toggleActive({{ $method->id }})" class="cursor-pointer focus:outline-none">
-                                        @if ($method->is_active)
-                                            <flux:badge color="green" class="cursor-pointer hover:opacity-80">Active</flux:badge>
-                                        @else
-                                            <flux:badge color="red" class="cursor-pointer hover:opacity-80">Inactive</flux:badge>
-                                        @endif
-                                    </button>
-                                </td>
-                                <td class="px-6 py-4 text-right space-x-2">
-                                    <flux:button wire:click="edit({{ $method->id }})" icon="pencil-square" size="sm" class="cursor-pointer">
-                                    </flux:button>
-                                    <flux:button wire:click="confirmDelete({{ $method->id }})" icon="trash" size="sm" variant="danger" class="cursor-pointer">
-                                    </flux:button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                    <div class="flex flex-col items-center justify-center space-y-2">
-                                        <svg class="w-10 h-10 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                                        </svg>
-                                        <p class="text-sm font-medium">No payment methods found.</p>
-                                        <p class="text-xs text-gray-400">Click "Add Payment Method" to configure gateways like Stripe, PayPal, bKash, or Cash on Delivery.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+    <!-- Search & Table Card -->
+    <x-admin.card class="p-0 overflow-hidden">
+        <!-- Search bar -->
+        <div class="p-3.5 border-b border-slate-200 dark:border-zinc-800 bg-slate-50/60 dark:bg-zinc-900/40">
+            <div class="relative max-w-md">
+                <input wire:model.live.debounce.300ms="search" type="text"
+                    placeholder="Search payment gateways by name, slug, or instruction..."
+                    class="w-full pl-9 pr-3 py-1.5 text-xs bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 rounded-[3px] text-slate-800 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition">
+                <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
             </div>
-
-            @if ($methods->hasPages())
-                <div class="p-4 border-t border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50">
-                    {{ $methods->links() }}
-                </div>
-            @endif
         </div>
 
-        <!-- Create / Edit Payment Method Modal -->
-        <flux:modal name="payment-method-modal" class="md:w-[38rem]">
-            <form wire:submit.prevent="save" class="space-y-6">
-                <flux:heading size="lg">
-                    {{ $paymentMethodId ? 'Edit Payment Method' : 'Create Payment Method' }}
-                </flux:heading>
-
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <flux:input wire:model.live="name" label="Gateway Name *" placeholder="e.g. Stripe, PayPal, bKash" />
-                        </div>
-                        <div>
-                            <flux:input wire:model="slug" label="Slug *" placeholder="e.g. stripe, paypal, bkash" />
-                        </div>
-                    </div>
-
-                    <!-- Media / Gateway Logo Selector -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Gateway Logo / Icon</label>
-                        <div class="flex items-center space-x-4 p-3 rounded-xl border border-gray-200 dark:border-zinc-700 bg-gray-50/50 dark:bg-zinc-800/50">
-                            <div class="shrink-0">
-                                @if ($mediaUrl)
-                                    <img class="h-14 w-14 object-contain rounded-xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-1 shadow-2xs"
-                                        src="{{ $mediaUrl }}" alt="Payment Logo">
-                                @else
-                                    <div class="h-14 w-14 bg-gray-100 dark:bg-zinc-800 rounded-xl flex items-center justify-center text-gray-400 border border-dashed border-gray-300 dark:border-zinc-700">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"/>
-                                        </svg>
-                                    </div>
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-zinc-800 text-left text-xs">
+                <thead class="bg-slate-50 dark:bg-zinc-900/60 text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                    <tr>
+                        <th class="px-4 py-3 text-center w-16">Logo</th>
+                        <th wire:click="sortBy('name')" class="px-4 py-3 cursor-pointer hover:text-brand-600 transition">
+                            <div class="flex items-center space-x-1">
+                                <span>Gateway Name</span>
+                                @if ($sortField === 'name')
+                                    <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                                 @endif
                             </div>
-                            <div class="flex flex-col space-y-1.5">
-                                <div class="flex items-center space-x-2">
-                                    <button type="button"
-                                        wire:click="$dispatch('open-media-modal', { targetEvent: 'payment-media-selected', folder: 'payments', selectedId: {{ $media_id ?: 'null' }} })"
-                                        class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold shadow-xs transition flex items-center space-x-1.5">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                        <span>Choose Logo</span>
-                                    </button>
-                                    @if ($media_id)
-                                        <button type="button" wire:click="removeMedia" class="px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg text-xs font-medium transition">
-                                            Remove
-                                        </button>
+                        </th>
+                        <th class="px-4 py-3">Slug</th>
+                        <th class="px-4 py-3">Credentials</th>
+                        <th class="px-4 py-3 text-center">Mode</th>
+                        <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+                    @forelse ($methods as $method)
+                        <tr wire:key="payment-method-{{ $method->id }}" class="hover:bg-slate-50/80 dark:hover:bg-zinc-800/40 transition">
+                            <td class="px-4 py-3 flex justify-center">
+                                @if ($method->media)
+                                    <img src="{{ $method->media->urls['thumb'] ?? $method->media->urls['small'] ?? $method->media->url }}"
+                                        alt="{{ $method->name }}"
+                                        class="w-10 h-10 object-contain p-1 rounded-[3px] border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+                                @else
+                                    <div class="w-10 h-10 bg-slate-100 dark:bg-zinc-800 rounded-[3px] flex items-center justify-center text-slate-400">
+                                        <i data-lucide="credit-card" class="w-5 h-5"></i>
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="font-semibold text-xs text-slate-900 dark:text-zinc-100">
+                                    {{ $method->name }}
+                                </div>
+                                @if ($method->instruction)
+                                    <p class="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 line-clamp-1 max-w-xs">
+                                        {{ $method->instruction }}
+                                    </p>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-[3px] text-[11px] font-mono font-medium bg-slate-100 text-slate-700 dark:bg-zinc-800 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700">
+                                    {{ $method->slug }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">
+                                @php
+                                    $credCount = is_array($method->credentials) ? count($method->credentials) : 0;
+                                @endphp
+                                @if ($credCount > 0)
+                                    <div class="flex items-center space-x-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                        <i data-lucide="key" class="w-3.5 h-3.5"></i>
+                                        <span>{{ $credCount }} {{ Str::plural('key', $credCount) }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-[11px] text-slate-400 italic">None</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <button type="button" wire:click="toggleSandbox({{ $method->id }})" class="cursor-pointer focus:outline-none">
+                                    @if ($method->sandbox_mode)
+                                        <x-admin.badge variant="warning">Sandbox</x-admin.badge>
+                                    @else
+                                        <x-admin.badge variant="info">Live</x-admin.badge>
                                     @endif
+                                </button>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <button type="button" wire:click="toggleActive({{ $method->id }})" class="cursor-pointer focus:outline-none">
+                                    @if ($method->is_active)
+                                        <x-admin.badge variant="success" dot>Active</x-admin.badge>
+                                    @else
+                                        <x-admin.badge variant="danger" dot>Inactive</x-admin.badge>
+                                    @endif
+                                </button>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="inline-flex items-center gap-1.5">
+                                    <x-admin.button wire:click="edit({{ $method->id }})" icon="pencil" size="sm" variant="secondary" title="Edit" />
+                                    <x-admin.button wire:click="confirmDelete({{ $method->id }})" icon="trash-2" size="sm" variant="danger" title="Delete" />
                                 </div>
-                                <p class="text-[11px] text-gray-500">Pick a payment logo or banner from Media Library.</p>
-                            </div>
-                        </div>
-                        @error('media_id')
-                            <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
-                        @enderror
-                    </div>
-
-                    <!-- Dynamic JSON Credentials Builder -->
-                    <div class="border border-gray-200 dark:border-zinc-700 rounded-xl p-4 bg-gray-50/50 dark:bg-zinc-900/30">
-                        <div class="flex items-center justify-between mb-2">
-                            <div>
-                                <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Gateway Credentials (JSON)</h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Configure API keys, secret keys, or merchant IDs stored as JSON.</p>
-                            </div>
-                            <button type="button" wire:click="addCredentialRow"
-                                class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400 hover:bg-indigo-100 transition">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                <span>Add Credential Key</span>
-                            </button>
-                        </div>
-
-                        <div class="space-y-2 mt-3">
-                            @foreach ($credentialRows as $index => $row)
-                                <div wire:key="cred-row-{{ $index }}" class="flex items-center space-x-2">
-                                    <div class="w-1/3">
-                                        <input wire:model="credentialRows.{{ $index }}.key" type="text"
-                                            placeholder="Key (e.g. client_id, secret)"
-                                            class="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-slate-500 dark:text-zinc-400">
+                                <div class="flex flex-col items-center justify-center space-y-2">
+                                    <div class="w-10 h-10 rounded-[4px] bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-400">
+                                        <i data-lucide="credit-card" class="w-5 h-5"></i>
                                     </div>
-                                    <div class="flex-1">
-                                        <input wire:model="credentialRows.{{ $index }}.value" type="text"
-                                            placeholder="Value (e.g. sk_test_...)"
-                                            class="w-full px-3 py-1.5 text-xs font-mono rounded-lg border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                    </div>
-                                    <div>
-                                        <button type="button" wire:click="removeCredentialRow({{ $index }})"
-                                            class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition" title="Remove">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                        </button>
-                                    </div>
+                                    <p class="text-xs font-medium">No payment methods found.</p>
+                                    <p class="text-[11px] text-slate-400">Click "Add Payment Method" to configure gateways like Stripe, PayPal, bKash, or Cash on Delivery.</p>
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                    <!-- Instructions -->
-                    <div>
-                        <flux:textarea wire:model="instruction" label="Payment Instructions" rows="3"
-                            placeholder="Instructions shown to customers during checkout (e.g., Send money to 017xxxxxxxx and enter transaction ID)..." />
-                    </div>
+        @if ($methods->hasPages())
+            <div class="p-3.5 border-t border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30">
+                {{ $methods->links() }}
+            </div>
+        @endif
+    </x-admin.card>
 
-                    <!-- Toggles: Active & Sandbox Mode -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1 border-t border-gray-100 dark:border-zinc-700">
-                        <div class="flex items-center">
-                            <flux:field variant="inline">
-                                <flux:checkbox wire:model="sandbox_mode" />
-                                <flux:label>Sandbox / Test Mode</flux:label>
-                                <flux:error name="sandbox_mode" />
-                            </flux:field>
-                        </div>
-
-                        <div class="flex items-center">
-                            <flux:field variant="inline">
-                                <flux:checkbox wire:model="is_active" />
-                                <flux:label>Active Gateway</flux:label>
-                                <flux:error name="is_active" />
-                            </flux:field>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex pt-4">
-                    <flux:spacer />
-                    <flux:modal.close>
-                        <flux:button type="button" variant="filled">Cancel</flux:button>
-                    </flux:modal.close>
-                    <flux:button type="submit" variant="primary" class="ml-3">
-                        {{ $paymentMethodId ? 'Update Gateway' : 'Create Gateway' }}
-                    </flux:button>
-                </div>
-            </form>
-        </flux:modal>
-
-        <!-- Delete Confirmation Modal -->
-        <flux:modal name="delete-payment-modal" class="md:w-96">
-            <div class="space-y-6">
+    <!-- Create / Edit Payment Method Modal -->
+    <x-admin.modal name="payment-method-modal" title="{{ $paymentMethodId ? 'Edit Payment Method' : 'Create Payment Method' }}" maxWidth="max-w-xl">
+        <form wire:submit.prevent="save" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <flux:heading size="lg">Delete Payment Method?</flux:heading>
-                    <flux:text class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                        Are you sure you want to delete this payment method? This action cannot be undone.
-                    </flux:text>
+                    <x-admin.input wire:model.live="name" label="Gateway Name *" placeholder="e.g. Stripe, PayPal, bKash" />
                 </div>
-                <div class="flex gap-2">
-                    <flux:spacer />
-                    <flux:modal.close>
-                        <flux:button variant="ghost">Cancel</flux:button>
-                    </flux:modal.close>
-                    <flux:button wire:click="delete" type="button" variant="danger">
-                        Delete Gateway
-                    </flux:button>
+                <div>
+                    <x-admin.input wire:model="slug" label="Slug *" placeholder="e.g. stripe, paypal, bkash" />
                 </div>
             </div>
-        </flux:modal>
-    </div>
+
+            <!-- Media / Gateway Logo Selector -->
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 dark:text-zinc-300 mb-1.5">Gateway Logo / Icon</label>
+                <div class="flex items-center space-x-3 p-3 rounded-[4px] border border-slate-200 dark:border-zinc-700 bg-slate-50/50 dark:bg-zinc-800/40">
+                    <div class="shrink-0">
+                        @if ($mediaUrl)
+                            <img class="h-12 w-12 object-contain rounded-[3px] border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-1"
+                                src="{{ $mediaUrl }}" alt="Payment Logo">
+                        @else
+                            <div class="h-12 w-12 bg-slate-100 dark:bg-zinc-800 rounded-[3px] flex items-center justify-center text-slate-400 border border-dashed border-slate-300 dark:border-zinc-700">
+                                <i data-lucide="image" class="w-5 h-5"></i>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="flex flex-col space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <button type="button"
+                                wire:click="$dispatch('open-media-modal', { targetEvent: 'payment-media-selected', folder: 'payments', selectedId: {{ $media_id ?: 'null' }} })"
+                                class="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded-[3px] text-xs font-semibold shadow-xs transition flex items-center space-x-1 cursor-pointer">
+                                <i data-lucide="image-plus" class="w-3.5 h-3.5"></i>
+                                <span>Choose Logo</span>
+                            </button>
+                            @if ($media_id)
+                                <button type="button" wire:click="removeMedia" class="px-2 py-1 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-[3px] text-xs font-medium transition cursor-pointer">
+                                    Remove
+                                </button>
+                            @endif
+                        </div>
+                        <p class="text-[10px] text-slate-500">Pick a payment logo or icon from Media Library.</p>
+                    </div>
+                </div>
+                @error('media_id')
+                    <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Dynamic JSON Credentials Builder -->
+            <div class="border border-slate-200 dark:border-zinc-700 rounded-[4px] p-3.5 bg-slate-50/60 dark:bg-zinc-900/40">
+                <div class="flex items-center justify-between mb-2">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800 dark:text-zinc-200">Gateway Credentials (JSON)</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-zinc-400">Configure API keys, secret keys, or merchant IDs stored as JSON.</p>
+                    </div>
+                    <button type="button" wire:click="addCredentialRow"
+                        class="inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-[3px] bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-300 hover:bg-brand-100 transition cursor-pointer">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        <span>Add Key</span>
+                    </button>
+                </div>
+
+                <div class="space-y-2 mt-2.5">
+                    @foreach ($credentialRows as $index => $row)
+                        <div wire:key="cred-row-{{ $index }}" class="flex items-center space-x-2">
+                            <div class="w-1/3">
+                                <input wire:model="credentialRows.{{ $index }}.key" type="text"
+                                    placeholder="Key (e.g. client_id, secret)"
+                                    class="w-full px-2.5 py-1 text-xs font-mono rounded-[3px] border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-900 dark:text-zinc-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div class="flex-1">
+                                <input wire:model="credentialRows.{{ $index }}.value" type="text"
+                                    placeholder="Value (e.g. sk_test_...)"
+                                    class="w-full px-2.5 py-1 text-xs font-mono rounded-[3px] border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-900 dark:text-zinc-100 focus:outline-none focus:border-brand-500">
+                            </div>
+                            <div>
+                                <button type="button" wire:click="removeCredentialRow({{ $index }})"
+                                    class="p-1 text-slate-400 hover:text-rose-600 rounded-[3px] transition cursor-pointer" title="Remove">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div>
+                <x-admin.textarea wire:model="instruction" label="Payment Instructions" rows="3"
+                    placeholder="Instructions shown to customers during checkout (e.g., Send money to 017xxxxxxxx and enter transaction ID)..." />
+            </div>
+
+            <!-- Toggles: Active & Sandbox Mode -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100 dark:border-zinc-800">
+                <div class="flex items-center">
+                    <x-admin.switch wire:model="sandbox_mode" label="Sandbox / Test Mode" description="Enable test environment without charging real accounts" />
+                </div>
+
+                <div class="flex items-center">
+                    <x-admin.switch wire:model="is_active" label="Active Gateway" description="Enable or disable for buyers at checkout" />
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-zinc-800">
+                <x-admin.button type="button" variant="ghost" @click="$dispatch('modal-close', { name: 'payment-method-modal' })">
+                    Cancel
+                </x-admin.button>
+                <x-admin.button type="submit" variant="primary" icon="check">
+                    {{ $paymentMethodId ? 'Update Gateway' : 'Create Gateway' }}
+                </x-admin.button>
+            </div>
+        </form>
+    </x-admin.modal>
+
+    <!-- Delete Confirmation Modal -->
+    <x-admin.modal name="delete-payment-modal" title="Delete Payment Method" maxWidth="max-w-md">
+        <div class="space-y-4 text-center">
+            <div class="w-10 h-10 rounded-[4px] bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 mx-auto flex items-center justify-center">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-sm text-slate-800 dark:text-zinc-100">Delete Payment Method?</h4>
+                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+                    Are you sure you want to delete this payment method? This action cannot be undone.
+                </p>
+            </div>
+            <div class="flex justify-center gap-2 pt-2">
+                <x-admin.button type="button" variant="ghost" @click="$dispatch('modal-close', { name: 'delete-payment-modal' })">
+                    Cancel
+                </x-admin.button>
+                <x-admin.button wire:click="delete" type="button" variant="danger">
+                    Delete Gateway
+                </x-admin.button>
+            </div>
+        </div>
+    </x-admin.modal>
 </section>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
@@ -19,9 +19,9 @@
                 @endphp
 
                 <div class="relative z-20 mt-auto">
-                    <blockquote class="space-y-2">
-                        <flux:heading size="lg">&ldquo;{{ trim($message) }}&rdquo;</flux:heading>
-                        <footer><flux:heading>{{ trim($author) }}</flux:heading></footer>
+                    <blockquote class="space-y-1">
+                        <p class="text-base font-medium text-white">&ldquo;{{ trim($message) }}&rdquo;</p>
+                        <footer class="text-xs text-slate-400">&mdash; {{ trim($author) }}</footer>
                     </blockquote>
                 </div>
             </div>
@@ -38,6 +38,5 @@
                 </div>
             </div>
         </div>
-        @fluxScripts
     </body>
 </html>

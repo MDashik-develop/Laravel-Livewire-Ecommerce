@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -40,6 +41,31 @@ class Product extends Model
         'stock'           => 'integer',
         'weight'          => 'decimal:2',
     ];
+
+    protected static function booted()
+    {
+        static::deleting(function ($product) {
+            if ($product->isForceDeleting()) {
+                foreach ($product->variants()->withTrashed()->get() as $variant) {
+                    $variant->variantAttributes()->delete();
+                    $variant->stockLogs()->delete();
+                    $variant->forceDelete();
+                }
+                $product->galleries()->delete();
+                $product->stockLogs()->delete();
+            } else {
+                // Cascade soft delete to all variants
+                foreach ($product->variants as $variant) {
+                    $variant->delete();
+                }
+            }
+        });
+
+        static::restoring(function ($product) {
+            // Cascade restore to all variants
+            $product->variants()->withTrashed()->restore();
+        });
+    }
 
     public function media()
     {

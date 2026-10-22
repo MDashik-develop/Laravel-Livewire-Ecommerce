@@ -81,7 +81,7 @@
     <div class="flex items-center gap-1.5 sm:gap-2">
 
         <!-- Search Input with Dropdown (⌘K) -->
-        <div class="relative hidden sm:block w-44 md:w-56" @click.outside="searchOpen = false">
+        {{-- <div class="relative hidden sm:block w-44 md:w-56" @click.outside="searchOpen = false">
             <div class="relative">
                 <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                 <input type="text"
@@ -119,10 +119,10 @@
                     </div>
                 </template>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Language Selector Switcher (BN/EN) -->
-        <div class="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-sm p-0.5 text-xs font-semibold">
+        {{-- <div class="flex items-center bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-sm p-0.5 text-xs font-semibold">
             <button type="button"
                     @click="activeLang = 'bn'"
                     :class="activeLang === 'bn' ? 'bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-300 shadow-2xs font-bold' : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200'"
@@ -135,7 +135,7 @@
                     class="px-2 py-0.5 rounded-xs transition-colors text-[11px] cursor-pointer">
                 EN
             </button>
-        </div>
+        </div> --}}
 
         <!-- Dark / Light Mode Toggle Button -->
         <button type="button" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode"

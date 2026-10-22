@@ -1,9 +1,17 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 
     <title>{{ $title ?? config('app.name', 'ShopNest Enterprise Admin') }}</title>
 
@@ -72,9 +80,9 @@
                     <button type="button" id="sidebarCollapseBtn" onclick="toggleSidebarRail()" title="Collapse / Expand Sidebar" class="hidden md:inline-flex p-1.5 rounded-sm border border-slate-200 dark:border-slate-700/80 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
                         <i id="collapseIcon" data-lucide="panel-left-close" class="w-4 h-4"></i>
                     </button>
-                    <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+                    {{-- <button type="button" onclick="toggleMobileSidebar()" class="md:hidden p-1.5 rounded-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
                         <i data-lucide="x" class="w-4 h-4"></i>
-                    </button>
+                    </button> --}}
                 </div>
             </div>
 
@@ -157,16 +165,103 @@
 
     <!-- CORE INTERACTION SCRIPTS (from demo.html) -->
     <script>
-        // 1. Initialize Lucide Icons
+        // 1. Initialize Lucide Icons with Livewire 3 & DOM Morph Support
+        let isIconRefreshing = false;
         function refreshIcons() {
-            if (window.lucide) {
+            if (!window.lucide || typeof window.lucide.createIcons !== 'function') return;
+            if (isIconRefreshing) return;
+            isIconRefreshing = true;
+
+            try {
                 window.lucide.createIcons();
+            } catch (err) {
+                console.warn('Lucide icon refresh error:', err);
+            } finally {
+                isIconRefreshing = false;
             }
         }
 
+        let iconDebounceTimer = null;
+        function debouncedRefreshIcons() {
+            if (iconDebounceTimer) cancelAnimationFrame(iconDebounceTimer);
+            iconDebounceTimer = requestAnimationFrame(() => {
+                refreshIcons();
+            });
+        }
+
+        // Attach Livewire lifecycle hooks
+        function attachLivewireIconHooks() {
+            if (!window.Livewire || window._livewireLucideHooked) return;
+            window._livewireLucideHooked = true;
+
+            // Livewire 3 commit hook: fires when AJAX response succeeds and finishes processing
+            Livewire.hook('commit', ({ succeed }) => {
+                succeed(() => {
+                    queueMicrotask(refreshIcons);
+                    setTimeout(refreshIcons, 20);
+                });
+            });
+
+            // Livewire 3 morph hooks: fires when DOM nodes are updated, added, or swapped
+            Livewire.hook('morph.updated', () => debouncedRefreshIcons());
+            Livewire.hook('morph.added', () => debouncedRefreshIcons());
+            Livewire.hook('element.init', () => debouncedRefreshIcons());
+        }
+
+        // Standard Page Events
         document.addEventListener('DOMContentLoaded', refreshIcons);
-        document.addEventListener('livewire:navigated', refreshIcons);
-        document.addEventListener('livewire:init', refreshIcons);
+        document.addEventListener('livewire:navigated', () => {
+            refreshIcons();
+            attachLivewireIconHooks();
+        });
+        document.addEventListener('livewire:init', () => {
+            refreshIcons();
+            attachLivewireIconHooks();
+        });
+        window.addEventListener('refresh-icons', refreshIcons);
+
+        // Immediate check if Livewire already exists
+        if (window.Livewire) {
+            attachLivewireIconHooks();
+        }
+
+        // MutationObserver: Auto-detect any newly inserted or modified [data-lucide] icons
+        const iconObserver = new MutationObserver((mutations) => {
+            let hasUnrenderedIcon = false;
+            for (let i = 0; i < mutations.length; i++) {
+                const m = mutations[i];
+                if (m.type === 'childList') {
+                    for (let j = 0; j < m.addedNodes.length; j++) {
+                        const node = m.addedNodes[j];
+                        if (node.nodeType === 1) { // Element node
+                            if (node.matches && node.matches('i[data-lucide]')) {
+                                hasUnrenderedIcon = true;
+                                break;
+                            }
+                            if (node.querySelector && node.querySelector('i[data-lucide]')) {
+                                hasUnrenderedIcon = true;
+                                break;
+                            }
+                        }
+                    }
+                } else if (m.type === 'attributes' && m.attributeName === 'data-lucide') {
+                    hasUnrenderedIcon = true;
+                    break;
+                }
+                if (hasUnrenderedIcon) break;
+            }
+            if (hasUnrenderedIcon) {
+                debouncedRefreshIcons();
+            }
+        });
+
+        if (document.body) {
+            iconObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-lucide'] });
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                iconObserver.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['data-lucide'] });
+            });
+        }
 
         // 2. Real-time Live Date & Time Clock Ticker (UTC+6)
         function updateLiveClock() {
@@ -287,27 +382,31 @@
             }
         }
 
-        // 5. Dark / Light Theme Toggle
-        function toggleDarkMode() {
+        // 5. Dark / Light Theme Toggle (Default: Light Mode)
+        function syncThemeState() {
             const html = document.documentElement;
             const themeIcon = document.getElementById('themeToggleIcon');
+            const savedTheme = localStorage.getItem('theme');
 
-            html.classList.toggle('dark');
-
-            if (html.classList.contains('dark')) {
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
                 if (themeIcon) themeIcon.setAttribute('data-lucide', 'sun');
-                localStorage.setItem('theme', 'dark');
             } else {
+                html.classList.remove('dark');
                 if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
-                localStorage.setItem('theme', 'light');
             }
             refreshIcons();
         }
 
-        // Restore saved theme on load
-        if (localStorage.getItem('theme') === 'light') {
-            document.documentElement.classList.remove('dark');
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            syncThemeState();
         }
+
+        // Initialize theme state immediately on script load
+        syncThemeState();
 
         // 6. Toast Notification Helper
         function showToast(text) {
@@ -367,10 +466,16 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', initializePageContent);
+        document.addEventListener('DOMContentLoaded', () => {
+            syncThemeState();
+            initializePageContent();
+        });
         document.addEventListener('livewire:load', initializePageContent);
         document.addEventListener('livewire:init', initializePageContent);
-        document.addEventListener('livewire:navigated', initializePageContent);
+        document.addEventListener('livewire:navigated', () => {
+            syncThemeState();
+            initializePageContent();
+        });
     </script>
 </body>
 </html>

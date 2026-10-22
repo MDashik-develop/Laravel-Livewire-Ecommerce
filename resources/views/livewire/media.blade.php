@@ -1,22 +1,39 @@
 <div x-data="{
+    open: @entangle('isOpen'),
     copied: false,
     copyUrl(url) {
         navigator.clipboard.writeText(url);
         this.copied = true;
         setTimeout(() => this.copied = false, 2000);
     }
-}">
-    <!-- Large Flux Modal for Media Management -->
-    <flux:modal name="media-manager-modal" :closable="false" class="!max-w-7xl !w-[96vw] !h-[92vh] p-0 overflow-hidden bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-2xl">
+}"
+@modal-show.window="if ($event.detail.name === 'media-manager-modal') open = true"
+@modal-close.window="if ($event.detail.name === 'media-manager-modal') open = false"
+@open-media-modal.window="open = true"
+@keydown.escape.window="if (open) { open = false; $wire.closeModal(); }">
+    <!-- Custom Alpine Modal for Media Management -->
+    <div x-show="open" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
+        <!-- Backdrop -->
+        <div x-show="open" x-transition.opacity @click="open = false; $wire.closeModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
+
+        <!-- Dialog Box -->
+        <div x-show="open" 
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            class="relative w-[96vw] max-w-7xl h-[92vh] max-h-[92vh] flex flex-col bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-[4px] shadow-2xl overflow-hidden z-10">
         @if ($isOpen)
         <div class="flex flex-col h-full w-full">
         <!-- Top Navigation Bar -->
         <div class="px-6 py-4 border-b border-gray-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-4 bg-gray-50/70 dark:bg-zinc-900/90 shrink-0">
             <!-- Left Side: 3 Option Tabs -->
-            <div class="flex items-center space-x-1.5 bg-gray-200/80 dark:bg-zinc-800 p-1 rounded-xl">
+            <div class="flex items-center space-x-1.5 bg-gray-200/80 dark:bg-zinc-800 p-1 rounded-[4px]">
                 <button type="button"
                     wire:click="setTab('all')"
-                    class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 {{ $tab === 'all' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
+                    class="flex items-center space-x-2 px-4 py-2 rounded-sm text-sm font-semibold transition-all duration-150 {{ $tab === 'all' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
@@ -25,7 +42,7 @@
 
                 <button type="button"
                     wire:click="setTab('folders')"
-                    class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 {{ $tab === 'folders' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
+                    class="flex items-center space-x-2 px-4 py-2 rounded-sm text-sm font-semibold transition-all duration-150 {{ $tab === 'folders' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                     </svg>
@@ -34,7 +51,7 @@
 
                 <button type="button"
                     wire:click="setTab('upload')"
-                    class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 {{ $tab === 'upload' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
+                    class="flex items-center space-x-2 px-4 py-2 rounded-sm text-sm font-semibold transition-all duration-150 {{ $tab === 'upload' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                     </svg>
@@ -43,7 +60,7 @@
 
                 <button type="button"
                     wire:click="setTab('trash')"
-                    class="flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-150 {{ $tab === 'trash' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
+                    class="flex items-center space-x-2 px-4 py-2 rounded-sm text-sm font-semibold transition-all duration-150 {{ $tab === 'trash' ? 'bg-rose-600 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                     </svg>
@@ -60,7 +77,7 @@
             <div class="flex items-center space-x-3">
                 @if ($isPicker)
                     @if ($multiple)
-                        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 px-3 py-1.5 rounded-xl text-xs">
+                        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 px-3 py-1.5 rounded-[4px] text-xs">
                             <span class="font-bold text-indigo-700 dark:text-indigo-300 flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 <span>{{ count($selectedMediaIds) }} selected</span>
@@ -75,7 +92,7 @@
                             </button>
                         </div>
                     @elseif ($selectedMediaId)
-                        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 px-2.5 py-1.5 rounded-xl text-xs text-indigo-700 dark:text-indigo-300 font-semibold">
+                        <div class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 px-2.5 py-1.5 rounded-[4px] text-xs text-indigo-700 dark:text-indigo-300 font-semibold">
                             <span class="flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                 <span>1 selected</span>
@@ -93,7 +110,7 @@
                         <input type="text"
                             wire:model.live.debounce.300ms="search"
                             placeholder="{{ $tab === 'trash' ? 'Search trash...' : 'Search media...' }}"
-                            class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                            class="w-full pl-9 pr-3 py-1.5 text-xs rounded-sm border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
                         <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
@@ -101,22 +118,20 @@
 
                     @if ($tab === 'all')
                         <!-- Type Filter -->
-                        <div class="flex items-center space-x-1 bg-gray-200/80 dark:bg-zinc-800 p-0.5 rounded-lg text-xs">
-                            <button type="button" wire:click="setTypeFilter('all')" class="px-2.5 py-1 rounded-md font-medium {{ $typeFilter === 'all' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">All</button>
-                            <button type="button" wire:click="setTypeFilter('image')" class="px-2.5 py-1 rounded-md font-medium {{ $typeFilter === 'image' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">Images</button>
-                            <button type="button" wire:click="setTypeFilter('video')" class="px-2.5 py-1 rounded-md font-medium {{ $typeFilter === 'video' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">Videos</button>
-                            <button type="button" wire:click="setTypeFilter('gif')" class="px-2.5 py-1 rounded-md font-medium {{ $typeFilter === 'gif' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">GIFs</button>
+                        <div class="flex items-center space-x-1 bg-gray-200/80 dark:bg-zinc-800 p-0.5 rounded-sm text-xs">
+                            <button type="button" wire:click="setTypeFilter('all')" class="px-2.5 py-1 rounded-xs font-medium {{ $typeFilter === 'all' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">All</button>
+                            <button type="button" wire:click="setTypeFilter('image')" class="px-2.5 py-1 rounded-xs font-medium {{ $typeFilter === 'image' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">Images</button>
+                            <button type="button" wire:click="setTypeFilter('video')" class="px-2.5 py-1 rounded-xs font-medium {{ $typeFilter === 'video' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">Videos</button>
+                            <button type="button" wire:click="setTypeFilter('gif')" class="px-2.5 py-1 rounded-xs font-medium {{ $typeFilter === 'gif' ? 'bg-white dark:bg-zinc-700 text-indigo-600 dark:text-indigo-400 shadow-xs' : 'text-gray-500 hover:text-gray-800' }}">GIFs</button>
                         </div>
                     @endif
                 @endif
 
-                <flux:modal.close>
-                    <button type="button" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-zinc-800 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-                </flux:modal.close>
+                <button type="button" @click="open = false; $wire.closeModal()" class="p-1 rounded-[3px] text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -128,7 +143,7 @@
                 @if ($tab === 'all')
                     <!-- Active Folder Breadcrumb / Tag -->
                     @if ($currentFolder)
-                        <div class="mb-4 flex items-center justify-between bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 px-4 py-2 rounded-xl text-sm">
+                        <div class="mb-4 flex items-center justify-between bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/60 px-4 py-2 rounded-[4px] text-sm">
                             <div class="flex items-center space-x-2 text-indigo-900 dark:text-indigo-200">
                                 <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
@@ -151,7 +166,7 @@
                                 @endphp
                                 <div wire:key="media-item-{{ $item->id }}"
                                     wire:click="selectMedia({{ $item->id }})"
-                                    class="group relative rounded-xl overflow-hidden border-2 cursor-pointer transition-all duration-200 bg-gray-50 dark:bg-zinc-800/60 {{ $isSelected ? 'border-indigo-600 ring-2 ring-indigo-500/60 shadow-lg bg-indigo-50/15 dark:bg-indigo-950/25 scale-[0.98]' : 'border-gray-200 dark:border-zinc-700 hover:border-indigo-400 hover:shadow-sm' }}">
+                                    class="group relative rounded-[4px] overflow-hidden border-2 cursor-pointer transition-all duration-200 bg-gray-50 dark:bg-zinc-800/60 {{ $isSelected ? 'border-indigo-600 ring-2 ring-indigo-500/60 shadow-lg bg-indigo-50/15 dark:bg-indigo-950/25 scale-[0.98]' : 'border-gray-200 dark:border-zinc-700 hover:border-indigo-400 hover:shadow-sm' }}">
 
                                     <!-- Media Preview Thumbnail -->
                                     <div class="aspect-square w-full relative overflow-hidden bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -223,7 +238,7 @@
                             </div>
                             <h4 class="text-base font-semibold text-gray-700 dark:text-gray-300">No media found</h4>
                             <p class="text-sm text-gray-500 mt-1">Upload files or select a different filter.</p>
-                            <button type="button" wire:click="setTab('upload')" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm">
+                            <button type="button" wire:click="setTab('upload')" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-sm shadow-sm">
                                 Upload New Media
                             </button>
                         </div>
@@ -245,10 +260,10 @@
                                     wire:model="newFolderName"
                                     wire:keydown.enter="createFolder"
                                     placeholder="New folder name..."
-                                    class="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500" />
+                                    class="px-3 py-1.5 text-xs rounded-sm border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500" />
                                 <button type="button"
                                     wire:click="createFolder"
-                                    class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg transition shadow-sm">
+                                    class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-sm transition shadow-sm">
                                     + Add Folder
                                 </button>
                             </div>
@@ -259,9 +274,9 @@
                             @foreach ($folders as $folder)
                                 <div wire:key="folder-{{ $folder['name'] }}"
                                     wire:click="openFolder('{{ $folder['name'] }}')"
-                                    class="p-5 rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 hover:border-indigo-400 hover:shadow-md transition-all duration-200 cursor-pointer group text-left flex flex-col justify-between">
+                                    class="p-5 rounded-[4px] border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-800/80 hover:border-indigo-400 hover:shadow-md transition-all duration-200 cursor-pointer group text-left flex flex-col justify-between">
                                     <div class="flex items-start justify-between">
-                                        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <div class="w-12 h-12 rounded-[4px] bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                 <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
                                             </svg>
@@ -372,10 +387,10 @@
                         }
                     }" class="max-w-3xl mx-auto space-y-6">
                         <!-- Folder Selection for Upload -->
-                        <div class="bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 flex items-center justify-between">
+                        <div class="bg-gray-50 dark:bg-zinc-800/50 p-4 rounded-[4px] border border-gray-200 dark:border-zinc-800 flex items-center justify-between">
                             <label class="text-xs font-bold text-gray-700 dark:text-gray-300">Target Folder:</label>
                             <div class="flex items-center space-x-2">
-                                <select wire:model="uploadFolder" class="px-3 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500">
+                                <select wire:model="uploadFolder" class="px-3 py-1.5 text-xs rounded-sm border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500">
                                     @foreach ($folders as $f)
                                         <option value="{{ $f['name'] }}">{{ ucfirst($f['name']) }}</option>
                                     @endforeach
@@ -437,7 +452,7 @@
                         </div>
 
                         <!-- Real-time Upload Progress Bar -->
-                        <div x-show="isUploading" x-cloak class="w-full bg-white dark:bg-zinc-800/90 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/50 shadow-sm space-y-2">
+                        <div x-show="isUploading" x-cloak class="w-full bg-white dark:bg-zinc-800/90 p-4 rounded-[4px] border border-indigo-100 dark:border-indigo-900/50 shadow-sm space-y-2">
                             <div class="flex items-center justify-between text-xs font-semibold text-indigo-700 dark:text-indigo-300">
                                 <span class="flex items-center gap-2">
                                     <svg class="animate-spin h-4 w-4 text-indigo-600 shrink-0" fill="none" viewBox="0 0 24 24">
@@ -469,7 +484,7 @@
                                         wire:click="saveUploads"
                                         wire:loading.attr="disabled"
                                         wire:target="saveUploads"
-                                        class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-md transition-all inline-flex flex-row items-center justify-center gap-2 whitespace-nowrap">
+                                        class="shrink-0 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-bold rounded-[4px] shadow-md transition-all inline-flex flex-row items-center justify-center gap-2 whitespace-nowrap">
                                         
                                         <span wire:loading.remove wire:target="saveUploads" class="inline-flex flex-row items-center gap-1.5 whitespace-nowrap">
                                             <span>Start Processing &amp; Save</span>
@@ -487,7 +502,7 @@
                                 </div>
 
                                 <!-- Fast Speed Previewer List -->
-                                <div class="max-h-64 overflow-y-auto divide-y divide-gray-200 dark:divide-zinc-700/60 rounded-xl bg-white dark:bg-zinc-800/80 border border-gray-200 dark:border-zinc-700/50 p-2">
+                                <div class="max-h-64 overflow-y-auto divide-y divide-gray-200 dark:divide-zinc-700/60 rounded-[4px] bg-white dark:bg-zinc-800/80 border border-gray-200 dark:border-zinc-700/50 p-2">
                                     @foreach ($uploads as $index => $u)
                                         @php
                                             $mime = $u->getMimeType() ?: '';
@@ -495,10 +510,10 @@
                                             $isGif = str_contains($mime, 'gif') || str_ends_with(strtolower($u->getClientOriginalName()), '.gif');
                                             $isVid = str_starts_with($mime, 'video/');
                                         @endphp
-                                        <div wire:key="upload-file-{{ $index }}" class="py-2.5 px-2 flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-zinc-700/40 rounded-lg transition">
+                                        <div wire:key="upload-file-{{ $index }}" class="py-2.5 px-2 flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-zinc-700/40 rounded-sm transition">
                                             <!-- Fast Speed Preview Thumbnail -->
                                             <div class="flex items-center space-x-3 flex-1 min-w-0">
-                                                <div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-zinc-700 overflow-hidden flex items-center justify-center shrink-0 border border-gray-200 dark:border-zinc-600 shadow-2xs">
+                                                <div class="w-12 h-12 rounded-sm bg-gray-100 dark:bg-zinc-700 overflow-hidden flex items-center justify-center shrink-0 border border-gray-200 dark:border-zinc-600 shadow-2xs">
                                                     @if ($isImg || $isGif)
                                                         <img src="{{ $u->temporaryUrl() }}" 
                                                             alt="{{ $u->getClientOriginalName() }}"
@@ -519,7 +534,7 @@
                                                         <input type="text"
                                                             wire:model="uploadTitles.{{ $index }}"
                                                             placeholder="Enter file title..."
-                                                            class="w-full text-xs font-semibold py-1 px-2.5 rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs transition" />
+                                                            class="w-full text-xs font-semibold py-1 px-2.5 rounded-sm border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-2xs transition" />
                                                     </div>
                                                     <div class="flex items-center space-x-2 text-[10px] text-gray-400 mt-1 pl-0.5">
                                                         <span class="truncate max-w-[180px]" title="{{ $u->getClientOriginalName() }}">{{ $u->getClientOriginalName() }}</span>
@@ -537,7 +552,7 @@
                                             <button type="button"
                                                 wire:click="removeUpload({{ $index }})"
                                                 title="Remove file"
-                                                class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition shrink-0">
+                                                class="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-sm transition shrink-0">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                                 </svg>
@@ -549,7 +564,7 @@
                         @endif
 
                         @error('uploads.*')
-                            <div class="p-3 bg-red-50 text-red-700 text-xs rounded-xl font-medium">
+                            <div class="p-3 bg-red-50 text-red-700 text-xs rounded-[4px] font-medium">
                                 {{ $message }}
                             </div>
                         @enderror
@@ -581,7 +596,7 @@
                                     <button type="button"
                                         wire:click="restoreAllTrash"
                                         wire:confirm="Restore all soft-deleted files{{ $trashFolder ? ' in folder ' . $trashFolder : '' }}?"
-                                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-xs transition flex items-center space-x-1.5">
+                                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-[4px] shadow-xs transition flex items-center space-x-1.5">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                         <span>Restore All</span>
                                     </button>
@@ -589,7 +604,7 @@
                                     <button type="button"
                                         wire:click="emptyTrash"
                                         wire:confirm="PERMANENT DELETION: Are you sure you want to empty trash{{ $trashFolder ? ' for folder ' . $trashFolder : '' }}? This will permanently delete the files from server storage."
-                                        class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-xs transition flex items-center space-x-1.5">
+                                        class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-[4px] shadow-xs transition flex items-center space-x-1.5">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                         <span>Empty Trash</span>
                                     </button>
@@ -604,7 +619,7 @@
                                 
                                 <button type="button"
                                     wire:click="setTrashFolder(null)"
-                                    class="px-3 py-1 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 shrink-0 {{ is_null($trashFolder) ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">
+                                    class="px-3 py-1 rounded-[4px] text-xs font-semibold transition flex items-center space-x-1.5 shrink-0 {{ is_null($trashFolder) ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">
                                     <span>All Folders</span>
                                     <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ is_null($trashFolder) ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-zinc-700' }}">{{ $trashedCount }}</span>
                                 </button>
@@ -613,7 +628,7 @@
                                     <button type="button"
                                         wire:key="trash-folder-{{ $tf['name'] }}"
                                         wire:click="setTrashFolder('{{ $tf['name'] }}')"
-                                        class="px-3 py-1 rounded-xl text-xs font-semibold transition flex items-center space-x-1.5 shrink-0 {{ $trashFolder === $tf['name'] ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">
+                                        class="px-3 py-1 rounded-[4px] text-xs font-semibold transition flex items-center space-x-1.5 shrink-0 {{ $trashFolder === $tf['name'] ? 'bg-indigo-600 text-white shadow-xs' : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200' }}">
                                         <svg class="w-3.5 h-3.5 {{ $trashFolder === $tf['name'] ? 'text-white' : 'text-indigo-500' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
                                         <span class="capitalize">{{ $tf['name'] }}</span>
                                         <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $trashFolder === $tf['name'] ? 'bg-white/20 text-white' : 'bg-gray-200 dark:bg-zinc-700' }}">{{ $tf['count'] }}</span>
@@ -628,7 +643,7 @@
                                 @foreach ($trashedItems as $item)
                                     <div wire:key="trashed-item-{{ $item->id }}"
                                         wire:click="selectTrashMedia({{ $item->id }})"
-                                        class="group relative rounded-xl overflow-hidden border cursor-pointer transition-all duration-200 bg-gray-50 dark:bg-zinc-800/60 {{ $selectedTrashId === $item->id ? 'border-rose-500 ring-2 ring-rose-400 shadow-md' : 'border-gray-200 dark:border-zinc-700 hover:border-rose-300 hover:shadow-xs' }}">
+                                        class="group relative rounded-[4px] overflow-hidden border cursor-pointer transition-all duration-200 bg-gray-50 dark:bg-zinc-800/60 {{ $selectedTrashId === $item->id ? 'border-rose-500 ring-2 ring-rose-400 shadow-md' : 'border-gray-200 dark:border-zinc-700 hover:border-rose-300 hover:shadow-xs' }}">
                                         
                                         <!-- Thumbnail -->
                                         <div class="aspect-square w-full relative overflow-hidden bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -653,7 +668,7 @@
                                             </span>
 
                                             <!-- Folder Tag -->
-                                            <span class="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] font-medium px-1.5 py-0.5 rounded-md backdrop-blur-xs capitalize">
+                                            <span class="absolute bottom-2 left-2 bg-black/60 text-white text-[9px] font-medium px-1.5 py-0.5 rounded-xs backdrop-blur-xs capitalize">
                                                 📁 {{ $item->folder }}
                                             </span>
                                         </div>
@@ -673,7 +688,7 @@
                                                 <button type="button"
                                                     wire:click.stop="restoreMedia({{ $item->id }})"
                                                     title="Restore file"
-                                                    class="flex-1 py-1 px-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-lg transition flex items-center justify-center space-x-1">
+                                                    class="flex-1 py-1 px-1.5 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold rounded-sm transition flex items-center justify-center space-x-1">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                                                     <span>Restore</span>
                                                 </button>
@@ -682,7 +697,7 @@
                                                     wire:click.stop="forceDeleteMedia({{ $item->id }})"
                                                     wire:confirm="Are you sure you want to permanently delete '{{ $item->title }}'? This cannot be undone."
                                                     title="Delete forever from server"
-                                                    class="p-1 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition">
+                                                    class="p-1 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-sm transition">
                                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                                 </button>
                                             </div>
@@ -705,7 +720,7 @@
                                 </div>
                                 <h4 class="text-base font-semibold text-gray-700 dark:text-gray-300">Trash is Empty</h4>
                                 <p class="text-xs text-gray-500 mt-1">There are no soft-deleted media files in this folder.</p>
-                                <button type="button" wire:click="setTab('all')" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-sm">
+                                <button type="button" wire:click="setTab('all')" class="mt-4 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-sm shadow-sm">
                                     Back to All Media
                                 </button>
                             </div>
@@ -720,7 +735,7 @@
                     <div class="space-y-4">
                         @if ($multiple)
                             <!-- Multi-select Summary Banner -->
-                            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 rounded-xl space-y-1.5">
+                            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800/80 rounded-[4px] space-y-1.5">
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs font-bold text-indigo-950 dark:text-indigo-200 flex items-center gap-1.5">
                                         <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -749,7 +764,7 @@
 
                         @if ($selectedMedia)
                             <!-- Media Preview -->
-                            <div class="aspect-video w-full rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-zinc-700 flex items-center justify-center">
+                            <div class="aspect-video w-full rounded-[4px] overflow-hidden bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-zinc-700 flex items-center justify-center">
                                 @if ($selectedMedia->type === 'image')
                                     <img src="{{ asset('storage/media/small/' . $selectedMedia->path) }}"
                                         alt="{{ $selectedMedia->title }}"
@@ -819,7 +834,7 @@
                             <button type="button"
                                 wire:click="confirmSelection"
                                 @if ($multiple ? empty($selectedMediaIds) : !$selectedMediaId) disabled @endif
-                                class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer">
+                                class="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs rounded-[4px] shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
                                 </svg>
@@ -835,7 +850,7 @@
                             <button type="button"
                                 wire:click="deleteMedia({{ $selectedMedia->id }})"
                                 wire:confirm="Move this media to Trash?"
-                                class="w-full py-2 px-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-lg transition text-center flex items-center justify-center space-x-1.5 cursor-pointer">
+                                class="w-full py-2 px-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-sm transition text-center flex items-center justify-center space-x-1.5 cursor-pointer">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 <span>Move to Trash</span>
                             </button>
@@ -859,7 +874,7 @@
                         </div>
 
                         <!-- Media Preview -->
-                        <div class="aspect-video w-full rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-zinc-700 flex items-center justify-center">
+                        <div class="aspect-video w-full rounded-[4px] overflow-hidden bg-black/5 dark:bg-white/5 border border-gray-200 dark:border-zinc-700 flex items-center justify-center">
                             @if ($selectedTrashMedia->type === 'image')
                                 <img src="{{ asset('storage/media/small/' . $selectedTrashMedia->path) }}"
                                     alt="{{ $selectedTrashMedia->title }}"
@@ -904,7 +919,7 @@
                     <div class="mt-6 pt-4 border-t border-gray-200 dark:border-zinc-800 space-y-2">
                         <button type="button"
                             wire:click="restoreMedia({{ $selectedTrashMedia->id }})"
-                            class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center space-x-1.5">
+                            class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-[4px] shadow-md transition flex items-center justify-center space-x-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                             <span>Restore to Active Media</span>
                         </button>
@@ -912,7 +927,7 @@
                         <button type="button"
                             wire:click="forceDeleteMedia({{ $selectedTrashMedia->id }})"
                             wire:confirm="Are you sure you want to permanently delete '{{ $selectedTrashMedia->title }}'? The files will be permanently erased from storage."
-                            class="w-full py-2 px-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-lg transition text-center">
+                            class="w-full py-2 px-3 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-semibold rounded-sm transition text-center">
                             Delete Forever
                         </button>
                     </div>
@@ -921,5 +936,6 @@
         </div>
         </div>
         @endif
-    </flux:modal>
+        </div>
+    </div>
 </div>
