@@ -157,6 +157,18 @@ class Index extends Component
         $this->selectAll = false;
     }
 
+    public function getActiveFiltersCountProperty(): int
+    {
+        $count = 0;
+        if (!empty(trim($this->search))) $count++;
+        if (!empty($this->selectedCategory)) $count++;
+        if (!empty($this->selectedBrand)) $count++;
+        if (!empty($this->selectedStock)) $count++;
+        if ($this->selectedStatus !== '') $count++;
+        if (!empty($this->selectedType)) $count++;
+        return $count;
+    }
+
     public function toggleExpand(int $productId): void
     {
         if (in_array($productId, $this->expandedProducts)) {

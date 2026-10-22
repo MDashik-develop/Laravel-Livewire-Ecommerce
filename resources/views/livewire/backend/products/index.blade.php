@@ -72,81 +72,31 @@
         </div>
 
         <!-- Filter Controls & Actions Bar (Clean, Low Radius, Dynamic Theme) -->
-        <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-sm p-3.5 shadow-2xs space-y-3">
-            <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
-                <!-- Search Input with icon -->
-                <div class="relative flex-1 min-w-[240px]">
+        <div class="bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-sm p-3 shadow-2xs space-y-2.5">
+            <!-- Row 1: Search & Right Actions (Columns + Reset) -->
+            <div class="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center justify-between">
+                <!-- Search Input with icon and clear button -->
+                <div class="relative flex-1 min-w-[260px]">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                     <input wire:model.live.debounce.300ms="search" 
                         type="text" 
-                        placeholder="Search by product name, slug, barcode, or SKU..." 
-                        class="w-full pl-9 pr-8 py-1.5 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-800 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30 transition">
-                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
+                        placeholder="Search products by name, slug, barcode, or SKU..." 
+                        class="w-full pl-9 pr-8 py-2 text-xs bg-slate-50/80 dark:bg-zinc-800/70 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-800 dark:text-zinc-100 placeholder-slate-400 focus:outline-none focus:bg-white dark:focus:bg-zinc-900 focus:border-brand-500 focus:ring-1 focus:ring-brand-500/20 transition">
                     @if (!empty($search))
-                        <button type="button" wire:click="$set('search', '')" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200">
-                            <i data-lucide="x" class="w-3 h-3"></i>
+                        <button type="button" wire:click="$set('search', '')" title="Clear search" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 p-0.5">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
                         </button>
                     @endif
                 </div>
 
-                <!-- Secondary Filters Grid -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <!-- Category Filter -->
-                    <select wire:model.live="selectedCategory" 
-                        class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:border-brand-500 cursor-pointer">
-                        <option value="">All Categories</option>
-                        @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <!-- Brand Filter -->
-                    <select wire:model.live="selectedBrand" 
-                        class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:border-brand-500 cursor-pointer">
-                        <option value="">All Brands</option>
-                        @foreach ($brands as $b)
-                            <option value="{{ $b->id }}">{{ $b->name }}</option>
-                        @endforeach
-                    </select>
-
-                    <!-- Stock Status Filter -->
-                    <select wire:model.live="selectedStock" 
-                        class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:border-brand-500 cursor-pointer">
-                        <option value="">All Stock</option>
-                        <option value="in_stock">In Stock (>5)</option>
-                        <option value="low_stock">Low Stock (1-5)</option>
-                        <option value="out_of_stock">Out of Stock (0)</option>
-                    </select>
-
-                    <!-- Status Filter -->
-                    <select wire:model.live="selectedStatus" 
-                        class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:border-brand-500 cursor-pointer">
-                        <option value="">All Status</option>
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
-                    </select>
-
-                    <!-- Type Filter -->
-                    <select wire:model.live="selectedType" 
-                        class="px-2.5 py-1.5 text-xs bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 rounded-xs text-slate-700 dark:text-zinc-200 focus:outline-none focus:border-brand-500 cursor-pointer">
-                        <option value="">All Types</option>
-                        <option value="single">Single Item</option>
-                        <option value="variable">Variable Item</option>
-                    </select>
-
-                    @if ($search || $selectedCategory || $selectedBrand || $selectedStock || $selectedStatus !== '' || $selectedType)
-                        <button type="button" wire:click="resetFilters" title="Reset all filters"
-                            class="px-2.5 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-xs transition cursor-pointer flex items-center gap-1">
-                            <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
-                            <span>Reset</span>
-                        </button>
-                    @endif
-
+                <!-- Right Action Cluster: Columns & Reset -->
+                <div class="flex items-center gap-2 shrink-0">
                     <!-- ============================================== -->
                     <!-- REDESIGNED COLUMNS DROPDOWN WITH ICON & LABELS -->
                     <!-- ============================================== -->
                     <div x-data="{ open: false }" @click.outside="open = false" class="relative">
                         <button type="button" @click="open = !open; $nextTick(() => { if (window.lucide) window.lucide.createIcons(); });" 
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xs border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700 transition cursor-pointer shadow-2xs">
+                            class="h-9 inline-flex items-center gap-1.5 px-3 text-xs font-semibold rounded-xs border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 hover:bg-slate-50 dark:hover:bg-zinc-700 transition cursor-pointer shadow-2xs">
                             <i data-lucide="columns-3" class="w-3.5 h-3.5 text-brand-600"></i>
                             <span>Columns</span>
                             <span class="text-[10px] font-mono bg-brand-50 dark:bg-brand-950 text-brand-700 dark:text-brand-300 font-bold px-1.5 py-0.2 rounded-xs border border-brand-200 dark:border-brand-800">
@@ -186,7 +136,7 @@
                             </div>
 
                             <!-- List of Columns with Custom Checkboxes & Icons -->
-                            <div class="p-1.5 space-y-0.5 max-h-72 overflow-y-auto">
+                            <div class="p-1.5 space-y-0.5 max-h-72 overflow-y-auto text-left">
                                 @foreach ($columns as $col)
                                     @php 
                                         $isSelected = in_array($col['key'], $visibleColumns);
@@ -197,29 +147,124 @@
                                         
                                         <div class="flex items-center gap-2.5">
                                             <!-- Reliable Clean SVG Checkbox -->
-                                            <span class="w-4 h-4 rounded-xs flex items-center justify-center border transition-colors shrink-0 {{ $isSelected ? 'bg-brand-600 border-brand-600 text-white' : 'border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-800' }}">
+                                            <span class="w-4 h-4 rounded-xs flex items-center border transition-colors shrink-0 {{ $isSelected ? 'bg-brand-600 border-brand-600 text-white' : 'border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-800' }}">
                                                 @if ($isSelected)
-                                                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                                    <svg class="w-2.5 h-2.5 stroke-current" viewBox="0 0 12 12" fill="none">
+                                                        <path d="M2.5 6L5 8.5L9.5 3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                     </svg>
                                                 @endif
                                             </span>
-
-                                            <!-- Distinct Column Icon -->
-                                            <i data-lucide="{{ $col['icon'] ?? 'check' }}" class="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-colors"></i>
-
-                                            <!-- Label -->
-                                            <span>{{ $col['label'] }}</span>
+                                            
+                                            <!-- Column Name & Icon -->
+                                            <span class="flex items-center gap-1.5">
+                                                <i data-lucide="{{ $col['icon'] ?? 'circle' }}" class="w-3.5 h-3.5 {{ $isSelected ? 'text-brand-600' : 'text-slate-400' }}"></i>
+                                                <span>{{ $col['label'] }}</span>
+                                            </span>
                                         </div>
 
                                         @if ($isSelected)
-                                            <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+                                            <span class="text-[10px] text-brand-600 dark:text-brand-400 font-mono">shown</span>
                                         @endif
                                     </button>
                                 @endforeach
                             </div>
                         </div>
                     </div>
+
+                    <!-- Reset All Filters Button -->
+                    @if ($this->activeFiltersCount > 0)
+                        <button type="button" wire:click="resetFilters" title="Clear all active filters and search"
+                            class="h-9 px-3 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-xs transition cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                            <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+                            <span>Reset ({{ $this->activeFiltersCount }})</span>
+                        </button>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Row 2: Secondary Filters Strip (With Icons & Active Indicators) -->
+            <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-zinc-800/80">
+                <div class="flex items-center gap-1.5 text-slate-400 dark:text-zinc-500 text-[11px] font-semibold uppercase tracking-wider pr-1">
+                    <i data-lucide="filter" class="w-3 h-3 text-slate-400"></i>
+                    <span>Filters:</span>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="relative inline-flex items-center">
+                    <i data-lucide="folder-tree" class="w-3.5 h-3.5 {{ $selectedCategory ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400' }} absolute left-2.5 pointer-events-none"></i>
+                    <select wire:model.live="selectedCategory" 
+                        class="h-8 pl-8 pr-7 text-xs rounded-xs border appearance-none cursor-pointer transition focus:outline-none focus:ring-1 focus:ring-brand-500/30
+                        {{ $selectedCategory 
+                            ? 'bg-brand-50/70 dark:bg-brand-950/40 border-brand-500/50 text-brand-700 dark:text-brand-300 font-semibold' 
+                            : 'bg-slate-50/70 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300' }}">
+                        <option value="">All Categories</option>
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                    <i data-lucide="chevron-down" class="w-3 h-3 {{ $selectedCategory ? 'text-brand-500' : 'text-slate-400' }} absolute right-2 pointer-events-none"></i>
+                </div>
+
+                <!-- Brand Filter -->
+                <div class="relative inline-flex items-center">
+                    <i data-lucide="tag" class="w-3.5 h-3.5 {{ $selectedBrand ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400' }} absolute left-2.5 pointer-events-none"></i>
+                    <select wire:model.live="selectedBrand" 
+                        class="h-8 pl-8 pr-7 text-xs rounded-xs border appearance-none cursor-pointer transition focus:outline-none focus:ring-1 focus:ring-brand-500/30
+                        {{ $selectedBrand 
+                            ? 'bg-brand-50/70 dark:bg-brand-950/40 border-brand-500/50 text-brand-700 dark:text-brand-300 font-semibold' 
+                            : 'bg-slate-50/70 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300' }}">
+                        <option value="">All Brands</option>
+                        @foreach ($brands as $b)
+                            <option value="{{ $b->id }}">{{ $b->name }}</option>
+                        @endforeach
+                    </select>
+                    <i data-lucide="chevron-down" class="w-3 h-3 {{ $selectedBrand ? 'text-brand-500' : 'text-slate-400' }} absolute right-2 pointer-events-none"></i>
+                </div>
+
+                <!-- Stock Status Filter -->
+                <div class="relative inline-flex items-center">
+                    <i data-lucide="boxes" class="w-3.5 h-3.5 {{ $selectedStock ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400' }} absolute left-2.5 pointer-events-none"></i>
+                    <select wire:model.live="selectedStock" 
+                        class="h-8 pl-8 pr-7 text-xs rounded-xs border appearance-none cursor-pointer transition focus:outline-none focus:ring-1 focus:ring-brand-500/30
+                        {{ $selectedStock 
+                            ? 'bg-brand-50/70 dark:bg-brand-950/40 border-brand-500/50 text-brand-700 dark:text-brand-300 font-semibold' 
+                            : 'bg-slate-50/70 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300' }}">
+                        <option value="">All Stock</option>
+                        <option value="in_stock">In Stock (>5)</option>
+                        <option value="low_stock">Low Stock (1-5)</option>
+                        <option value="out_of_stock">Out of Stock (0)</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-3 h-3 {{ $selectedStock ? 'text-brand-500' : 'text-slate-400' }} absolute right-2 pointer-events-none"></i>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="relative inline-flex items-center">
+                    <i data-lucide="toggle-right" class="w-3.5 h-3.5 {{ $selectedStatus !== '' ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400' }} absolute left-2.5 pointer-events-none"></i>
+                    <select wire:model.live="selectedStatus" 
+                        class="h-8 pl-8 pr-7 text-xs rounded-xs border appearance-none cursor-pointer transition focus:outline-none focus:ring-1 focus:ring-brand-500/30
+                        {{ $selectedStatus !== '' 
+                            ? 'bg-brand-50/70 dark:bg-brand-950/40 border-brand-500/50 text-brand-700 dark:text-brand-300 font-semibold' 
+                            : 'bg-slate-50/70 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300' }}">
+                        <option value="">All Status</option>
+                        <option value="1">Active</option>
+                        <option value="0">Inactive</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-3 h-3 {{ $selectedStatus !== '' ? 'text-brand-500' : 'text-slate-400' }} absolute right-2 pointer-events-none"></i>
+                </div>
+
+                <!-- Type Filter -->
+                <div class="relative inline-flex items-center">
+                    <i data-lucide="layers" class="w-3.5 h-3.5 {{ $selectedType ? 'text-brand-600 dark:text-brand-400' : 'text-slate-400' }} absolute left-2.5 pointer-events-none"></i>
+                    <select wire:model.live="selectedType" 
+                        class="h-8 pl-8 pr-7 text-xs rounded-xs border appearance-none cursor-pointer transition focus:outline-none focus:ring-1 focus:ring-brand-500/30
+                        {{ $selectedType 
+                            ? 'bg-brand-50/70 dark:bg-brand-950/40 border-brand-500/50 text-brand-700 dark:text-brand-300 font-semibold' 
+                            : 'bg-slate-50/70 dark:bg-zinc-800/70 border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-200 hover:bg-white dark:hover:bg-zinc-800 hover:border-slate-300' }}">
+                        <option value="">All Types</option>
+                        <option value="single">Single Item</option>
+                        <option value="variable">Variable Item</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-3 h-3 {{ $selectedType ? 'text-brand-500' : 'text-slate-400' }} absolute right-2 pointer-events-none"></i>
                 </div>
             </div>
         </div>
